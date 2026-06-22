@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+
+# builds and generated output
+dist/
+.output/
+.vinxi/
+.nitro/
+.tanstack/tmp/
+/coverage/
+
+# local env and secrets
+.env
+.env.*
+!.env.example
+.amplify/
+amplify_outputs.json
+amplifyconfiguration.json
+
+# logs and caches
+*.log
+*.tsbuildinfo
+.eslintcache
+.prettiercache
+node_modules/.vite/
+node_modules/.vite-temp/
+tmp/
+
+# Published/S3 inputs should not live at the repository root.
+/artifacts/
+/icons/
+/resume/
+/public/artifacts
+/public/assets/
+/public/social/
+
+# OS/editor noise
+.DS_Store
+
+# legacy Bun lockfile name; keep bun.lock tracked
+bun.lockb

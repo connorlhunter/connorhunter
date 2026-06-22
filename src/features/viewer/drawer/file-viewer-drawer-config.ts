@@ -1,0 +1,12 @@
+export const drawerDesktopCollapsedHeight = 0;
+export const drawerLegacyMobileCollapsedHeight = 40;
+export const drawerMobileCollapsedHeight = drawerDesktopCollapsedHeight;
+export const drawerExpandedMinHeight = 120;
+export const drawerMaxViewportRatio = 0.82;
+export const drawerMagnetDistance = 28;
+export const drawerMagnetReleaseDistance = 44;
+export const drawerMobileMediaQuery = "(max-width: 860px)";
+export const dragThreshold = 3;
+export const mobileDragThreshold = 8;
+export const anchorCollapseThreshold = -24;
+export const drawerSectionSelector = "[data-file-viewer-drawer-section]";

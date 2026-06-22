@@ -1,0 +1,125 @@
+import { describe, expect, test } from "bun:test";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { ResumePage } from "@/features/resume/resume-page";
+import { mockContent } from "../../mock-content";
+
+describe("ResumePage", () => {
+  test("renders the configured PDF with viewer actions", () => {
+    render(<ResumePage content={mockContent} />);
+
+    const navigation = screen.getByRole("navigation", { name: "Resume navigation" });
+
+    expect(within(navigation).getByRole("link", { name: "Contact" }).getAttribute("href")).toBe(
+      "/contact",
+    );
+    expect(screen.getByRole("heading", { level: 1, name: "Resume" })).toBeTruthy();
+    expect(document.querySelector(".file-viewer-icon")).toBeTruthy();
+    expect(screen.queryByText("PDF Viewer")).toBeNull();
+    expect(screen.queryByText(/view the current pdf/i)).toBeNull();
+    expect(screen.getByTitle("Example Person resume PDF").getAttribute("src")).toBe(
+      `${mockContent.resume.href}#view=FitH`,
+    );
+    expect(screen.getByRole("link", { name: /open/i }).getAttribute("href")).toBe(
+      mockContent.resume.href,
+    );
+    expect(screen.getByRole("link", { name: /download/i }).getAttribute("href")).toBe(
+      mockContent.resume.href,
+    );
+    expect(screen.getByRole("link", { name: /email/i }).getAttribute("href")).toContain(
+      "mailto:example@example.com",
+    );
+    expect(screen.getByRole("button", { name: /full screen/i })).toBeTruthy();
+
+    cleanup();
+  });
+
+  test("uses an email query separator when the contact link already has params", () => {
+    render(
+      <ResumePage
+        content={{
+          ...mockContent,
+          contacts: [
+            {
+              kind: "email",
+              label: "example@example.com",
+              href: "mailto:example@example.com?cc=review@example.com",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /email/i }).getAttribute("href")).toContain(
+      "review@example.com&subject=",
+    );
+
+    cleanup();
+  });
+
+  test("toggles the viewer full screen state", async () => {
+    let fullscreenElement: Element | null = null;
+    const fullscreenDescriptor = Object.getOwnPropertyDescriptor(document, "fullscreenElement");
+    const exitFullscreenDescriptor = Object.getOwnPropertyDescriptor(document, "exitFullscreen");
+    const requestFullscreenDescriptor = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      "requestFullscreen",
+    );
+
+    Object.defineProperty(document, "fullscreenElement", {
+      configurable: true,
+      get: () => fullscreenElement,
+    });
+    Object.defineProperty(document, "exitFullscreen", {
+      configurable: true,
+      value: () => {
+        fullscreenElement = null;
+        document.dispatchEvent(new window.Event("fullscreenchange"));
+        return Promise.resolve();
+      },
+    });
+    Object.defineProperty(HTMLElement.prototype, "requestFullscreen", {
+      configurable: true,
+      value(this: Element) {
+        fullscreenElement = this;
+        document.dispatchEvent(new window.Event("fullscreenchange"));
+        return Promise.resolve();
+      },
+    });
+
+    try {
+      render(<ResumePage content={mockContent} />);
+
+      fireEvent.click(screen.getByRole("button", { name: /full screen/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /exit/i }).getAttribute("aria-pressed")).toBe(
+          "true",
+        );
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: /exit/i }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /full screen/i }).getAttribute("aria-pressed"),
+        ).toBe("false");
+      });
+    } finally {
+      cleanup();
+
+      if (fullscreenDescriptor) {
+        Object.defineProperty(document, "fullscreenElement", fullscreenDescriptor);
+      }
+      if (exitFullscreenDescriptor) {
+        Object.defineProperty(document, "exitFullscreen", exitFullscreenDescriptor);
+      }
+      if (requestFullscreenDescriptor) {
+        Object.defineProperty(
+          HTMLElement.prototype,
+          "requestFullscreen",
+          requestFullscreenDescriptor,
+        );
+      }
+    }
+  });
+});
