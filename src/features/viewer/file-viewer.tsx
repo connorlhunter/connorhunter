@@ -1,4 +1,5 @@
 import { useRef, type ReactNode } from "react";
+import { postThemeSchemeToFrame, useOptionalTheme } from "@/features/theme/theme-provider";
 import { FileViewerActions, FileViewerHeading } from "./file-viewer-toolbar";
 import type { FileViewerAction } from "./file-viewer-types";
 import { useFullscreenViewer } from "./hooks/use-fullscreen-viewer";
@@ -42,6 +43,7 @@ export function FileViewer({
   title,
 }: FileViewerProps): ReactNode {
   const viewerRef = useRef<HTMLDivElement>(null);
+  const theme = useOptionalTheme();
   const { fullscreen, toggleFullscreen } = useFullscreenViewer(viewerRef);
   const resolvedOpenHref = openHref ?? sourceHref;
   const shellClassName = sourceHref
@@ -64,6 +66,14 @@ export function FileViewer({
     />
   );
 
+  function handleFrameLoad(frame: HTMLIFrameElement): void {
+    if (theme) {
+      postThemeSchemeToFrame(frame, theme.scheme);
+    }
+
+    onFrameLoad?.(frame);
+  }
+
   return (
     <section aria-label={ariaLabel} className={shellClassName} ref={viewerRef}>
       {renderHeader ? (
@@ -80,7 +90,7 @@ export function FileViewer({
           <iframe
             className="file-viewer-frame"
             key={sourceHref}
-            onLoad={(event) => onFrameLoad?.(event.currentTarget)}
+            onLoad={(event) => handleFrameLoad(event.currentTarget)}
             src={sourceHref}
             title={iframeTitle ?? title}
           />

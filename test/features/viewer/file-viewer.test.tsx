@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { ThemeProvider } from "@/features/theme/theme-provider";
+import { themeMessageType, themeStorageKey } from "@/features/theme/theme";
 import { FileViewer, navigateInPlace } from "@/features/viewer/file-viewer";
 
 describe("FileViewer", () => {
@@ -73,6 +75,47 @@ describe("FileViewer", () => {
     } finally {
       window.history.pushState = originalPushState;
       window.history.replaceState(window.history.state, "", originalHref);
+    }
+  });
+
+  test("syncs the active theme to an iframe when it loads", async () => {
+    const postedMessages: Array<ReadonlyArray<unknown>> = [];
+
+    window.localStorage.setItem(themeStorageKey, "harbor");
+    document.documentElement.dataset.scheme = "atlas";
+
+    try {
+      render(
+        <ThemeProvider>
+          <FileViewer
+            ariaLabel="Example viewer"
+            icon={<span aria-hidden="true">F</span>}
+            sourceHref="/viewer.html"
+            title="Example file"
+          />
+        </ThemeProvider>,
+      );
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("harbor");
+      });
+
+      const frame = screen.getByTitle("Example file");
+      Object.defineProperty(frame, "contentWindow", {
+        configurable: true,
+        value: {
+          postMessage: (...args: Array<unknown>) => {
+            postedMessages.push(args);
+          },
+        },
+      });
+
+      fireEvent.load(frame);
+
+      expect(postedMessages).toContainEqual([{ scheme: "harbor", type: themeMessageType }, "*"]);
+    } finally {
+      cleanup();
+      window.localStorage.removeItem(themeStorageKey);
     }
   });
 });

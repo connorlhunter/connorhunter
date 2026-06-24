@@ -175,6 +175,41 @@ describe("ThemeSwitcher", () => {
     }
   });
 
+  test("broadcasts the initial saved theme to embedded artifact viewers", async () => {
+    clearSavedThemes();
+    window.localStorage.setItem(themeStorageKey, "rose");
+    document.documentElement.dataset.scheme = "atlas";
+    const postedMessages: Array<ReadonlyArray<unknown>> = [];
+    const iframe = document.createElement("iframe");
+
+    Object.defineProperty(iframe, "contentWindow", {
+      configurable: true,
+      value: {
+        postMessage: (...args: Array<unknown>) => {
+          postedMessages.push(args);
+        },
+      },
+    });
+    document.body.append(iframe);
+
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("rose");
+      });
+      expect(postedMessages).toContainEqual([{ scheme: "rose", type: themeMessageType }, "*"]);
+    } finally {
+      iframe.remove();
+      cleanup();
+      clearSavedThemes();
+    }
+  });
+
   test("applies theme messages from embedded artifact viewers", async () => {
     clearSavedThemes();
     document.documentElement.dataset.scheme = "atlas";
