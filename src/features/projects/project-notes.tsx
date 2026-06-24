@@ -1,5 +1,3 @@
-"use client";
-
 import { ChevronDown } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { TypographyEyebrow, TypographyMuted } from "@/components/ui/typography";

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import { installFileViewerDrawerDrag } from "../drawer/file-viewer-drawer-events";
 import { restoreDrawerState } from "../drawer/file-viewer-drawer-geometry";

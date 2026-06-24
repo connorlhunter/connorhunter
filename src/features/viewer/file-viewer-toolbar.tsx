@@ -1,5 +1,3 @@
-"use client";
-
 import { Download, ExternalLink, Mail, Maximize2, Minimize2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";

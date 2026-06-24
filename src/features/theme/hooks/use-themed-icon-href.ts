@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import type { ThemeScheme } from "../theme";
 import { themedIconHref } from "../theme-icon-loader";

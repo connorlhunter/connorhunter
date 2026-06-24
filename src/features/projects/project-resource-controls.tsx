@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { TypographyEyebrow, TypographyH1, TypographyP } from "@/components/ui/typography";
 import type { ArtifactItem, Project } from "@/content/schema";
