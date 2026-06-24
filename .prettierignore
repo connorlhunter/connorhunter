@@ -4,3 +4,4 @@ dist
 coverage
 routeTree.gen.ts
 bun.lock
+public/pdf.worker.mjs

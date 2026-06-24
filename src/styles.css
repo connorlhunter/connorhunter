@@ -721,6 +721,69 @@ footer {
   font-weight: 700;
 }
 
+.resume-pdf-preview {
+  position: relative;
+  display: grid;
+  min-height: min(74vh, 54rem);
+  place-items: start center;
+  overflow: auto;
+  background: color-mix(in srgb, var(--bg) 68%, var(--panel));
+  padding: clamp(0.85rem, 2vw, 1.35rem);
+}
+
+.resume-pdf-canvas {
+  display: block;
+  width: min(100%, 58rem);
+  height: auto;
+  border-radius: var(--radius-sm);
+  background: white;
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  transition: opacity var(--motion-fast);
+}
+
+.resume-pdf-canvas[data-loaded="true"] {
+  opacity: 1;
+}
+
+.resume-pdf-status {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  display: inline-flex;
+  max-width: calc(100% - 2rem);
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--panel) 94%, var(--accent-soft));
+  color: var(--muted);
+  padding: 0.55rem 0.75rem;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.resume-pdf-status-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+.resume-pdf-status:not(.resume-pdf-status--error) .resume-pdf-status-icon {
+  animation: resume-pdf-status-spin 900ms linear infinite;
+}
+
+.resume-pdf-status--error {
+  color: var(--text);
+}
+
+@keyframes resume-pdf-status-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .file-viewer-frame-wrap {
   position: relative;
   z-index: 1;
@@ -1379,6 +1442,11 @@ footer {
   .file-viewer-frame-wrap {
     height: 34rem;
     min-height: 0;
+  }
+
+  .resume-pdf-preview {
+    min-height: 34rem;
+    padding: 0.75rem;
   }
 
   .project-detail-panel .file-viewer-frame-wrap:not(.file-viewer-content-wrap) {
