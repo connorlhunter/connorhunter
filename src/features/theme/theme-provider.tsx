@@ -42,18 +42,27 @@ function messageScheme(value: unknown): ThemeScheme | null {
 }
 
 /**
+ * @param frame - Embedded artifact viewer frame.
+ * @param scheme - Theme scheme to send.
+ * @returns Nothing; inaccessible or unloading frames are ignored.
+ */
+export function postThemeSchemeToFrame(frame: HTMLIFrameElement, scheme: ThemeScheme): void {
+  const message = { scheme: scheme.id, type: themeMessageType };
+
+  try {
+    frame.contentWindow?.postMessage(message, "*");
+  } catch {
+    // Cross-origin or unloading frames can reject messages; the saved theme still applies on reload.
+  }
+}
+
+/**
  * @param scheme - Theme scheme to send to embedded artifact viewers.
  * @returns Nothing; inaccessible frames are ignored.
  */
 function broadcastScheme(scheme: ThemeScheme): void {
-  const message = { scheme: scheme.id, type: themeMessageType };
-
   for (const frame of document.querySelectorAll("iframe")) {
-    try {
-      frame.contentWindow?.postMessage(message, "*");
-    } catch {
-      // Cross-origin or unloading frames can reject messages; the saved theme still applies on reload.
-    }
+    postThemeSchemeToFrame(frame, scheme);
   }
 }
 
@@ -76,6 +85,7 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): 
     const initialScheme = savedThemeScheme() ?? preferredThemeScheme();
     setScheme(initialScheme);
     applyScheme(initialScheme);
+    broadcastScheme(initialScheme);
   }, []);
 
   useEffect(() => {
