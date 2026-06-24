@@ -1,10 +1,26 @@
 import { describe, expect, test } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useRef } from "react";
 import { publicConfig } from "@/config/public-env";
+import { createDrawerResizeController } from "@/features/viewer/drawer/file-viewer-drawer-resize";
+import {
+  readDrawerStateSnapshot,
+  writeDrawerStateSnapshot,
+} from "@/features/viewer/drawer/file-viewer-drawer-state";
 import {
   clampFileViewerDrawerHeight,
   FileViewerDrawer,
 } from "@/features/viewer/file-viewer-drawer";
+import { useFileViewerDrawer } from "@/features/viewer/hooks/use-file-viewer-drawer";
+
+function MissingDrawerRefs(): null {
+  const drawerRef = useRef<HTMLDivElement | null>(null);
+  const handleRef = useRef<HTMLButtonElement | null>(null);
+
+  useFileViewerDrawer({ drawerRef, handleRef });
+
+  return null;
+}
 
 function drawerStateStorageKey(stateKey: string): string {
   return `${publicConfig.appStorageNamespace}.file-viewer-drawer.${stateKey}`;
@@ -142,6 +158,125 @@ describe("FileViewerDrawer", () => {
       cleanup();
       restoreAnimationFrame();
     }
+  });
+
+  test("ignores pointer events before dragging and suppresses the click after a drag", () => {
+    const restoreAnimationFrame = mockAnimationFrame();
+
+    try {
+      render(
+        <FileViewerDrawer ariaLabel="Viewer controls">
+          <span>Project</span>
+        </FileViewerDrawer>,
+      );
+
+      const drawer = screen.getByRole("group", { name: "Viewer controls" });
+      const handle = screen.getByRole("button", { name: "Collapse viewer drawer" });
+      setMeasuredHeight(drawer, 180);
+
+      expect(fireEvent.pointerMove(handle, { clientY: 180, pointerId: 1 })).toBe(true);
+      expect(fireEvent.pointerUp(handle, { clientY: 180, pointerId: 1 })).toBe(true);
+
+      window.dispatchEvent(new window.Event("resize"));
+
+      fireEvent.pointerDown(handle, { clientY: 120, pointerId: 1 });
+      fireEvent.pointerMove(handle, { clientY: 220, pointerId: 1 });
+      fireEvent.pointerUp(handle, { clientY: 220, pointerId: 1 });
+
+      expect(fireEvent.click(handle)).toBe(false);
+      expect(drawer.classList.contains("file-viewer-drawer--collapsed")).toBe(false);
+    } finally {
+      cleanup();
+      restoreAnimationFrame();
+    }
+  });
+
+  test("cancels pending drawer resize frames and coalesces requests", () => {
+    const requestDescriptor = Object.getOwnPropertyDescriptor(window, "requestAnimationFrame");
+    const cancelDescriptor = Object.getOwnPropertyDescriptor(window, "cancelAnimationFrame");
+    const drawer = document.createElement("div");
+    const handle = document.createElement("button");
+    let cancelledFrame = 0;
+    let scheduledCallback: FrameRequestCallback | undefined;
+
+    setMeasuredHeight(drawer, 180);
+    document.body.append(drawer, handle);
+    Object.defineProperty(window, "requestAnimationFrame", {
+      configurable: true,
+      value: (callback: FrameRequestCallback) => {
+        scheduledCallback = callback;
+        return 42;
+      },
+    });
+    Object.defineProperty(window, "cancelAnimationFrame", {
+      configurable: true,
+      value: (frame: number) => {
+        cancelledFrame = frame;
+      },
+    });
+
+    try {
+      const resize = createDrawerResizeController({ drawer, handle });
+
+      resize.request(120, false);
+      resize.request(140, false);
+
+      expect(resize.snapshot()).toEqual({ allowAnchorCollapse: false, height: 140 });
+
+      resize.cancel();
+
+      expect(cancelledFrame).toBe(42);
+      expect(resize.snapshot()).toEqual({ allowAnchorCollapse: false, height: null });
+
+      resize.request(150, false);
+      scheduledCallback?.(0);
+
+      expect(drawer.style.height).toBe("150px");
+    } finally {
+      drawer.remove();
+      handle.remove();
+      if (requestDescriptor) {
+        Object.defineProperty(window, "requestAnimationFrame", requestDescriptor);
+      }
+      if (cancelDescriptor) {
+        Object.defineProperty(window, "cancelAnimationFrame", cancelDescriptor);
+      }
+    }
+  });
+
+  test("ignores invalid drawer state snapshots and restores valid memory state", () => {
+    const invalidStateKey = "invalid-state";
+    const malformedStateKey = "malformed-state";
+    const validStateKey = "valid-state";
+
+    window.sessionStorage.setItem(
+      drawerStateStorageKey(invalidStateKey),
+      JSON.stringify({ anchorCollapsed: true, full: true, height: "bad" }),
+    );
+    window.sessionStorage.setItem(drawerStateStorageKey(malformedStateKey), "{bad json");
+
+    expect(readDrawerStateSnapshot(invalidStateKey)).toBeUndefined();
+    expect(readDrawerStateSnapshot(malformedStateKey)).toBeUndefined();
+
+    writeDrawerStateSnapshot(validStateKey, {
+      anchorCollapsed: true,
+      full: false,
+      height: 144,
+    });
+
+    expect(readDrawerStateSnapshot(validStateKey)).toEqual({
+      anchorCollapsed: true,
+      full: false,
+      height: 144,
+    });
+  });
+
+  test("skips drawer setup when refs are unavailable", () => {
+    expect(() => {
+      render(<MissingDrawerRefs />);
+    }).not.toThrow();
+
+    cleanup();
   });
 
   test("moves the handle to the previous container and hides that container when dragged up", () => {
@@ -651,9 +786,7 @@ describe("FileViewerDrawer", () => {
     expect(drawer.classList.contains("file-viewer-drawer--collapsed")).toBe(true);
     expect(drawer.style.height).toBe("0px");
     expect(handle.getAttribute("aria-expanded")).toBe("false");
-    expect(window.sessionStorage.getItem(drawerStateStorageKey(stateKey))).toContain(
-      '"height":0',
-    );
+    expect(window.sessionStorage.getItem(drawerStateStorageKey(stateKey))).toContain('"height":0');
 
     cleanup();
   });

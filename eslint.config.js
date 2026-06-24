@@ -4,7 +4,17 @@ import tseslint from "typescript-eslint";
 
 export default [
   {
-    ignores: ["node_modules/**", "dist/**", ".output/**", "coverage/**", "**/routeTree.gen.ts"],
+    ignores: [
+      "node_modules/**",
+      "dist/**",
+      ".amplify-hosting/**",
+      ".output/**",
+      ".vinxi/**",
+      ".nitro/**",
+      ".tanstack/tmp/**",
+      "coverage/**",
+      "**/routeTree.gen.ts",
+    ],
   },
   {
     files: ["**/*.js"],

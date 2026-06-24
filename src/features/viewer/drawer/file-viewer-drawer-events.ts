@@ -1,18 +1,10 @@
-import {
-  anchorCollapsed,
-  drawerAnchor,
-  setAnchorCollapsed,
-} from "./file-viewer-drawer-anchor";
+import { anchorCollapsed, drawerAnchor, setAnchorCollapsed } from "./file-viewer-drawer-anchor";
 import {
   anchorCollapseThreshold,
   drawerMagnetDistance,
   drawerMagnetReleaseDistance,
 } from "./file-viewer-drawer-config";
-import {
-  drawerHeightOptions,
-  setDrawerHeight,
-  toggleDrawer,
-} from "./file-viewer-drawer-geometry";
+import { drawerHeightOptions, setDrawerHeight, toggleDrawer } from "./file-viewer-drawer-geometry";
 import { drawerContentHeight, drawerDragThreshold } from "./file-viewer-drawer-measure";
 import { createDrawerResizeController } from "./file-viewer-drawer-resize";
 
@@ -54,8 +46,7 @@ export function installFileViewerDrawerDrag({
     const releaseHeight = releaseAnchorCollapsed
       ? anchorCollapseThreshold - 1
       : (pendingResize.height ?? drawer.getBoundingClientRect().height);
-    const releaseAllowsAnchorCollapse =
-      pendingResize.allowAnchorCollapse || releaseAnchorCollapsed;
+    const releaseAllowsAnchorCollapse = pendingResize.allowAnchorCollapse || releaseAnchorCollapsed;
     resize.cancel();
     anchorCollapseLocked = false;
     setDrawerHeight(

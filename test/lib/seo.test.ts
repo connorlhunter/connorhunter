@@ -10,7 +10,18 @@ describe("seo helpers", () => {
   });
 
   test("builds homepage metadata with all project icons", () => {
-    const head = buildHomeHead(mockContent);
+    const socialHref = "https://example.com/profile";
+    const head = buildHomeHead({
+      ...mockContent,
+      contacts: [
+        ...mockContent.contacts,
+        {
+          kind: "github",
+          label: "Example social",
+          href: socialHref,
+        },
+      ],
+    });
     const projectList = head.meta.find((entry) => {
       const script = entry["script:ld+json"];
 
@@ -27,6 +38,7 @@ describe("seo helpers", () => {
     expect(head.meta).toContainEqual({ content: "summary", name: "twitter:card" });
     expect(JSON.stringify(projectList)).toContain(projectWithoutDownloads.title);
     expect(JSON.stringify(projectList)).toContain(`${publicConfig.publicAssetsOrigin}/icons/`);
+    expect(JSON.stringify(head.meta)).toContain(socialHref);
   });
 
   test("builds homepage metadata without requiring an email contact", () => {

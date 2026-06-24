@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  certificationItemSchema,
-  skillGroupSchema,
-  timelineItemSchema,
-} from "./schema/experience";
+import { certificationItemSchema, skillGroupSchema, timelineItemSchema } from "./schema/experience";
 import { portfolioContentSchema } from "./schema/portfolio";
 import {
   contactLinkSchema,

@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
+  ThemedIconImage,
   ThemeIconSync,
   tintThemeIconSvg,
   type ThemeIconPalette,
 } from "@/features/theme/theme-icon";
+import { themedIconHref } from "@/features/theme/theme-icon-loader";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { ThemeSwitcher } from "@/features/theme/theme-switcher";
 import { themeCookieName, themeStorageKey } from "@/features/theme/theme";
@@ -106,6 +108,65 @@ describe("theme icons", () => {
         expect(decodedIconHref()).toContain("#444444");
       });
       expect(decodedIconHref()).toContain("data:image/svg+xml");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("tints themed image icon sources when a theme provider is present", async () => {
+    const originalFetch = globalThis.fetch;
+    const iconHref = "https://assets.example.com/icons/example/image.svg";
+
+    setThemeTokens({
+      contrast: "#ffffff",
+      panel: "#ffffff",
+      primary: "#112233",
+      primaryStrong: "#223344",
+      secondary: "#334455",
+    });
+    clearSavedThemes();
+
+    globalThis.fetch = ((_input: RequestInfo | URL, _init?: RequestInit): Promise<Response> =>
+      Promise.resolve(new Response(sourceSvg, { status: 200 }))) as unknown as typeof fetch;
+
+    try {
+      render(
+        <ThemeProvider>
+          <ThemedIconImage alt="Example icon" src={iconHref} />
+        </ThemeProvider>,
+      );
+
+      await waitFor(() => {
+        expect(
+          decodeURIComponent(
+            screen.getByRole("img", { name: "Example icon" }).getAttribute("src") ?? "",
+          ),
+        ).toContain("#112233");
+      });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("keeps original themed icon hrefs when tinting cannot load source SVG", async () => {
+    const originalFetch = globalThis.fetch;
+    const dataHref = "data:image/svg+xml,%3Csvg%3E%3C/svg%3E";
+    const missingHref = "https://assets.example.com/icons/example/missing.svg";
+
+    expect(await themedIconHref(dataHref)).toBe(dataHref);
+
+    globalThis.fetch = (() => Promise.reject(new Error("offline"))) as unknown as typeof fetch;
+
+    try {
+      expect(
+        await themedIconHref(missingHref, {
+          contrast: "#ffffff",
+          panel: "#ffffff",
+          primary: "#112233",
+          primaryStrong: "#223344",
+          secondary: "#334455",
+        }),
+      ).toBe(missingHref);
     } finally {
       globalThis.fetch = originalFetch;
     }

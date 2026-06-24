@@ -14,7 +14,7 @@ frontend:
         - export PATH="$BUN_INSTALL/bin:$PATH"
         - bun run build
   artifacts:
-    baseDirectory: dist/client
+    baseDirectory: .amplify-hosting
     files:
       - "**/*"
   cache:

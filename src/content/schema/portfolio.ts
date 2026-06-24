@@ -1,15 +1,6 @@
 import { z } from "zod";
-import {
-  certificationItemSchema,
-  skillGroupSchema,
-  timelineItemSchema,
-} from "./experience";
-import {
-  contactLinkSchema,
-  navigationItemSchema,
-  profileSchema,
-  resumeSchema,
-} from "./profile";
+import { certificationItemSchema, skillGroupSchema, timelineItemSchema } from "./experience";
+import { contactLinkSchema, navigationItemSchema, profileSchema, resumeSchema } from "./profile";
 import { projectSchema } from "./projects";
 
 /**

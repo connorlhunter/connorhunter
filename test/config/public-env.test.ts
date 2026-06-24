@@ -4,6 +4,7 @@ import {
   artifactUrl,
   publicConfig,
   publicAssetUrl,
+  publicUrlHostname,
   isCloudFrontDistributionIdOrigin,
   releaseAssetUrl,
   repositoryUrl,
@@ -58,5 +59,10 @@ describe("public env config", () => {
     expect(isCloudFrontDistributionIdOrigin("https://E1CSMY761RI4LF.cloudfront.net")).toBe(true);
     expect(isCloudFrontDistributionIdOrigin("https://d111111abcdef8.cloudfront.net")).toBe(false);
     expect(isCloudFrontDistributionIdOrigin("https://artifacts.connorhunter.me")).toBe(false);
+    expect(isCloudFrontDistributionIdOrigin("not a url")).toBe(false);
+  });
+
+  test("reads a public URL hostname for theme cookie defaults", () => {
+    expect(publicUrlHostname("https://connorhunter.me/projects")).toBe("connorhunter.me");
   });
 });

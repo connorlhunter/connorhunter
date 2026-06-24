@@ -272,14 +272,16 @@ describe("ProjectDetailPage", () => {
     );
     const viewer = screen.getByRole("region", { name: "Desktop Tool Docs viewer" });
     const viewerActions = viewer.querySelector(".file-viewer-actions") as HTMLElement;
+    const frame = screen.getByTitle("Desktop Tool Docs");
 
-    expect(screen.getByTitle("Desktop Tool Docs").getAttribute("src")).toContain(
-      "docs/example/index.html",
-    );
+    expect(frame.getAttribute("src")).toContain("docs/example/index.html");
     expect(
       within(viewerActions).getByRole("link", { name: "Open" }).getAttribute("href"),
     ).toContain("docs/example/index.html");
     expect(within(viewer).getByRole("button", { name: "Next" })).toBeTruthy();
+    expect(() => {
+      fireEvent.load(frame);
+    }).not.toThrow();
 
     cleanup();
   });
@@ -308,26 +310,69 @@ describe("ProjectDetailPage", () => {
     }
   });
 
+  test("leaves modified and non-self resource tab clicks to the browser", () => {
+    const originalPushState = window.history.pushState;
+    const pushStates: Array<string | URL | null | undefined> = [];
+    window.history.pushState = ((_state, _title, url) => {
+      pushStates.push(url);
+    }) as typeof window.history.pushState;
+
+    try {
+      render(<ProjectDetailPage content={mockContent} project={projectWithDownloads} />);
+
+      const drawerControls = screen.getByRole("group", { name: "Desktop Tool viewer controls" });
+      const resourceViews = within(drawerControls).getByRole("group", {
+        name: "Desktop Tool resource views",
+      });
+      const docsLink = within(resourceViews).getByRole("link", { name: "Docs" });
+
+      expect(fireEvent.click(docsLink, { ctrlKey: true })).toBe(true);
+
+      docsLink.setAttribute("target", "_blank");
+      expect(fireEvent.click(docsLink)).toBe(true);
+      expect(pushStates).toEqual([]);
+    } finally {
+      cleanup();
+      window.history.pushState = originalPushState;
+    }
+  });
+
   test("renders every diagram and selects the requested diagram", () => {
-    render(
-      <ProjectDetailPage
-        content={mockContent}
-        diagram="detail"
-        project={projectWithDownloads}
-        viewer="diagrams"
-      />,
-    );
-    const diagramNavigation = screen.getByRole("navigation", { name: "Desktop Tool diagrams" });
+    const originalPushState = window.history.pushState;
+    const pushStates: Array<string | URL | null | undefined> = [];
+    window.history.pushState = ((_state, _title, url) => {
+      pushStates.push(url);
+    }) as typeof window.history.pushState;
 
-    expect(within(diagramNavigation).getByRole("link", { name: "Overview" })).toBeTruthy();
-    expect(
-      within(diagramNavigation).getByRole("link", { name: "Detail" }).getAttribute("href"),
-    ).toBe("/projects/desktop-tool?viewer=diagrams&diagram=detail#project-viewer");
-    expect(screen.getByTitle("Desktop Tool Detail").getAttribute("src")).toContain(
-      "diagrams/example/example-detail.svg",
-    );
+    try {
+      render(
+        <ProjectDetailPage
+          content={mockContent}
+          diagram="detail"
+          project={projectWithDownloads}
+          viewer="diagrams"
+        />,
+      );
+      const diagramNavigation = screen.getByRole("navigation", { name: "Desktop Tool diagrams" });
+      const overviewLink = within(diagramNavigation).getByRole("link", { name: "Overview" });
 
-    cleanup();
+      expect(overviewLink).toBeTruthy();
+      expect(
+        within(diagramNavigation).getByRole("link", { name: "Detail" }).getAttribute("href"),
+      ).toBe("/projects/desktop-tool?viewer=diagrams&diagram=detail#project-viewer");
+      expect(screen.getByTitle("Desktop Tool Detail").getAttribute("src")).toContain(
+        "diagrams/example/example-detail.svg",
+      );
+
+      fireEvent.click(overviewLink);
+
+      expect(pushStates).toEqual([
+        "/projects/desktop-tool?viewer=diagrams&diagram=overview#project-viewer",
+      ]);
+    } finally {
+      cleanup();
+      window.history.pushState = originalPushState;
+    }
   });
 
   test("falls back to the overview diagram when no diagram item list exists", () => {
