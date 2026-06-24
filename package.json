@@ -16,8 +16,10 @@
     "prepare": "bun scripts/git-hooks/setup-git-hooks.ts",
     "start": "node .output/server/index.mjs",
     "test": "bun test --isolate",
+    "coverage:build": "bun test --isolate --coverage && bun run coverage:render",
+    "coverage:publish": "bun run coverage:build && bun scripts/publish/publish-coverage.ts",
     "coverage:render": "bun scripts/coverage/render-coverage-report.ts",
-    "test:coverage": "bun test --isolate --coverage && bun run coverage:render && bun scripts/coverage/check-coverage.ts",
+    "test:coverage": "bun run coverage:build && bun scripts/coverage/check-coverage.ts",
     "typecheck": "bun x tsgo --noEmit -p tsconfig.json",
     "verify": "bun run audit && bun run format && bun run lint && bun run typecheck && bun run test:coverage"
   },
