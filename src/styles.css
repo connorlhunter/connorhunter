@@ -889,7 +889,6 @@ footer {
 
     max-height: none;
     overflow: visible;
-    overscroll-behavior: none;
   }
 
   .file-viewer-drawer-content {
@@ -1245,6 +1244,10 @@ footer {
 }
 
 @media (max-width: 639px) {
+  .project-detail-panel {
+    --project-detail-mobile-scroll-gutter: clamp(0.55rem, 3.5vw, 0.875rem);
+  }
+
   .project-notes-panel--open {
     grid-template-rows: auto;
   }
@@ -1320,9 +1323,28 @@ footer {
     justify-content: flex-start;
   }
 
+  .file-viewer-fullscreen-action {
+    display: none;
+  }
+
+  .project-detail-panel .project-detail-header,
+  .project-detail-panel .file-viewer-drawer {
+    margin-inline: var(--project-detail-mobile-scroll-gutter);
+  }
+
   .file-viewer-frame-wrap {
-    height: 62svh;
-    min-height: 62rem;
+    height: 34rem;
+    min-height: 0;
+  }
+
+  .project-detail-panel .file-viewer-frame-wrap:not(.file-viewer-content-wrap) {
+    width: calc(100% - (var(--project-detail-mobile-scroll-gutter) * 2));
+    height: 62rem;
+    min-height: 24rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin: 0.55rem auto 0.8rem;
   }
 
   .file-viewer-content-wrap {
