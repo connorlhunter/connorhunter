@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { useFileViewerDrawer } from "./hooks/use-file-viewer-drawer";

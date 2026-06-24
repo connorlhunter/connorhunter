@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef, type ReactNode } from "react";
 import { FileViewerActions, FileViewerHeading } from "./file-viewer-toolbar";
 import type { FileViewerAction } from "./file-viewer-types";
@@ -81,6 +79,7 @@ export function FileViewer({
         {sourceHref ? (
           <iframe
             className="file-viewer-frame"
+            key={sourceHref}
             onLoad={(event) => onFrameLoad?.(event.currentTarget)}
             src={sourceHref}
             title={iframeTitle ?? title}

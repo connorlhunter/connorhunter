@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, type ImgHTMLAttributes, type ReactNode } from "react";
 import { applyThemedDocumentIcons } from "./theme-icon-document";
 import { useOptionalTheme, useTheme } from "./theme-provider";

@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { absoluteSiteUrl } from "@/config/public-env";
 import type { PortfolioContent, Project } from "@/content/schema";

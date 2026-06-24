@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TypographyH1, TypographyP } from "@/components/ui/typography";
 import type { PortfolioContent, Project } from "@/content/schema";

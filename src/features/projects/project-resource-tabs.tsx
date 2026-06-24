@@ -1,5 +1,3 @@
-"use client";
-
 import type { MouseEvent, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import type { ArtifactItem, Project } from "@/content/schema";

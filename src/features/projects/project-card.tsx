@@ -1,5 +1,3 @@
-"use client";
-
 import { memo, type ReactNode } from "react";
 import {
   TypographyChip,

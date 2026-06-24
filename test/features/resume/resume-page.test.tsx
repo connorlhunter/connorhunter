@@ -17,7 +17,7 @@ describe("ResumePage", () => {
     expect(screen.queryByText("PDF Viewer")).toBeNull();
     expect(screen.queryByText(/view the current pdf/i)).toBeNull();
     expect(screen.getByTitle("Example Person resume PDF").getAttribute("src")).toBe(
-      `${mockContent.resume.href}#view=FitH`,
+      `${mockContent.resume.href}#page=1&view=FitH`,
     );
     expect(screen.getByRole("link", { name: /open/i }).getAttribute("href")).toBe(
       mockContent.resume.href,
@@ -29,6 +29,40 @@ describe("ResumePage", () => {
       "mailto:example@example.com",
     );
     expect(screen.getByRole("button", { name: /full screen/i })).toBeTruthy();
+    expect(screen.getByText("Page 1 of 2")).toBeTruthy();
+    expect(
+      (screen.getByRole("button", { name: "Previous resume page" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+
+    cleanup();
+  });
+
+  test("steps through the two resume PDF pages", async () => {
+    render(<ResumePage content={mockContent} />);
+
+    const previous = screen.getByRole("button", { name: "Previous resume page" });
+    const next = screen.getByRole("button", { name: "Next resume page" });
+
+    fireEvent.click(next);
+
+    await waitFor(() => {
+      expect(screen.getByTitle("Example Person resume PDF").getAttribute("src")).toBe(
+        `${mockContent.resume.href}#page=2&view=FitH`,
+      );
+    });
+    expect(screen.getByText("Page 2 of 2")).toBeTruthy();
+    expect((next as HTMLButtonElement).disabled).toBe(true);
+    expect((previous as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(previous);
+
+    await waitFor(() => {
+      expect(screen.getByTitle("Example Person resume PDF").getAttribute("src")).toBe(
+        `${mockContent.resume.href}#page=1&view=FitH`,
+      );
+    });
+    expect(screen.getByText("Page 1 of 2")).toBeTruthy();
+    expect((previous as HTMLButtonElement).disabled).toBe(true);
 
     cleanup();
   });
