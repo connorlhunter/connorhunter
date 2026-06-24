@@ -7,22 +7,20 @@ import { SiteLayout } from "@/features/shell/site-layout";
 import { FileViewer } from "@/features/viewer/file-viewer";
 import { emailContact, mailtoHref } from "@/lib/contact";
 import { profileGreetingName } from "@/lib/profile";
+import { ResumePdfPreview, type ResumePdfDocumentLoader } from "./resume-pdf-preview";
 
 interface ResumePageProps {
   readonly content: PortfolioContent;
+  readonly loadResumeDocument?: ResumePdfDocumentLoader | undefined;
 }
 
 const resumePageCount = 2;
-
-function resumeViewerSource(href: string, page: number): string {
-  return `${href}#page=${page}&view=FitH`;
-}
 
 /**
  * @param props - Portfolio content containing resume and contact data.
  * @returns The resume PDF viewer page.
  */
-export function ResumePage({ content }: ResumePageProps): ReactNode {
+export function ResumePage({ content, loadResumeDocument }: ResumePageProps): ReactNode {
   const [currentPage, setCurrentPage] = useState(1);
   const resumeUrl = absoluteSiteUrl(content.resume.href);
   const emailHref = mailtoHref(
@@ -30,7 +28,6 @@ export function ResumePage({ content }: ResumePageProps): ReactNode {
     "Resume follow-up",
     `Hi ${profileGreetingName(content.profile)},\n\nI viewed your resume here:\n${resumeUrl}\n`,
   );
-  const viewerSource = resumeViewerSource(content.resume.href, currentPage);
 
   return (
     <SiteLayout content={content}>
@@ -49,7 +46,6 @@ export function ResumePage({ content }: ResumePageProps): ReactNode {
             ariaLabel="Resume viewer"
             downloadHref={content.resume.href}
             emailHref={emailHref}
-            iframeTitle={`${content.profile.name} resume PDF`}
             icon={<FileText aria-hidden="true" className="size-5" />}
             openHref={content.resume.href}
             renderHeader={({ actions, heading }) => (
@@ -91,9 +87,15 @@ export function ResumePage({ content }: ResumePageProps): ReactNode {
                 </nav>
               </div>
             )}
-            sourceHref={viewerSource}
             title={content.resume.label}
-          />
+          >
+            <ResumePdfPreview
+              href={content.resume.href}
+              loadDocument={loadResumeDocument}
+              page={currentPage}
+              title={`${content.profile.name} resume page ${currentPage}`}
+            />
+          </FileViewer>
         </div>
       </section>
     </SiteLayout>

@@ -1,11 +1,21 @@
 import { describe, expect, test } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { ResumePage } from "@/features/resume/resume-page";
+import type { ResumePdfDocumentLoader } from "@/features/resume/resume-pdf-preview";
 import { mockContent } from "../../mock-content";
+
+function createResumeDocumentLoader(): ResumePdfDocumentLoader {
+  return async () => ({
+    getPage: async () => ({
+      getViewport: () => ({ height: 792, width: 612 }),
+      render: () => ({ cancel: () => undefined, promise: Promise.resolve() }),
+    }),
+  });
+}
 
 describe("ResumePage", () => {
   test("renders the configured PDF with viewer actions", () => {
-    render(<ResumePage content={mockContent} />);
+    render(<ResumePage content={mockContent} loadResumeDocument={createResumeDocumentLoader()} />);
 
     const navigation = screen.getByRole("navigation", { name: "Resume navigation" });
 
@@ -16,9 +26,7 @@ describe("ResumePage", () => {
     expect(document.querySelector(".file-viewer-icon")).toBeTruthy();
     expect(screen.queryByText("PDF Viewer")).toBeNull();
     expect(screen.queryByText(/view the current pdf/i)).toBeNull();
-    expect(screen.getByTitle("Example Person resume PDF").getAttribute("src")).toBe(
-      `${mockContent.resume.href}#page=1&view=FitH`,
-    );
+    expect(screen.getByRole("img", { name: "Example Person resume page 1" })).toBeTruthy();
     expect(screen.getByRole("link", { name: /open/i }).getAttribute("href")).toBe(
       mockContent.resume.href,
     );
@@ -38,7 +46,7 @@ describe("ResumePage", () => {
   });
 
   test("steps through the two resume PDF pages", async () => {
-    render(<ResumePage content={mockContent} />);
+    render(<ResumePage content={mockContent} loadResumeDocument={createResumeDocumentLoader()} />);
 
     const previous = screen.getByRole("button", { name: "Previous resume page" });
     const next = screen.getByRole("button", { name: "Next resume page" });
@@ -46,9 +54,7 @@ describe("ResumePage", () => {
     fireEvent.click(next);
 
     await waitFor(() => {
-      expect(screen.getByTitle("Example Person resume PDF").getAttribute("src")).toBe(
-        `${mockContent.resume.href}#page=2&view=FitH`,
-      );
+      expect(screen.getByRole("img", { name: "Example Person resume page 2" })).toBeTruthy();
     });
     expect(screen.getByText("Page 2 of 2")).toBeTruthy();
     expect((next as HTMLButtonElement).disabled).toBe(true);
@@ -57,9 +63,7 @@ describe("ResumePage", () => {
     fireEvent.click(previous);
 
     await waitFor(() => {
-      expect(screen.getByTitle("Example Person resume PDF").getAttribute("src")).toBe(
-        `${mockContent.resume.href}#page=1&view=FitH`,
-      );
+      expect(screen.getByRole("img", { name: "Example Person resume page 1" })).toBeTruthy();
     });
     expect(screen.getByText("Page 1 of 2")).toBeTruthy();
     expect((previous as HTMLButtonElement).disabled).toBe(true);
@@ -80,6 +84,7 @@ describe("ResumePage", () => {
             },
           ],
         }}
+        loadResumeDocument={createResumeDocumentLoader()}
       />,
     );
 
@@ -121,7 +126,9 @@ describe("ResumePage", () => {
     });
 
     try {
-      render(<ResumePage content={mockContent} />);
+      render(
+        <ResumePage content={mockContent} loadResumeDocument={createResumeDocumentLoader()} />,
+      );
 
       fireEvent.click(screen.getByRole("button", { name: /full screen/i }));
 

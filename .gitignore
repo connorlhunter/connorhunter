@@ -9,6 +9,7 @@ dist/
 .nitro/
 .tanstack/tmp/
 /coverage/
+/public/pdf.worker.mjs
 
 # local env and secrets
 .env
