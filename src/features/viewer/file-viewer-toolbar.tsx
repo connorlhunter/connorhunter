@@ -109,6 +109,7 @@ export function FileViewerActions({
       ) : null}
       <Button
         aria-pressed={fullscreen}
+        className="file-viewer-fullscreen-action"
         onClick={onToggleFullscreen}
         size="small"
         type="button"
