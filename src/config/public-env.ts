@@ -60,10 +60,6 @@ const publicAssetsOrigin = trimTrailingSlash(env.VITE_PUBLIC_ASSETS_ORIGIN);
  * @returns The value without trailing slash characters.
  */
 function trimTrailingSlash(value: string): string {
-  if (value === "/") {
-    return value;
-  }
-
   return value.replace(/\/+$/u, "");
 }
 
@@ -102,7 +98,7 @@ function publicUrlLabel(value: string): string {
  * @param value - Absolute site URL.
  * @returns Hostname suitable for same-site cookie domain checks.
  */
-function publicUrlHostname(value: string): string {
+export function publicUrlHostname(value: string): string {
   return new URL(value).hostname;
 }
 

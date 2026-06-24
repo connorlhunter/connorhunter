@@ -3,6 +3,7 @@ node_modules/
 
 # builds and generated output
 dist/
+.amplify-hosting/
 .output/
 .vinxi/
 .nitro/

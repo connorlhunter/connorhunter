@@ -8,10 +8,7 @@ import { FileViewerDrawer } from "@/features/viewer/file-viewer-drawer";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/cn";
 import { DownloadActions, ProjectLinkActions } from "./project-actions";
-import {
-  ProjectDetailActionGroup,
-  ProjectStackChips,
-} from "./project-resource-action-sections";
+import { ProjectDetailActionGroup, ProjectStackChips } from "./project-resource-action-sections";
 import { DiagramSelector, ProjectViewerTabs } from "./project-resource-tabs";
 import type { ProjectViewerKind } from "./project-viewer-model";
 

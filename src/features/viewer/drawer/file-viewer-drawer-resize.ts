@@ -1,7 +1,4 @@
-import {
-  drawerHeightOptions,
-  setDrawerHeight,
-} from "./file-viewer-drawer-geometry";
+import { drawerHeightOptions, setDrawerHeight } from "./file-viewer-drawer-geometry";
 
 interface DrawerResizeControllerOptions {
   readonly drawer: HTMLDivElement;
@@ -79,11 +76,7 @@ export function createDrawerResizeController({
     pendingSnap = true;
   }
 
-  function request(
-    height: number | null = null,
-    snap = true,
-    allowAnchorCollapse = false,
-  ): void {
+  function request(height: number | null = null, snap = true, allowAnchorCollapse = false): void {
     pendingHeight = height;
     pendingAllowAnchorCollapse = allowAnchorCollapse;
     pendingSnap = snap;

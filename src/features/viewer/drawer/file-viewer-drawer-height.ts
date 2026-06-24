@@ -1,8 +1,4 @@
-import {
-  anchorCollapsed,
-  drawerAnchor,
-  setAnchorCollapsed,
-} from "./file-viewer-drawer-anchor";
+import { anchorCollapsed, drawerAnchor, setAnchorCollapsed } from "./file-viewer-drawer-anchor";
 import {
   anchorCollapseThreshold,
   drawerLegacyMobileCollapsedHeight,
