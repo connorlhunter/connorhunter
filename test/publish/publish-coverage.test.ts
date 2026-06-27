@@ -28,12 +28,12 @@ describe("publish coverage", () => {
       }),
     ).toEqual([
       {
-        label: "Source coverage artifact",
+        label: "Source coverage copy",
         source: "coverage",
         target: "s3://source-artifacts/raw/projects/connor-hunter/coverage/",
       },
       {
-        label: "Published coverage artifact",
+        label: "Live coverage artifact",
         source: "coverage",
         target: "s3://published-artifacts/site/projects/connor-hunter/coverage/",
       },
@@ -90,7 +90,7 @@ describe("publish coverage", () => {
           "--delete",
         ],
         command: "aws",
-        subject: "Source coverage artifact",
+        subject: "Source coverage copy",
       },
       {
         args: [
@@ -101,7 +101,7 @@ describe("publish coverage", () => {
           "--delete",
         ],
         command: "aws",
-        subject: "Published coverage artifact",
+        subject: "Live coverage artifact",
       },
       {
         args: [

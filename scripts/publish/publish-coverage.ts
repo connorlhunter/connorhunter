@@ -108,7 +108,7 @@ export function coveragePublishDestinations(
     destinations.push(
       s3Destination({
         bucket: sourceArtifactsBucket,
-        label: "Source coverage artifact",
+        label: "Source coverage copy",
         prefix: envValue(env.SOURCE_ARTIFACTS_PREFIX),
         projectSlug,
         source,
@@ -120,7 +120,7 @@ export function coveragePublishDestinations(
     destinations.push(
       s3Destination({
         bucket: publishedArtifactsBucket,
-        label: "Published coverage artifact",
+        label: "Live coverage artifact",
         prefix: envValue(env.ARTIFACTS_PREFIX),
         projectSlug,
         source,
@@ -130,7 +130,7 @@ export function coveragePublishDestinations(
 
   if (destinations.length === 0) {
     throw new Error(
-      "Missing SOURCE_ARTIFACTS_BUCKET or ARTIFACTS_BUCKET. Set SOURCE_ARTIFACTS_BUCKET for durable artifact-generator source publishing, ARTIFACTS_BUCKET for immediate live publishing, or both.",
+      "Missing SOURCE_ARTIFACTS_BUCKET or ARTIFACTS_BUCKET. Set SOURCE_ARTIFACTS_BUCKET for a durable source copy, ARTIFACTS_BUCKET for live coverage publishing, or both.",
     );
   }
 
@@ -205,7 +205,7 @@ export const defaultCommandRunner: CommandRunner = (command, args, subject) =>
   });
 
 /**
- * Publishes the generated portfolio coverage report to configured S3 buckets.
+ * Publishes this repo's generated coverage report to configured S3 buckets.
  *
  * @param options - Publish options.
  */
