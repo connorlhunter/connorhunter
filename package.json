@@ -17,7 +17,7 @@
     "start": "node .output/server/index.mjs",
     "test": "bun test --isolate",
     "coverage:build": "bun test --isolate --coverage && bun run coverage:render",
-    "coverage:publish": "bun run coverage:build && bun scripts/publish/publish-coverage.ts",
+    "coverage:publish": "bun run test:coverage && bun scripts/publish/publish-coverage.ts",
     "coverage:render": "bun scripts/coverage/render-coverage-report.ts",
     "test:coverage": "bun run coverage:build && bun scripts/coverage/check-coverage.ts",
     "typecheck": "bun x tsgo --noEmit -p tsconfig.json",
