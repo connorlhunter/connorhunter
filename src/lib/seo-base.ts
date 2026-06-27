@@ -53,6 +53,7 @@ export function baseLinks(canonicalUrl: string): Array<HeadLink> {
   return [
     { href: canonicalUrl, rel: "canonical" },
     {
+      crossOrigin: "anonymous",
       "data-icon-standard": publicConfig.siteIconPath,
       "data-theme-icon": "",
       href: publicConfig.siteIconPath,
@@ -60,12 +61,14 @@ export function baseLinks(canonicalUrl: string): Array<HeadLink> {
       type: "image/svg+xml",
     },
     {
+      crossOrigin: "anonymous",
       "data-icon-standard": publicConfig.siteIconPath,
       "data-theme-icon": "",
       href: publicConfig.siteIconPath,
       rel: "apple-touch-icon",
     },
     {
+      crossOrigin: "anonymous",
       "data-icon-standard": publicConfig.siteMaskIconPath,
       "data-theme-icon": "",
       href: publicConfig.siteMaskIconPath,

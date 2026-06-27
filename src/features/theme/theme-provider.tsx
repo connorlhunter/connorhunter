@@ -3,6 +3,7 @@ import {
   defaultThemeScheme,
   findThemeScheme,
   nextThemeScheme,
+  themeColorMetaName,
   themeMessageType,
   themeStorageKey,
   type ThemeScheme,
@@ -19,10 +20,14 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 /**
  * @param scheme - Theme scheme to apply.
- * @returns Nothing; updates the root dataset used by CSS variables.
+ * @returns Nothing; updates CSS variables, browser controls, and browser chrome.
  */
 function applyScheme(scheme: ThemeScheme): void {
   document.documentElement.dataset.scheme = scheme.id;
+  document.documentElement.style.colorScheme = scheme.colorScheme;
+  document
+    .querySelector<HTMLMetaElement>(`meta[name="${themeColorMetaName}"]`)
+    ?.setAttribute("content", scheme.themeColor);
 }
 
 /**

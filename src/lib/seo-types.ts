@@ -3,6 +3,7 @@ export interface HeadMeta {
 }
 
 export interface HeadLink {
+  crossOrigin?: "anonymous" | "use-credentials";
   "data-icon-standard"?: string;
   "data-theme-icon"?: string;
   href: string;

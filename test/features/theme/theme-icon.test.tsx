@@ -143,6 +143,9 @@ describe("theme icons", () => {
           ),
         ).toContain("#112233");
       });
+      expect(screen.getByRole("img", { name: "Example icon" }).getAttribute("crossorigin")).toBe(
+        "anonymous",
+      );
     } finally {
       globalThis.fetch = originalFetch;
     }

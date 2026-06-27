@@ -1,6 +1,7 @@
 import {
   defaultDarkThemeScheme,
   defaultLightThemeScheme,
+  themeColorMetaName,
   themeCookieName,
   themeSchemes,
   themeStorageKey,
@@ -16,14 +17,22 @@ import {
  */
 export const themeBootstrapScript = `
 (() => {
-  const supportedThemes = ${JSON.stringify(themeSchemes.map((scheme) => scheme.id))};
+  const themes = ${JSON.stringify(
+    Object.fromEntries(
+      themeSchemes.map((scheme) => [
+        scheme.id,
+        { colorScheme: scheme.colorScheme, themeColor: scheme.themeColor },
+      ]),
+    ),
+  )};
+  const themeColorMetaName = ${JSON.stringify(themeColorMetaName)};
   const storageKey = ${JSON.stringify(themeStorageKey)};
   const cookieName = ${JSON.stringify(themeCookieName)};
   const lightScheme = ${JSON.stringify(defaultLightThemeScheme.id)};
   const darkScheme = ${JSON.stringify(defaultDarkThemeScheme.id)};
 
   function validTheme(value) {
-    return supportedThemes.includes(value) ? value : null;
+    return Object.prototype.hasOwnProperty.call(themes, value) ? value : null;
   }
 
   function storedTheme(key) {
@@ -59,7 +68,12 @@ export const themeBootstrapScript = `
     }
   }
 
-  document.documentElement.dataset.scheme =
-    storedTheme(storageKey) || cookieTheme() || preferredTheme();
+  const scheme = storedTheme(storageKey) || cookieTheme() || preferredTheme();
+  const theme = themes[scheme];
+  const themeColorMeta = document.querySelector('meta[name="' + themeColorMetaName + '"]');
+
+  document.documentElement.dataset.scheme = scheme;
+  document.documentElement.style.colorScheme = theme.colorScheme;
+  if (themeColorMeta) themeColorMeta.setAttribute("content", theme.themeColor);
 })();
 `;

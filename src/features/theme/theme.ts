@@ -16,28 +16,36 @@ export type ThemeSchemeId =
   | "quartz";
 
 /**
+ * @property colorScheme - Browser chrome and native control color mode.
  * @property id - CSS dataset value for the theme.
- * @property label - theme label.
+ * @property label - Theme label.
+ * @property themeColor - Page background advertised to browser chrome.
  */
 export interface ThemeScheme {
+  readonly colorScheme: "dark" | "light";
   readonly id: ThemeSchemeId;
   readonly label: string;
+  readonly themeColor: string;
 }
 
 /**
  * @description Default light theme before saved or OS preference detection.
  */
 export const defaultLightThemeScheme: ThemeScheme = {
+  colorScheme: "light",
   id: "atlas",
   label: "Atlas",
+  themeColor: "#f4f6f8",
 };
 
 /**
  * @description Default dark theme before saved theme detection.
  */
 export const defaultDarkThemeScheme: ThemeScheme = {
+  colorScheme: "dark",
   id: "midnight",
   label: "Midnight",
+  themeColor: "#06111a",
 };
 
 /**
@@ -50,16 +58,21 @@ export const defaultThemeScheme = defaultLightThemeScheme;
  */
 export const themeSchemes: ReadonlyArray<ThemeScheme> = [
   defaultLightThemeScheme,
-  { id: "paper", label: "Paper" },
-  { id: "citrine", label: "Citrine" },
-  { id: "harbor", label: "Harbor" },
+  { colorScheme: "light", id: "paper", label: "Paper", themeColor: "#f6f6f3" },
+  { colorScheme: "light", id: "citrine", label: "Citrine", themeColor: "#f7f6ea" },
+  { colorScheme: "dark", id: "harbor", label: "Harbor", themeColor: "#111a24" },
   defaultDarkThemeScheme,
-  { id: "onyx", label: "Onyx" },
-  { id: "rose", label: "Rose" },
-  { id: "tide", label: "Tide" },
-  { id: "ember", label: "Ember" },
-  { id: "quartz", label: "Quartz" },
+  { colorScheme: "dark", id: "onyx", label: "Onyx", themeColor: "#0b0d10" },
+  { colorScheme: "light", id: "rose", label: "Rose", themeColor: "#fbf6f7" },
+  { colorScheme: "light", id: "tide", label: "Tide", themeColor: "#f2f8fb" },
+  { colorScheme: "light", id: "ember", label: "Ember", themeColor: "#fff7e8" },
+  { colorScheme: "light", id: "quartz", label: "Quartz", themeColor: "#f7f5fb" },
 ];
+
+/**
+ * @description Metadata name Safari and supporting browsers use to tint their chrome.
+ */
+export const themeColorMetaName = "theme-color";
 
 /**
  * @description Canonical shared key for the selected theme scheme.
