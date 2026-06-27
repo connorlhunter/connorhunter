@@ -155,6 +155,183 @@ function fileRow(file: CoverageFile): string {
   </tr>`;
 }
 
+const coverageThemeStorageKeys = ["connorhunter.theme.scheme", "portfolio.theme.scheme"] as const;
+const coverageThemeSchemes = {
+  atlas: {
+    accent: "#0f6b7a",
+    accentSoft: "#e4f3f5",
+    bg: "#f4f6f8",
+    border: "#d8dee8",
+    colorScheme: "light",
+    muted: "#667085",
+    panel: "#ffffff",
+    text: "#17202a",
+  },
+  paper: {
+    accent: "#68737a",
+    accentSoft: "#ecefed",
+    bg: "#f6f6f3",
+    border: "#dcdfdc",
+    colorScheme: "light",
+    muted: "#697176",
+    panel: "#ffffff",
+    text: "#1f2528",
+  },
+  citrine: {
+    accent: "#766f18",
+    accentSoft: "#eeebc7",
+    bg: "#f7f6ea",
+    border: "#dedbb8",
+    colorScheme: "light",
+    muted: "#70705c",
+    panel: "#fffef8",
+    text: "#20231a",
+  },
+  harbor: {
+    accent: "#35b8cd",
+    accentSoft: "#0e2f3a",
+    bg: "#111a24",
+    border: "#2a3a4c",
+    colorScheme: "dark",
+    muted: "#7d92a8",
+    panel: "#1a2636",
+    text: "#dde4ee",
+  },
+  midnight: {
+    accent: "#5fc0ee",
+    accentSoft: "#0d3040",
+    bg: "#06111a",
+    border: "#1f3547",
+    colorScheme: "dark",
+    muted: "#89a6b8",
+    panel: "#0b1a24",
+    text: "#eaf6ff",
+  },
+  onyx: {
+    accent: "#8fb4ff",
+    accentSoft: "#182234",
+    bg: "#0b0d10",
+    border: "#2a3139",
+    colorScheme: "dark",
+    muted: "#9aa4ad",
+    panel: "#14181d",
+    text: "#edf0f2",
+  },
+  rose: {
+    accent: "#9e4c58",
+    accentSoft: "#f1e6e8",
+    bg: "#fbf6f7",
+    border: "#e2d2d5",
+    colorScheme: "light",
+    muted: "#74676b",
+    panel: "#ffffff",
+    text: "#241b1e",
+  },
+  tide: {
+    accent: "#3f82a8",
+    accentSoft: "#e4f0f6",
+    bg: "#f2f8fb",
+    border: "#d2e2ea",
+    colorScheme: "light",
+    muted: "#627584",
+    panel: "#ffffff",
+    text: "#17242c",
+  },
+  ember: {
+    accent: "#df6532",
+    accentSoft: "#ffe8d8",
+    bg: "#fff7e8",
+    border: "#efd8bd",
+    colorScheme: "light",
+    muted: "#7a6658",
+    panel: "#fffdf9",
+    text: "#251a12",
+  },
+  quartz: {
+    accent: "#7c6f9f",
+    accentSoft: "#eeeaf8",
+    bg: "#f7f5fb",
+    border: "#ddd7ed",
+    colorScheme: "light",
+    muted: "#706b7a",
+    panel: "#ffffff",
+    text: "#211f29",
+  },
+} as const;
+
+function coverageThemeCss(): string {
+  const themeBlocks = Object.entries(coverageThemeSchemes)
+    .map(
+      ([scheme, tokens]) => `:root[data-scheme="${scheme}"] {
+      color-scheme: ${tokens.colorScheme};
+      --bg: ${tokens.bg};
+      --panel: ${tokens.panel};
+      --text: ${tokens.text};
+      --muted: ${tokens.muted};
+      --border: ${tokens.border};
+      --accent: ${tokens.accent};
+      --accent-soft: ${tokens.accentSoft};
+    }`,
+    )
+    .join("\n\n    ");
+
+  const atlas = coverageThemeSchemes.atlas;
+
+  return `:root {
+      color-scheme: ${atlas.colorScheme};
+      --bg: ${atlas.bg};
+      --panel: ${atlas.panel};
+      --text: ${atlas.text};
+      --muted: ${atlas.muted};
+      --border: ${atlas.border};
+      --accent: ${atlas.accent};
+      --accent-soft: ${atlas.accentSoft};
+    }
+
+    ${themeBlocks}`;
+}
+
+function coverageThemeScript(): string {
+  return `<script>
+    (() => {
+      const schemes = new Set(${JSON.stringify(Object.keys(coverageThemeSchemes))});
+      const storageKeys = ${JSON.stringify([...coverageThemeStorageKeys])};
+      const messageSuffix = ".theme.scheme";
+      const fallback = window.matchMedia?.("(prefers-color-scheme: dark)").matches
+        ? "midnight"
+        : "atlas";
+
+      function savedScheme() {
+        for (const key of storageKeys) {
+          try {
+            const value = window.localStorage.getItem(key);
+            if (schemes.has(value)) return value;
+          } catch {}
+        }
+        return null;
+      }
+
+      function applyScheme(scheme) {
+        if (!schemes.has(scheme)) return;
+        document.documentElement.dataset.scheme = scheme;
+        try {
+          window.localStorage.setItem(storageKeys[0], scheme);
+        } catch {}
+      }
+
+      applyScheme(savedScheme() || fallback);
+
+      window.addEventListener("message", (event) => {
+        const message = event.data;
+        if (!message || typeof message !== "object") return;
+        if (!schemes.has(message.scheme)) return;
+        if (typeof message.type === "string" && !message.type.endsWith(messageSuffix)) return;
+        applyScheme(message.scheme);
+      });
+    })();
+  </script>`;
+}
+
 /**
  * @param files - Per-file coverage records.
  * @returns Standalone HTML coverage report.
@@ -164,21 +341,13 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
   const rows = [total, ...files].map(fileRow).join("\n");
 
   return `<!doctype html>
-<html lang="en">
+<html data-scheme="atlas" lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Portfolio Coverage</title>
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #ffffff;
-      --panel: #ffffff;
-      --text: #17202a;
-      --muted: #667085;
-      --border: #d8dee8;
-      --accent: #0f6b7a;
-    }
+    ${coverageThemeCss()}
 
     * {
       box-sizing: border-box;
@@ -267,6 +436,7 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
       font-weight: 600;
     }
   </style>
+  ${coverageThemeScript()}
 </head>
 <body>
   <main>
