@@ -18,7 +18,9 @@ describe("Footer", () => {
     expect(screen.getByText("Bitcoiner")).toBeTruthy();
     expect(screen.getAllByText("Since 2025")).toHaveLength(2);
     expect(screen.getByText("Litecoiner")).toBeTruthy();
-    expect(screen.getByRole("link", { name: mockContent.contacts[0]!.label })).toBeTruthy();
+    const contactLink = screen.getByRole("link", { name: mockContent.contacts[0]!.label });
+    expect(contactLink.className).toContain("hover:-translate-y-0.5");
+    expect(contactLink.className).toContain("hover:bg-(--accent-soft)");
 
     cleanup();
   });

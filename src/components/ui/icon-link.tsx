@@ -17,7 +17,7 @@ export function IconLink({ children, className, href, icon }: IconLinkProps): Re
   return (
     <a
       className={cn(
-        "inline-flex transform-gpu items-center gap-2 rounded-md text-sm font-semibold text-(--accent) underline-offset-4 transition-[color,text-decoration-color] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)",
+        "inline-flex transform-gpu items-center gap-2 rounded-md border border-transparent px-2.5 py-2 text-sm font-semibold text-(--accent) transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-(--accent) hover:bg-(--accent-soft) hover:text-(--accent-strong) hover:shadow-(--shadow-sm) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)",
         className,
       )}
       href={href}

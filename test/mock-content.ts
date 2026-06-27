@@ -165,6 +165,7 @@ export const mockContent: PortfolioContent = {
       title: "Example Certification",
       issuer: "Example Issuer",
       date: "Example Date",
+      href: "https://example.com/credentials/example-certification",
     },
   ],
   projects: [projectWithDownloads, projectWithoutDownloads],

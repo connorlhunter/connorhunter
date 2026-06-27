@@ -182,7 +182,15 @@ const artifactFixtures = new Map<string, string>([
           bullets: ["Studied software."],
         },
       ],
-      certifications: [{ title: "Cert", issuer: "Issuer", date: "2025" }],
+      certifications: [
+        {
+          title: "Cert",
+          issuer: "Issuer",
+          date: "2025",
+          href: "https://example.com/credentials/cert",
+          reissuanceDates: ["2026", "2027"],
+        },
+      ],
     }),
   ],
   [
@@ -442,6 +450,8 @@ Body content.`);
         ?.links.find((link) => link.kind === "roadmap")?.href,
     ).toBe("https://github.com/users/connorlhunter/projects/9");
     expect(content.certifications.length).toBeGreaterThan(0);
+    expect(content.certifications[0]?.href).toBe("https://example.com/credentials/cert");
+    expect(content.certifications[0]?.reissuanceDates).toEqual(["2026", "2027"]);
     expect(
       content.projects.every((project) =>
         project.icon.startsWith(`${publicConfig.publicAssetsOrigin}/icons/`),

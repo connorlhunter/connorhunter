@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
-export type TypographyElement = "p" | "span" | "h1" | "h2" | "h3" | "h4";
+export type TypographyElement = "dd" | "dt" | "p" | "span" | "time" | "h1" | "h2" | "h3" | "h4";
 export type TypographyHeadingElement = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
 export interface TypographyHeadingProps extends HTMLAttributes<HTMLHeadingElement> {

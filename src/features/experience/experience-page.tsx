@@ -1,5 +1,6 @@
 import { Award, BriefcaseBusiness, GraduationCap, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { IconLink } from "@/components/ui/icon-link";
 import {
   TypographyH1,
   TypographyH3,
@@ -86,12 +87,34 @@ function CertificationList({
             <TypographyH4 as="h3" className="text-base">
               {item.title}
             </TypographyH4>
-            <TypographySmall as="p" className="mt-1 text-(--accent)">
-              {item.issuer}
-            </TypographySmall>
-            <TypographySmall as="p" className="mt-1">
-              {item.date}
-            </TypographySmall>
+            <dl className="mt-2 grid gap-1">
+              <div>
+                <TypographySmall as="dt" className="sr-only">
+                  Issuer
+                </TypographySmall>
+                <TypographySmall as="dd" className="text-(--accent)">
+                  {item.issuer}
+                </TypographySmall>
+              </div>
+              <div className="flex flex-wrap items-baseline gap-x-2">
+                <TypographySmall as="dt">Issued</TypographySmall>
+                <TypographySmall as="dd" className="font-normal">
+                  <time>{item.date}</time>
+                </TypographySmall>
+              </div>
+              {item.reissuanceDates?.map((date) => (
+                <div className="flex flex-wrap items-baseline gap-x-2" key={date}>
+                  <TypographySmall as="dt">Reissued</TypographySmall>
+                  <TypographySmall as="dd" className="font-normal">
+                    <time>{date}</time>
+                  </TypographySmall>
+                </div>
+              ))}
+            </dl>
+            <IconLink className="mt-3" href={item.href}>
+              <span className="sr-only">{item.title}: </span>
+              View credential
+            </IconLink>
           </article>
         ))}
       </div>
