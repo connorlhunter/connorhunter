@@ -36,6 +36,13 @@ describe("seo helpers", () => {
       property: "og:image",
     });
     expect(head.meta).toContainEqual({ content: "summary", name: "twitter:card" });
+    expect(
+      head.links
+        .filter((link) => link["data-theme-icon"] === "")
+        .every((link) => {
+          return link.crossOrigin === "anonymous";
+        }),
+    ).toBe(true);
     expect(JSON.stringify(projectList)).toContain(projectWithoutDownloads.title);
     expect(JSON.stringify(projectList)).toContain(`${publicConfig.publicAssetsOrigin}/icons/`);
     expect(JSON.stringify(head.meta)).toContain(socialHref);

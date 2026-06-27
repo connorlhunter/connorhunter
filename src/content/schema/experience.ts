@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { hrefSchema } from "./base";
 
 /**
  * @description Skills grouped by display category.
@@ -26,4 +27,6 @@ export const certificationItemSchema = z.object({
   title: z.string().min(1),
   issuer: z.string().min(1),
   date: z.string().min(1),
+  href: hrefSchema,
+  reissuanceDates: z.array(z.string().min(1)).min(1).optional(),
 });

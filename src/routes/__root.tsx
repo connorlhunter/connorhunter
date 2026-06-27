@@ -6,6 +6,7 @@ import { fallbackShellContent } from "@/content/fallback-shell";
 import { ErrorPage } from "@/features/error/error-page";
 import { NotFoundPage } from "@/features/not-found/not-found-page";
 import { themeBootstrapScript } from "@/features/theme/theme-bootstrap-script";
+import { defaultThemeScheme, themeColorMetaName } from "@/features/theme/theme";
 import "../styles.css";
 
 /**
@@ -16,6 +17,7 @@ export const Route = createRootRoute({
   head: () => ({
     links: [
       {
+        crossOrigin: "anonymous",
         "data-icon-standard": publicConfig.siteIconPath,
         "data-theme-icon": "",
         href: publicConfig.siteIconPath,
@@ -23,12 +25,14 @@ export const Route = createRootRoute({
         type: "image/svg+xml",
       },
       {
+        crossOrigin: "anonymous",
         "data-icon-standard": publicConfig.siteIconPath,
         "data-theme-icon": "",
         href: publicConfig.siteIconPath,
         rel: "apple-touch-icon",
       },
       {
+        crossOrigin: "anonymous",
         "data-icon-standard": publicConfig.siteMaskIconPath,
         "data-theme-icon": "",
         href: publicConfig.siteMaskIconPath,
@@ -96,13 +100,15 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>): ReactNod
   return (
     <html data-scheme="atlas" lang="en" suppressHydrationWarning>
       <head>
-        <HeadContent />
+        <meta content={defaultThemeScheme.themeColor} name={themeColorMetaName} />
+        <meta content="light dark" name="color-scheme" />
         {/* Intentionally inline so the theme is applied before first paint. */}
         <script
           dangerouslySetInnerHTML={{
             __html: themeBootstrapScript,
           }}
         />
+        <HeadContent />
       </head>
       <body>
         {children}

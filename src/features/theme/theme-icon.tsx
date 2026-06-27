@@ -23,6 +23,7 @@ export function ThemeIconSync(): null {
  * @returns An image that tints shared icon SVGs to the active scheme.
  */
 export function ThemedIconImage({
+  crossOrigin = "anonymous",
   src,
   ...props
 }: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
@@ -31,5 +32,5 @@ export function ThemedIconImage({
   const theme = useOptionalTheme();
   const themedSrc = useThemedIconHref(src, theme?.scheme ?? null);
 
-  return <img {...props} data-icon-standard={src} src={themedSrc} />;
+  return <img {...props} crossOrigin={crossOrigin} data-icon-standard={src} src={themedSrc} />;
 }

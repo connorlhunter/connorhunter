@@ -4,11 +4,13 @@ import { describe, expect, test } from "bun:test";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ThemeProvider, useTheme } from "@/features/theme/theme-provider";
 import { ThemeSwitcher } from "@/features/theme/theme-switcher";
+import { themeBootstrapScript } from "@/features/theme/theme-bootstrap-script";
 import {
   defaultDarkThemeScheme,
   defaultLightThemeScheme,
   sharedThemeRootDomain,
   themeCookieName,
+  themeColorMetaName,
   themeMessageType,
   themeSchemes,
   themeStorageKey,
@@ -91,6 +93,71 @@ describe("ThemeSwitcher", () => {
 
     for (const scheme of artifactGeneratorThemeIds) {
       expect(styles).toContain(`:root[data-scheme="${scheme}"]`);
+
+      const theme = themeSchemes.find((candidate) => candidate.id === scheme);
+      expect(theme).toBeDefined();
+      expect(styles).toContain(`--bg: ${theme?.themeColor};`);
+    }
+  });
+
+  test("synchronizes browser chrome with the initial and selected themes", async () => {
+    clearSavedThemes();
+    window.localStorage.setItem(themeStorageKey, "midnight");
+    const themeColorMeta = document.createElement("meta");
+    themeColorMeta.name = themeColorMetaName;
+    themeColorMeta.content = defaultLightThemeScheme.themeColor;
+    document.head.append(themeColorMeta);
+
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("midnight");
+      });
+      expect(document.documentElement.style.colorScheme).toBe("dark");
+      expect(themeColorMeta.content).toBe(defaultDarkThemeScheme.themeColor);
+
+      fireEvent.click(screen.getByRole("button", { name: "Use Onyx color scheme" }));
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("onyx");
+      });
+      expect(document.documentElement.style.colorScheme).toBe("dark");
+      expect(themeColorMeta.content).toBe("#0b0d10");
+    } finally {
+      themeColorMeta.remove();
+      cleanup();
+      clearSavedThemes();
+    }
+  });
+
+  test("sets Safari chrome metadata before hydration", () => {
+    clearSavedThemes();
+    window.localStorage.setItem(themeStorageKey, "midnight");
+    const themeColorMeta = document.createElement("meta");
+    themeColorMeta.name = themeColorMetaName;
+    themeColorMeta.content = defaultLightThemeScheme.themeColor;
+    document.head.append(themeColorMeta);
+
+    try {
+      const runBootstrap = new Function(
+        "document",
+        "localStorage",
+        "matchMedia",
+        themeBootstrapScript,
+      );
+      runBootstrap(document, window.localStorage, window.matchMedia);
+
+      expect(document.documentElement.dataset.scheme).toBe("midnight");
+      expect(document.documentElement.style.colorScheme).toBe("dark");
+      expect(themeColorMeta.content).toBe(defaultDarkThemeScheme.themeColor);
+    } finally {
+      themeColorMeta.remove();
+      clearSavedThemes();
     }
   });
 
