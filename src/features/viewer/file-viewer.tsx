@@ -118,7 +118,7 @@ export function FileViewer({
               className="file-viewer-frame"
               key={sourceHref}
               onLoad={(event) => handleFrameLoad(event.currentTarget)}
-              src={frameSourceHref}
+              src={frameSourceHref === sourceHref ? frameSourceHref : undefined}
               title={iframeTitle ?? title}
             />
             {frameLoading ? (
