@@ -8,6 +8,7 @@ const projectArtifactEntrySchema = z.object({
   coverageComingSoon: z.boolean().optional(),
   coveragePath: z.string().min(1),
   diagramPaths: z.array(z.string().min(1)).optional(),
+  docsPdfPath: z.string().min(1).optional(),
   docsPath: z.string().min(1),
   iconPath: z.string().min(1),
   markdownPath: z.string().min(1),
@@ -144,6 +145,7 @@ export function projectArtifactLinks(entry: ProjectArtifactEntry): Array<Artifac
     {
       label: "Docs",
       href: resolveArtifactAlias(entry, "docs"),
+      ...(entry.docsPdfPath ? { downloadHref: artifactUrl(entry.docsPdfPath) } : {}),
     },
     {
       label: "Coverage",

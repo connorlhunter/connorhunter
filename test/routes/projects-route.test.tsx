@@ -1,18 +1,24 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, mock, test } from "bun:test";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { clearPortfolioContentCache, getPortfolioContent } from "@/content";
-import { routeTree } from "@/routeTree.gen";
+import { mockContent } from "../mock-content";
+
+mock.module("@/content", () => ({
+  clearPortfolioContentCache: () => undefined,
+  getPortfolioContent: () => Promise.resolve(mockContent),
+  getProjectBySlug: async (slug: string) =>
+    mockContent.projects.find((project) => project.slug === slug),
+}));
+
+const { routeTree } = await import("@/routeTree.gen");
 
 describe("projects route nesting", () => {
   afterEach(() => {
     cleanup();
-    clearPortfolioContentCache();
   });
 
   test("renders a project artifact viewer route instead of the projects grid", async () => {
-    const content = await getPortfolioContent();
-    const project = content.projects.find((item) =>
+    const project = mockContent.projects.find((item) =>
       item.artifacts.some((artifact) => artifact.label === "Docs"),
     );
 

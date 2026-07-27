@@ -30,9 +30,7 @@ describe("ResumePage", () => {
     expect(screen.getByRole("link", { name: /open/i }).getAttribute("href")).toBe(
       mockContent.resume.href,
     );
-    expect(screen.getByRole("link", { name: /download/i }).getAttribute("href")).toBe(
-      mockContent.resume.href,
-    );
+    expect(screen.getByRole("button", { name: /download/i })).toBeTruthy();
     expect(screen.getByRole("link", { name: /email/i }).getAttribute("href")).toContain(
       "mailto:example@example.com",
     );

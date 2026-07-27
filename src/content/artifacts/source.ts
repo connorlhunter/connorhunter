@@ -36,6 +36,7 @@ async function fetchArtifactText(path: string): Promise<string> {
 
   try {
     response = await fetch(href, {
+      cache: "no-store",
       headers: {
         Accept: "text/markdown, application/json, image/svg+xml, text/plain, */*",
       },

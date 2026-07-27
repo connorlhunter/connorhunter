@@ -1,6 +1,7 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, spyOn, test } from "bun:test";
 import {
   projectArtifactEntry,
+  projectArtifactLinks,
   resolveArtifactAlias,
   type ProjectArtifactEntry,
   type ProjectArtifactManifest,
@@ -16,6 +17,7 @@ import { parseJsonFrontmatter } from "@/content/frontmatter";
 const exampleArtifactEntry: ProjectArtifactEntry = {
   coverageComingSoon: true,
   coveragePath: "projects/example/coverage/index.html",
+  docsPdfPath: "docs/example/index.pdf",
   docsPath: "docs/example/index.html",
   iconPath: "asset://icons/example/mark.svg",
   markdownPath: "projects/cipher.md",
@@ -97,6 +99,7 @@ const artifactFixtures = new Map<string, string>([
       projects: {
         "connor-hunter": {
           coveragePath: "projects/connor-hunter/coverage/index.html",
+          docsPdfPath: "docs/connor-hunter/index.pdf",
           docsPath: "docs/connor-hunter/index.html",
           iconPath: "asset://icons/connor-hunter/mark.svg",
           markdownPath: "projects/connor-hunter.md",
@@ -341,11 +344,11 @@ Body content.`);
     const mutableConfig = publicConfig as unknown as { artifactsOrigin: string };
     const originalOrigin = mutableConfig.artifactsOrigin;
     const previousFetch = globalThis.fetch;
-    const requests: Array<string> = [];
+    const requests: Array<{ readonly href: string; readonly init: RequestInit | undefined }> = [];
 
     mutableConfig.artifactsOrigin = "https://assets.example.com/artifacts";
-    globalThis.fetch = ((input: RequestInfo | URL) => {
-      requests.push(String(input));
+    globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+      requests.push({ href: String(input), init });
       return Promise.resolve(new Response("Fetched artifact."));
     }) as unknown as typeof fetch;
 
@@ -353,7 +356,17 @@ Body content.`);
       await expect(configuredArtifactTextSource.readText("docs/example.md")).resolves.toBe(
         "Fetched artifact.",
       );
-      expect(requests).toEqual(["https://assets.example.com/artifacts/docs/example.md"]);
+      expect(requests).toEqual([
+        {
+          href: "https://assets.example.com/artifacts/docs/example.md",
+          init: {
+            cache: "no-store",
+            headers: {
+              Accept: "text/markdown, application/json, image/svg+xml, text/plain, */*",
+            },
+          },
+        },
+      ]);
 
       globalThis.fetch = (() =>
         Promise.resolve(
@@ -388,6 +401,19 @@ Body content.`);
     );
   });
 
+  test("exposes generated docs PDFs as downloadable artifact links", () => {
+    const docs = projectArtifactLinks(exampleArtifactEntry).find(
+      (artifact) => artifact.label === "Docs",
+    );
+    const docsWithoutPdf = projectArtifactLinks({
+      ...exampleArtifactEntry,
+      docsPdfPath: undefined,
+    }).find((artifact) => artifact.label === "Docs");
+
+    expect(docs?.downloadHref).toBe(artifactUrl("docs/example/index.pdf"));
+    expect(docsWithoutPdf?.downloadHref).toBeUndefined();
+  });
+
   test("validates content and preserves project order", async () => {
     const content = await getPortfolioContent();
     const projectOrders = content.projects.map((project) => project.slug);
@@ -401,6 +427,11 @@ Body content.`);
       "cipher-pay",
     ]);
     expect(content.projects.every((project) => project.artifacts.length === 3)).toBe(true);
+    expect(
+      content.projects
+        .find((project) => project.slug === "connor-hunter")
+        ?.artifacts.find((artifact) => artifact.label === "Docs")?.downloadHref,
+    ).toBe(artifactUrl("docs/connor-hunter/index.pdf"));
     expect(
       content.projects
         .find((project) => project.slug === "cipher")
@@ -478,6 +509,52 @@ Body content.`);
       true,
     );
     expect(artifactUrls.every((href) => !href.includes("s3.amazonaws.com"))).toBe(true);
+  });
+
+  test("refreshes content after the cache lifetime", async () => {
+    const now = Date.now();
+    const nowSpy = spyOn(Date, "now");
+
+    try {
+      clearPortfolioContentCache();
+      nowSpy.mockReturnValue(now);
+      const initialContent = getPortfolioContent();
+      await initialContent;
+
+      nowSpy.mockReturnValue(now + 30_001);
+      const refreshedContent = getPortfolioContent();
+      await refreshedContent;
+
+      expect(refreshedContent).not.toBe(initialContent);
+    } finally {
+      nowSpy.mockRestore();
+      clearPortfolioContentCache();
+    }
+  });
+
+  test("discards failed content loads so a retry can succeed", async () => {
+    const previousFetch = globalThis.fetch;
+    let shouldFail = true;
+    globalThis.fetch = ((input: RequestInfo | URL) => {
+      if (shouldFail) {
+        return Promise.reject(new TypeError("offline"));
+      }
+
+      return localArtifactFetch(input);
+    }) as typeof fetch;
+
+    try {
+      clearPortfolioContentCache();
+      await expect(getPortfolioContent()).rejects.toThrow("Failed to fetch artifact");
+
+      shouldFail = false;
+      await expect(getPortfolioContent()).resolves.toMatchObject({
+        profile: { name: "Connor Hunter" },
+      });
+    } finally {
+      globalThis.fetch = previousFetch;
+      clearPortfolioContentCache();
+    }
   });
 
   test("finds projects by slug", async () => {
