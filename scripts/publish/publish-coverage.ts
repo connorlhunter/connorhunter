@@ -214,9 +214,12 @@ export async function publishCoverage(options: PublishCoverageOptions = {}): Pro
   const commandRunner = options.commandRunner ?? defaultCommandRunner;
   const source = coverageSource(env);
   const report = join(source, "index.html");
+  const pdf = join(source, "index.pdf");
 
-  if (!existsSync(report)) {
-    throw new Error(`Missing coverage report: ${report}. Run \`bun run test:coverage\` first.`);
+  if (!existsSync(report) || !existsSync(pdf)) {
+    throw new Error(
+      `Missing coverage report: ${report} or ${pdf}. Run \`bun run coverage:publish\` first.`,
+    );
   }
 
   const destinations = coveragePublishDestinations(env);

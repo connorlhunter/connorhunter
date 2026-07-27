@@ -7,6 +7,7 @@ import { readArtifactJson } from "./source";
 const projectArtifactEntrySchema = z.object({
   coverageComingSoon: z.boolean().optional(),
   coveragePath: z.string().min(1),
+  coveragePdfPath: z.string().min(1).optional(),
   diagramPaths: z.array(z.string().min(1)).optional(),
   docsPdfPath: z.string().min(1).optional(),
   docsPath: z.string().min(1),
@@ -151,6 +152,7 @@ export function projectArtifactLinks(entry: ProjectArtifactEntry): Array<Artifac
       label: "Coverage",
       href: resolveArtifactAlias(entry, "coverage"),
       comingSoon: entry.coverageComingSoon,
+      ...(entry.coveragePdfPath ? { downloadHref: artifactUrl(entry.coveragePdfPath) } : {}),
     },
     {
       label: "Diagrams",

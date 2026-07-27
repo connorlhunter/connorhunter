@@ -52,6 +52,37 @@ describe("FileViewer", () => {
     }
   });
 
+  test("does not keep the previous iframe source while changing viewers", async () => {
+    const view = render(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="/docs.html"
+        title="Docs"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTitle("Docs").getAttribute("src")).toBe("/docs.html");
+    });
+
+    view.rerender(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="/coverage.html"
+        title="Coverage"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTitle("Coverage").getAttribute("src")).toBe("/coverage.html");
+    });
+    expect(screen.getByTitle("Coverage").getAttribute("src")).not.toBe("/docs.html");
+
+    cleanup();
+  });
+
   test("keeps same-route navigation mounted and falls back when history push fails", () => {
     const originalPushState = window.history.pushState;
     const originalHref = window.location.href;

@@ -88,7 +88,9 @@ export function artifactDownload(
   }
 
   if (viewer === "coverage") {
-    return { filename: `${project.slug}-coverage.html`, href: sourceHref };
+    return artifact?.downloadHref
+      ? { filename: `${project.slug}-coverage.pdf`, href: artifact.downloadHref }
+      : { filename: `${project.slug}-coverage.html`, href: sourceHref };
   }
 
   return {

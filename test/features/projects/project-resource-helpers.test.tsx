@@ -38,7 +38,23 @@ describe("artifactDownload", () => {
     ).toBeUndefined();
   });
 
-  test("uses artifact-specific names for coverage and diagrams", () => {
+  test("uses a coverage PDF when the artifact provides one and otherwise falls back to HTML", () => {
+    expect(
+      artifactDownload(
+        projectWithDownloads,
+        "coverage",
+        {
+          href: "https://assets.example.com/projects/example/coverage/index.html",
+          label: "Coverage",
+          downloadHref: "https://assets.example.com/projects/example/coverage/index.pdf",
+        },
+        "https://assets.example.com/projects/example/coverage/index.html",
+        undefined,
+      ),
+    ).toEqual({
+      filename: "desktop-tool-coverage.pdf",
+      href: "https://assets.example.com/projects/example/coverage/index.pdf",
+    });
     expect(
       artifactDownload(
         projectWithDownloads,
@@ -51,6 +67,9 @@ describe("artifactDownload", () => {
       filename: "desktop-tool-coverage.html",
       href: "https://assets.example.com/projects/example/coverage/index.html",
     });
+  });
+
+  test("uses artifact-specific names for diagrams", () => {
     expect(
       artifactDownload(
         projectWithDownloads,

@@ -17,6 +17,7 @@ import { parseJsonFrontmatter } from "@/content/frontmatter";
 const exampleArtifactEntry: ProjectArtifactEntry = {
   coverageComingSoon: true,
   coveragePath: "projects/example/coverage/index.html",
+  coveragePdfPath: "projects/example/coverage/index.pdf",
   docsPdfPath: "docs/example/index.pdf",
   docsPath: "docs/example/index.html",
   iconPath: "asset://icons/example/mark.svg",
@@ -99,6 +100,7 @@ const artifactFixtures = new Map<string, string>([
       projects: {
         "connor-hunter": {
           coveragePath: "projects/connor-hunter/coverage/index.html",
+          coveragePdfPath: "projects/connor-hunter/coverage/index.pdf",
           docsPdfPath: "docs/connor-hunter/index.pdf",
           docsPath: "docs/connor-hunter/index.html",
           iconPath: "asset://icons/connor-hunter/mark.svg",
@@ -107,6 +109,7 @@ const artifactFixtures = new Map<string, string>([
         },
         "artifact-generator": {
           coveragePath: "projects/artifact-generator/coverage/index.html",
+          coveragePdfPath: "projects/artifact-generator/coverage/index.pdf",
           docsPath: "docs/artifact-generator/index.html",
           iconPath: "asset://icons/artifact-generator/mark.svg",
           markdownPath: "projects/artifact-generator.md",
@@ -414,6 +417,19 @@ Body content.`);
     expect(docsWithoutPdf?.downloadHref).toBeUndefined();
   });
 
+  test("exposes generated coverage PDFs as downloadable artifact links", () => {
+    const coverage = projectArtifactLinks(exampleArtifactEntry).find(
+      (artifact) => artifact.label === "Coverage",
+    );
+    const coverageWithoutPdf = projectArtifactLinks({
+      ...exampleArtifactEntry,
+      coveragePdfPath: undefined,
+    }).find((artifact) => artifact.label === "Coverage");
+
+    expect(coverage?.downloadHref).toBe(artifactUrl("projects/example/coverage/index.pdf"));
+    expect(coverageWithoutPdf?.downloadHref).toBeUndefined();
+  });
+
   test("validates content and preserves project order", async () => {
     const content = await getPortfolioContent();
     const projectOrders = content.projects.map((project) => project.slug);
@@ -432,6 +448,11 @@ Body content.`);
         .find((project) => project.slug === "connor-hunter")
         ?.artifacts.find((artifact) => artifact.label === "Docs")?.downloadHref,
     ).toBe(artifactUrl("docs/connor-hunter/index.pdf"));
+    expect(
+      content.projects
+        .find((project) => project.slug === "connor-hunter")
+        ?.artifacts.find((artifact) => artifact.label === "Coverage")?.downloadHref,
+    ).toBe(artifactUrl("projects/connor-hunter/coverage/index.pdf"));
     expect(
       content.projects
         .find((project) => project.slug === "cipher")

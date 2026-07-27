@@ -69,6 +69,7 @@ describe("publish coverage", () => {
     const coverageDir = join(tempDir, "coverage");
     mkdirSync(coverageDir, { recursive: true });
     writeFileSync(join(coverageDir, "index.html"), "<html>coverage</html>");
+    writeFileSync(join(coverageDir, "index.pdf"), "%PDF-1.4");
 
     await publishCoverage({
       commandRunner,
@@ -124,7 +125,7 @@ describe("publish coverage", () => {
     );
   });
 
-  test("requires a rendered coverage report before publishing", async () => {
+  test("requires rendered coverage HTML and PDF files before publishing", async () => {
     tempDir = mkdtempSync(join(tmpdir(), "coverage-publish-"));
 
     await expect(

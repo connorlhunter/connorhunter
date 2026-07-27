@@ -435,6 +435,50 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
       font-size: 0.8rem;
       font-weight: 600;
     }
+
+    @media print {
+      @page {
+        size: letter landscape;
+        margin: 0.45in;
+      }
+
+      html,
+      body {
+        background: #ffffff;
+        color: #17202a;
+      }
+
+      main {
+        width: 100%;
+        padding: 0;
+      }
+
+      header {
+        margin-bottom: 0.75rem;
+      }
+
+      header a {
+        display: none;
+      }
+
+      .table-wrap {
+        overflow: visible;
+        border: 0;
+      }
+
+      table {
+        min-width: 0;
+      }
+
+      th,
+      td {
+        padding: 0.45rem 0.55rem;
+      }
+
+      th:first-child {
+        overflow-wrap: anywhere;
+      }
+    }
   </style>
   ${coverageThemeScript()}
 </head>
