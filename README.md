@@ -75,4 +75,4 @@ Portfolio coverage is the one artifact this repo publishes itself:
 bun run coverage:publish
 ```
 
-The script runs the coverage gate, renders `coverage/index.html`, syncs the coverage folder to `projects/connor-hunter/coverage/`, and invalidates the artifact CloudFront path when `ARTIFACTS_CLOUDFRONT_DISTRIBUTION_ID` is set. Set `ARTIFACTS_BUCKET` for the live artifact bucket; set `SOURCE_ARTIFACTS_BUCKET` too when you also want a durable source copy.
+The script runs the coverage gate, renders `coverage/index.html` and `coverage/index.pdf`, syncs the coverage folder to `projects/connor-hunter/coverage/`, and invalidates the artifact CloudFront path when `ARTIFACTS_CLOUDFRONT_DISTRIBUTION_ID` is set. The viewer embeds the HTML report and downloads the PDF. Set `ARTIFACTS_BUCKET` for the live artifact bucket; set `SOURCE_ARTIFACTS_BUCKET` too when you also want a durable source copy.
