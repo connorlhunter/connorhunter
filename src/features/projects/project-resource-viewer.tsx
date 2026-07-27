@@ -9,6 +9,7 @@ import { MissingArtifactFallback, ProjectOverviewContent } from "./project-resou
 import { ProjectResourceControls } from "./project-resource-controls";
 import {
   artifactForViewer,
+  artifactDownload,
   diagramItems,
   projectNavigationActions,
   selectedDiagramItem,
@@ -52,6 +53,7 @@ export function ProjectResourceViewer({
     activeViewer === "diagrams" ? selectedDiagramItem(diagrams, diagram) : undefined;
   const sourceHref =
     artifact && !artifact.comingSoon ? (selectedDiagram?.href ?? artifact.href) : undefined;
+  const download = artifactDownload(project, activeViewer, artifact, sourceHref, selectedDiagram);
   const absoluteViewerHref = absoluteSiteUrl(projectDetailViewerHref(project.slug, activeViewer));
   const emailHref = mailtoHref(
     emailContact(content.contacts),
@@ -70,7 +72,7 @@ export function ProjectResourceViewer({
       <FileViewer
         actions={navigationActions}
         ariaLabel={`${project.title} ${projectViewerLabel(activeViewer)} viewer`}
-        downloadHref={activeViewer !== "project" ? sourceHref : undefined}
+        download={download}
         emailHref={emailHref}
         iframeTitle={title}
         icon={

@@ -8,7 +8,14 @@ import { loadSkills } from "./profile/skills";
 import { loadSocialLinks } from "./profile/social-links";
 import { portfolioContentSchema, type PortfolioContent, type Project } from "./schema";
 
-let portfolioContentPromise: Promise<PortfolioContent> | undefined;
+interface PortfolioContentCache {
+  readonly expiresAt: number;
+  readonly promise: Promise<PortfolioContent>;
+}
+
+const portfolioContentCacheTtlMs = 30_000;
+
+let portfolioContentCache: PortfolioContentCache | undefined;
 
 /**
  * @returns Portfolio content assembled from profile, navigation, timeline, and project artifacts.
@@ -40,12 +47,28 @@ async function loadPortfolioContent(): Promise<PortfolioContent> {
 }
 
 /**
- * @returns Cached portfolio content loaded from the configured artifact source.
+ * @returns Bounded cached portfolio content loaded from the configured artifact source.
  */
 export function getPortfolioContent(): Promise<PortfolioContent> {
-  portfolioContentPromise ??= loadPortfolioContent();
+  const now = Date.now();
 
-  return portfolioContentPromise;
+  if (portfolioContentCache && portfolioContentCache.expiresAt > now) {
+    return portfolioContentCache.promise;
+  }
+
+  const promise = loadPortfolioContent();
+  portfolioContentCache = {
+    expiresAt: now + portfolioContentCacheTtlMs,
+    promise,
+  };
+
+  void promise.catch(() => {
+    if (portfolioContentCache?.promise === promise) {
+      portfolioContentCache = undefined;
+    }
+  });
+
+  return promise;
 }
 
 /**
@@ -62,5 +85,5 @@ export async function getProjectBySlug(slug: string): Promise<Project | undefine
  * @returns Nothing; clears the portfolio content cache for tests and reloads.
  */
 export function clearPortfolioContentCache(): void {
-  portfolioContentPromise = undefined;
+  portfolioContentCache = undefined;
 }

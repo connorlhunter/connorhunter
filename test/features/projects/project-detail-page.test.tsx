@@ -435,9 +435,7 @@ describe("ProjectDetailPage", () => {
     expect(
       within(viewerActions).getByRole("link", { name: "Open" }).getAttribute("href"),
     ).toContain("projects/example/coverage/index.html");
-    expect(
-      within(viewerActions).getByRole("link", { name: "Download" }).getAttribute("href"),
-    ).toContain("projects/example/coverage/index.html");
+    expect(within(viewerActions).getByRole("button", { name: "Download" })).toBeTruthy();
     expect(
       within(viewerActions).getByRole("link", { name: "Email" }).getAttribute("href"),
     ).toContain("mailto:example@example.com");

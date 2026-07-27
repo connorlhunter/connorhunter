@@ -1,6 +1,10 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ArtifactItem, ArtifactLink, Project } from "@/content/schema";
-import { navigateInPlace, type FileViewerAction } from "@/features/viewer/file-viewer";
+import {
+  navigateInPlace,
+  type FileViewerAction,
+  type FileViewerDownload,
+} from "@/features/viewer/file-viewer";
 import {
   artifactViewerKind,
   projectDetailViewerHref,
@@ -56,6 +60,41 @@ export function selectedDiagramItem(
  */
 export function viewerHref(project: Project, viewer: ProjectViewerKind): string {
   return projectDetailViewerHref(project.slug, viewer);
+}
+
+/**
+ * @param project - Project represented by the active viewer.
+ * @param viewer - Active project artifact viewer.
+ * @param artifact - Artifact metadata resolved for the viewer.
+ * @param sourceHref - Public source shown in the iframe.
+ * @param selectedDiagram - Active diagram when the diagram viewer is open.
+ * @returns Download metadata for the active artifact when a downloadable file exists.
+ */
+export function artifactDownload(
+  project: Project,
+  viewer: ProjectViewerKind,
+  artifact: ArtifactLink | undefined,
+  sourceHref: string | undefined,
+  selectedDiagram: ArtifactItem | undefined,
+): FileViewerDownload | undefined {
+  if (!sourceHref || viewer === "project") {
+    return undefined;
+  }
+
+  if (viewer === "docs") {
+    return artifact?.downloadHref
+      ? { filename: `${project.slug}-docs.pdf`, href: artifact.downloadHref }
+      : undefined;
+  }
+
+  if (viewer === "coverage") {
+    return { filename: `${project.slug}-coverage.html`, href: sourceHref };
+  }
+
+  return {
+    filename: `${project.slug}-${selectedDiagram?.id ?? "diagram"}.svg`,
+    href: sourceHref,
+  };
 }
 
 /**

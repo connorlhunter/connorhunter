@@ -1,0 +1,83 @@
+import { describe, expect, test } from "bun:test";
+import { artifactDownload } from "@/features/projects/project-resource-helpers";
+import { projectWithDownloads } from "../../mock-content";
+
+describe("artifactDownload", () => {
+  const docs = projectWithDownloads.artifacts.find((artifact) => artifact.label === "Docs");
+
+  test("does not offer downloads for the project view or an unavailable source", () => {
+    expect(
+      artifactDownload(projectWithDownloads, "project", undefined, undefined, undefined),
+    ).toBeUndefined();
+    expect(
+      artifactDownload(projectWithDownloads, "coverage", undefined, undefined, undefined),
+    ).toBeUndefined();
+  });
+
+  test("uses the generated PDF for docs", () => {
+    expect(
+      artifactDownload(
+        projectWithDownloads,
+        "docs",
+        { ...docs!, downloadHref: "https://assets.example.com/docs/example/index.pdf" },
+        "https://assets.example.com/docs/example/index.html",
+        undefined,
+      ),
+    ).toEqual({
+      filename: "desktop-tool-docs.pdf",
+      href: "https://assets.example.com/docs/example/index.pdf",
+    });
+    expect(
+      artifactDownload(
+        projectWithDownloads,
+        "docs",
+        docs,
+        "https://assets.example.com/docs/example/index.html",
+        undefined,
+      ),
+    ).toBeUndefined();
+  });
+
+  test("uses artifact-specific names for coverage and diagrams", () => {
+    expect(
+      artifactDownload(
+        projectWithDownloads,
+        "coverage",
+        undefined,
+        "https://assets.example.com/projects/example/coverage/index.html",
+        undefined,
+      ),
+    ).toEqual({
+      filename: "desktop-tool-coverage.html",
+      href: "https://assets.example.com/projects/example/coverage/index.html",
+    });
+    expect(
+      artifactDownload(
+        projectWithDownloads,
+        "diagrams",
+        undefined,
+        "https://assets.example.com/diagrams/example/overview.svg",
+        {
+          href: "https://assets.example.com/diagrams/example/overview.svg",
+          id: "overview",
+          label: "Overview",
+        },
+      ),
+    ).toEqual({
+      filename: "desktop-tool-overview.svg",
+      href: "https://assets.example.com/diagrams/example/overview.svg",
+    });
+    expect(
+      artifactDownload(
+        projectWithDownloads,
+        "diagrams",
+        undefined,
+        "https://assets.example.com/diagrams/example/diagram.svg",
+        undefined,
+      ),
+    ).toEqual({
+      filename: "desktop-tool-diagram.svg",
+      href: "https://assets.example.com/diagrams/example/diagram.svg",
+    });
+  });
+});

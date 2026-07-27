@@ -49,10 +49,10 @@ function packageJsonWithPins(packageJson: Record<string, unknown>, pins: PinReco
  * @param excludes - Dependency release-age exclusions.
  * @returns Bunfig text with synced release-age exclusions.
  */
-function bunfigWithReleaseAgeExcludes(current: string, excludes: ReleaseAgeRecord): string {
+export function bunfigWithReleaseAgeExcludes(current: string, excludes: ReleaseAgeRecord): string {
   const names = Object.keys(sortedRecord(excludes));
   const withoutExisting = current
-    .replace(/\nminimumReleaseAgeExcludes = \[[\s\S]*?\]\n?/m, "\n")
+    .replace(/^minimumReleaseAgeExcludes = \[[\s\S]*?^\]\n?/gmu, "")
     .trimEnd();
 
   if (names.length === 0) {
@@ -60,7 +60,16 @@ function bunfigWithReleaseAgeExcludes(current: string, excludes: ReleaseAgeRecor
   }
 
   const renderedNames = names.map((name) => `  "${name}",`).join("\n");
-  return `${withoutExisting}\nminimumReleaseAgeExcludes = [\n${renderedNames}\n]\n`;
+  const installSectionPattern = /^\[install\][\s\S]*?(?=^\[[^\n]+\]|(?![\s\S]))/mu;
+
+  if (!installSectionPattern.test(withoutExisting)) {
+    throw new Error("Expected bunfig.toml to contain an [install] section.");
+  }
+
+  return withoutExisting.replace(
+    installSectionPattern,
+    (section) => `${section.trimEnd()}\nminimumReleaseAgeExcludes = [\n${renderedNames}\n]\n\n`,
+  );
 }
 
 /**
@@ -89,4 +98,6 @@ export function syncDependencyPolicy({ check = false }: { check?: boolean } = {}
   writeFileSync(bunfigPath, nextBunfig);
 }
 
-syncDependencyPolicy({ check: process.argv.includes("--check") });
+if (import.meta.main) {
+  syncDependencyPolicy({ check: process.argv.includes("--check") });
+}

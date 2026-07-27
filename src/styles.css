@@ -344,6 +344,25 @@ main {
   -webkit-overflow-scrolling: touch;
 }
 
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+  color: var(--text);
+  padding: 0.55rem 0.75rem;
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform var(--motion-fast);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 footer {
   position: relative;
   z-index: 1;
@@ -691,6 +710,13 @@ footer {
   gap: 0.5rem;
 }
 
+.file-viewer-download-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: color-mix(in srgb, #b42318 78%, var(--text));
+  text-align: right;
+}
+
 .resume-viewer-toolbar {
   align-items: stretch;
   flex-direction: column;
@@ -808,6 +834,34 @@ footer {
   height: 100%;
   border: 0;
   background: var(--panel);
+}
+
+.file-viewer-frame-loading {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  z-index: 1;
+  display: inline-flex;
+  max-width: calc(100% - 2rem);
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--panel) 94%, var(--accent-soft));
+  box-shadow: var(--shadow-sm);
+  color: var(--muted);
+  padding: 0.55rem 0.75rem;
+  pointer-events: none;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.file-viewer-frame-loading-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  animation: resume-pdf-status-spin 900ms linear infinite;
+  color: var(--accent);
 }
 
 .file-viewer-content {
@@ -1414,6 +1468,10 @@ footer {
 
   .file-viewer-actions {
     justify-content: flex-start;
+  }
+
+  .file-viewer-download-error {
+    text-align: left;
   }
 
   .resume-viewer-toolbar-main {

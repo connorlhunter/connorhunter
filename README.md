@@ -35,7 +35,9 @@ variables.
 
 The artifact root serves manifests, profile markdown, project markdown, docs, diagrams, and project coverage URLs. Artifact Generator publishes docs and diagrams. This repo publishes the Portfolio coverage page under `projects/connor-hunter/coverage/`. The asset root serves icons, crypto images, and the resume PDF.
 
-S3 buckets should stay private behind CloudFront. Both published S3 buckets use restricted CORS origins, and both CloudFront distributions use `Managed-CORS-S3Origin` with `Managed-CachingDisabled` so browser fetches get exact allowed-origin headers, including `304` revalidation responses.
+Portfolio content is deduplicated for 30 seconds in each running SSR instance, then reloaded from the artifact origin. After an artifact publish and CloudFront invalidation, allow up to 30 seconds for an already-warm SSR instance to refresh its content.
+
+S3 buckets should stay private behind CloudFront. Both published S3 buckets use restricted CORS origins, and both CloudFront distributions use `Managed-CORS-S3Origin` with `Managed-CachingDisabled` so browser fetches get exact allowed-origin headers, including `304` revalidation responses. Allow the production origins plus only the local development origins you actively use, such as `http://localhost:3000` and `http://localhost:5173`; do not use `*`.
 
 ## Common Commands
 
@@ -50,6 +52,8 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 | Run lint            | `bun run lint`             |
 | Typecheck           | `bun run typecheck`        |
 | Run full validation | `bun run verify`           |
+
+`bun run start` previews the most recent Amplify production build, so run `bun run build` first. It is not needed for normal local development; use `bun run dev` for that.
 
 ## Project Shape
 

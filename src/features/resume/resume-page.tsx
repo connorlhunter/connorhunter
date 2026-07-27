@@ -44,7 +44,7 @@ export function ResumePage({ content, loadResumeDocument }: ResumePageProps): Re
 
           <FileViewer
             ariaLabel="Resume viewer"
-            downloadHref={content.resume.href}
+            download={{ filename: "connor-hunter-resume.pdf", href: content.resume.href }}
             emailHref={emailHref}
             icon={<FileText aria-hidden="true" className="size-5" />}
             openHref={content.resume.href}

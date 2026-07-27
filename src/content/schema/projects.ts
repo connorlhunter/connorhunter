@@ -15,6 +15,7 @@ export const artifactItemSchema = z.object({
  */
 export const artifactLinkSchema = z.object({
   comingSoon: z.boolean().optional(),
+  downloadHref: hrefSchema.optional(),
   label: z.enum(["Docs", "Coverage", "Diagrams"]),
   href: hrefSchema,
   items: z.array(artifactItemSchema).optional(),

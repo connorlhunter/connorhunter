@@ -1,17 +1,19 @@
-import { useRef, type ReactNode } from "react";
+import { LoaderCircle } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { TypographySmall } from "@/components/ui/typography";
 import { postThemeSchemeToFrame, useOptionalTheme } from "@/features/theme/theme-provider";
 import { FileViewerActions, FileViewerHeading } from "./file-viewer-toolbar";
-import type { FileViewerAction } from "./file-viewer-types";
+import type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
 import { useFullscreenViewer } from "./hooks/use-fullscreen-viewer";
 
 export { navigateInPlace } from "./file-viewer-navigation";
-export type { FileViewerAction } from "./file-viewer-types";
+export type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
 
 interface FileViewerProps {
   readonly actions?: ReadonlyArray<FileViewerAction>;
   readonly ariaLabel: string;
   readonly children?: ReactNode;
-  readonly downloadHref?: string | undefined;
+  readonly download?: FileViewerDownload | undefined;
   readonly emailHref?: string | undefined;
   readonly iframeTitle?: string | undefined;
   readonly icon: ReactNode;
@@ -32,7 +34,7 @@ export function FileViewer({
   actions = [],
   ariaLabel,
   children,
-  downloadHref,
+  download,
   emailHref,
   iframeTitle,
   icon,
@@ -42,7 +44,10 @@ export function FileViewer({
   sourceHref,
   title,
 }: FileViewerProps): ReactNode {
+  const [frameSourceHref, setFrameSourceHref] = useState<string | undefined>(undefined);
+  const loadedSourceHrefRef = useRef<string | undefined>(undefined);
   const viewerRef = useRef<HTMLDivElement>(null);
+  const [frameLoading, setFrameLoading] = useState(Boolean(sourceHref));
   const theme = useOptionalTheme();
   const { fullscreen, toggleFullscreen } = useFullscreenViewer(viewerRef);
   const resolvedOpenHref = openHref ?? sourceHref;
@@ -56,7 +61,7 @@ export function FileViewer({
   const actionControls = (
     <FileViewerActions
       actions={actions}
-      downloadHref={downloadHref}
+      download={download}
       emailHref={emailHref}
       fullscreen={fullscreen}
       onToggleFullscreen={() => {
@@ -66,7 +71,28 @@ export function FileViewer({
     />
   );
 
+  useEffect(() => {
+    if (!sourceHref) {
+      loadedSourceHrefRef.current = undefined;
+      setFrameLoading(false);
+      setFrameSourceHref(undefined);
+      return;
+    }
+
+    if (loadedSourceHrefRef.current !== sourceHref) {
+      setFrameLoading(true);
+    }
+
+    // Attach the React load listener before a cached iframe can finish during hydration.
+    setFrameSourceHref(sourceHref);
+  }, [sourceHref]);
+
   function handleFrameLoad(frame: HTMLIFrameElement): void {
+    if (frame.getAttribute("src") === sourceHref) {
+      loadedSourceHrefRef.current = sourceHref;
+      setFrameLoading(false);
+    }
+
     if (theme) {
       postThemeSchemeToFrame(frame, theme.scheme);
     }
@@ -85,15 +111,23 @@ export function FileViewer({
         </div>
       )}
 
-      <div className={frameWrapClassName}>
+      <div aria-busy={sourceHref ? frameLoading : undefined} className={frameWrapClassName}>
         {sourceHref ? (
-          <iframe
-            className="file-viewer-frame"
-            key={sourceHref}
-            onLoad={(event) => handleFrameLoad(event.currentTarget)}
-            src={sourceHref}
-            title={iframeTitle ?? title}
-          />
+          <>
+            <iframe
+              className="file-viewer-frame"
+              key={sourceHref}
+              onLoad={(event) => handleFrameLoad(event.currentTarget)}
+              src={frameSourceHref === sourceHref ? frameSourceHref : undefined}
+              title={iframeTitle ?? title}
+            />
+            {frameLoading ? (
+              <TypographySmall as="p" className="file-viewer-frame-loading" role="status">
+                <LoaderCircle aria-hidden="true" className="file-viewer-frame-loading-icon" />
+                Loading {title}
+              </TypographySmall>
+            ) : null}
+          </>
         ) : (
           <div className="file-viewer-content">{children}</div>
         )}

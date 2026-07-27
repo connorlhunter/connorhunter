@@ -1,9 +1,10 @@
-import { Download, ExternalLink, Mail, Maximize2, Minimize2 } from "lucide-react";
-import type { ReactNode } from "react";
+import { Download, ExternalLink, LoaderCircle, Mail, Maximize2, Minimize2 } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { TypographyH4 } from "@/components/ui/typography";
+import { TypographyH4, TypographySmall } from "@/components/ui/typography";
+import { downloadFile } from "@/lib/download-file";
 import { navigateInPlace } from "./file-viewer-navigation";
-import type { FileViewerAction } from "./file-viewer-types";
+import type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
 
 interface FileViewerHeadingProps {
   readonly icon: ReactNode;
@@ -12,7 +13,7 @@ interface FileViewerHeadingProps {
 
 interface FileViewerActionsProps {
   readonly actions: ReadonlyArray<FileViewerAction>;
-  readonly downloadHref?: string | undefined;
+  readonly download?: FileViewerDownload | undefined;
   readonly emailHref?: string | undefined;
   readonly fullscreen: boolean;
   readonly onToggleFullscreen: () => void;
@@ -40,12 +41,28 @@ export function FileViewerHeading({ icon, title }: FileViewerHeadingProps): Reac
  */
 export function FileViewerActions({
   actions,
-  downloadHref,
+  download,
   emailHref,
   fullscreen,
   onToggleFullscreen,
   openHref,
 }: FileViewerActionsProps): ReactNode {
+  const [downloadFailed, setDownloadFailed] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  async function handleDownload(file: FileViewerDownload): Promise<void> {
+    setDownloadFailed(false);
+    setDownloading(true);
+
+    try {
+      await downloadFile(file.href, file.filename);
+    } catch {
+      setDownloadFailed(true);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="file-viewer-actions">
       {actions.map((action) => {
@@ -89,13 +106,30 @@ export function FileViewerActions({
           </a>
         </Button>
       ) : null}
-      {downloadHref ? (
-        <Button asChild size="small" variant="secondary">
-          <a download href={downloadHref}>
-            <Download aria-hidden="true" className="size-4" />
-            Download
-          </a>
-        </Button>
+      {download ? (
+        <>
+          <Button
+            disabled={downloading}
+            onClick={() => {
+              void handleDownload(download);
+            }}
+            size="small"
+            type="button"
+            variant="secondary"
+          >
+            {downloading ? (
+              <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+            ) : (
+              <Download aria-hidden="true" className="size-4" />
+            )}
+            {downloading ? "Downloading" : "Download"}
+          </Button>
+          {downloadFailed ? (
+            <TypographySmall as="p" className="file-viewer-download-error" role="alert">
+              Unable to download {download.filename}. Try again.
+            </TypographySmall>
+          ) : null}
+        </>
       ) : null}
       {emailHref ? (
         <Button asChild size="small" variant="outline">
