@@ -45,7 +45,6 @@ export function FileViewer({
   title,
 }: FileViewerProps): ReactNode {
   const [frameSourceHref, setFrameSourceHref] = useState<string | undefined>(undefined);
-  const loadedSourceHrefRef = useRef<string | undefined>(undefined);
   const viewerRef = useRef<HTMLDivElement>(null);
   const [frameLoading, setFrameLoading] = useState(Boolean(sourceHref));
   const theme = useOptionalTheme();
@@ -73,25 +72,19 @@ export function FileViewer({
 
   useEffect(() => {
     if (!sourceHref) {
-      loadedSourceHrefRef.current = undefined;
       setFrameLoading(false);
       setFrameSourceHref(undefined);
       return;
     }
 
-    if (loadedSourceHrefRef.current !== sourceHref) {
-      setFrameLoading(true);
-    }
-
-    // Attach the React load listener before a cached iframe can finish during hydration.
+    setFrameLoading(true);
     setFrameSourceHref(sourceHref);
   }, [sourceHref]);
 
-  function handleFrameLoad(frame: HTMLIFrameElement): void {
-    if (frame.getAttribute("src") === sourceHref) {
-      loadedSourceHrefRef.current = sourceHref;
-      setFrameLoading(false);
-    }
+  function handleFrameLoad(frame: HTMLIFrameElement, loadedHref: string): void {
+    if (loadedHref !== sourceHref) return;
+
+    setFrameLoading(false);
 
     if (theme) {
       postThemeSchemeToFrame(frame, theme.scheme);
@@ -114,13 +107,15 @@ export function FileViewer({
       <div aria-busy={sourceHref ? frameLoading : undefined} className={frameWrapClassName}>
         {sourceHref ? (
           <>
-            <iframe
-              className="file-viewer-frame"
-              key={sourceHref}
-              onLoad={(event) => handleFrameLoad(event.currentTarget)}
-              src={frameSourceHref === sourceHref ? frameSourceHref : undefined}
-              title={iframeTitle ?? title}
-            />
+            {frameSourceHref === sourceHref ? (
+              <iframe
+                className="file-viewer-frame"
+                key={frameSourceHref}
+                onLoad={(event) => handleFrameLoad(event.currentTarget, frameSourceHref)}
+                src={frameSourceHref}
+                title={iframeTitle ?? title}
+              />
+            ) : null}
             {frameLoading ? (
               <TypographySmall as="p" className="file-viewer-frame-loading" role="status">
                 <LoaderCircle aria-hidden="true" className="file-viewer-frame-loading-icon" />
