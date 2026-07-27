@@ -1,10 +1,25 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { themeMessageType, themeStorageKey } from "@/features/theme/theme";
 import { FileViewer, navigateInPlace } from "@/features/viewer/file-viewer";
 
 describe("FileViewer", () => {
+  test("defers an iframe source until the client can listen for its first load", () => {
+    const html = renderToStaticMarkup(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="https://artifacts.example.com/viewer.html"
+        title="Example file"
+      />,
+    );
+
+    expect(html).toContain("Loading Example file");
+    expect(html).not.toContain('src="https://artifacts.example.com/viewer.html"');
+  });
+
   test("renders optional action variants in the default toolbar", () => {
     const originalPushState = window.history.pushState;
     const pushStates: Array<string | URL | null | undefined> = [];

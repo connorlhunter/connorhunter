@@ -44,6 +44,7 @@ export function FileViewer({
   sourceHref,
   title,
 }: FileViewerProps): ReactNode {
+  const [frameSourceHref, setFrameSourceHref] = useState<string | undefined>(undefined);
   const loadedSourceHrefRef = useRef<string | undefined>(undefined);
   const viewerRef = useRef<HTMLDivElement>(null);
   const [frameLoading, setFrameLoading] = useState(Boolean(sourceHref));
@@ -74,12 +75,16 @@ export function FileViewer({
     if (!sourceHref) {
       loadedSourceHrefRef.current = undefined;
       setFrameLoading(false);
+      setFrameSourceHref(undefined);
       return;
     }
 
     if (loadedSourceHrefRef.current !== sourceHref) {
       setFrameLoading(true);
     }
+
+    // Attach the React load listener before a cached iframe can finish during hydration.
+    setFrameSourceHref(sourceHref);
   }, [sourceHref]);
 
   function handleFrameLoad(frame: HTMLIFrameElement): void {
@@ -113,7 +118,7 @@ export function FileViewer({
               className="file-viewer-frame"
               key={sourceHref}
               onLoad={(event) => handleFrameLoad(event.currentTarget)}
-              src={sourceHref}
+              src={frameSourceHref}
               title={iframeTitle ?? title}
             />
             {frameLoading ? (
