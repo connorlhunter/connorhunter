@@ -6,7 +6,7 @@ import { themeMessageType, themeStorageKey } from "@/features/theme/theme";
 import { FileViewer, navigateInPlace } from "@/features/viewer/file-viewer";
 
 describe("FileViewer", () => {
-  test("defers an iframe source until the client can listen for its first load", () => {
+  test("does not mount an iframe until the client can listen for its first load", () => {
     const html = renderToStaticMarkup(
       <FileViewer
         ariaLabel="Example viewer"
@@ -18,6 +18,7 @@ describe("FileViewer", () => {
 
     expect(html).toContain("Loading Example file");
     expect(html).not.toContain('src="https://artifacts.example.com/viewer.html"');
+    expect(html).not.toContain("<iframe");
   });
 
   test("renders optional action variants in the default toolbar", () => {
@@ -206,5 +207,35 @@ describe("FileViewer", () => {
       cleanup();
       window.localStorage.removeItem(themeStorageKey);
     }
+  });
+
+  test("replaces the frame before loading a changed source", async () => {
+    const { rerender } = render(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="/first-viewer.html"
+        title="Example file"
+      />,
+    );
+
+    const firstFrame = screen.getByTitle("Example file");
+    fireEvent.load(firstFrame);
+
+    rerender(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="/second-viewer.html"
+        title="Example file"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTitle("Example file").getAttribute("src")).toBe("/second-viewer.html");
+    });
+
+    fireEvent.load(screen.getByTitle("Example file"));
+    expect(screen.queryByRole("status")).toBeNull();
   });
 });
