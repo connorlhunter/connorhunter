@@ -33,7 +33,6 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.18.0",
     "marked": "^18.0.5",
-    "motion": "^12.40.0",
     "pdfjs-dist": "^6.0.227",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

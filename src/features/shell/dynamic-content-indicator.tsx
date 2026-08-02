@@ -1,5 +1,4 @@
 import { Cloud } from "lucide-react";
-import { motion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { TypographySmall } from "@/components/ui/typography";
 import { publicConfig } from "@/config/public-env";
@@ -52,16 +51,13 @@ export function DynamicContentIndicator({ description }: DynamicContentIndicator
   }
 
   return (
-    <motion.button
-      animate={{ opacity: 1, scale: 1, y: 0 }}
+    <button
       aria-expanded={expanded}
       aria-label={expanded ? "Hide dynamic content details" : "Show dynamic content details"}
       className="dynamic-content-indicator inline-flex max-w-full cursor-pointer items-center overflow-hidden border border-(--border) text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
       data-expanded={expanded}
-      initial={{ opacity: 0, scale: 0.98, y: -4 }}
       onClick={toggleExpanded}
       title={expanded ? "Hide dynamic content details" : "Show dynamic content details"}
-      transition={{ duration: 0.16, ease: "easeOut" }}
       type="button"
     >
       <span className="dynamic-content-icon">
@@ -77,6 +73,6 @@ export function DynamicContentIndicator({ description }: DynamicContentIndicator
           </TypographySmall>
         </span>
       </span>
-    </motion.button>
+    </button>
   );
 }

@@ -1,4 +1,3 @@
-import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import type { PortfolioContent } from "@/content/schema";
 import { DynamicContentIndicator } from "./dynamic-content-indicator";
@@ -29,23 +28,21 @@ export function SiteLayout({ children, content, contentSource }: SiteLayoutProps
   return (
     <ThemeProvider>
       <ThemeIconSync />
-      <MotionConfig reducedMotion="user">
-        <a className="skip-link" href="#main-content">
-          Skip to content
-        </a>
-        <SiteHeader navigation={content.navigation} profile={content.profile} />
-        <main id="main-content" tabIndex={-1}>
-          {contentSource ? (
-            <div className="dynamic-content-band px-5 sm:px-8 lg:px-10">
-              <div className="page-container">
-                <DynamicContentIndicator description={contentSource} />
-              </div>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
+      <SiteHeader navigation={content.navigation} profile={content.profile} />
+      <main id="main-content" tabIndex={-1}>
+        {contentSource ? (
+          <div className="dynamic-content-band px-5 sm:px-8 lg:px-10">
+            <div className="page-container">
+              <DynamicContentIndicator description={contentSource} />
             </div>
-          ) : null}
-          {children}
-        </main>
-        <Footer brandName={content.profile.name} contacts={content.contacts} />
-      </MotionConfig>
+          </div>
+        ) : null}
+        {children}
+      </main>
+      <Footer brandName={content.profile.name} contacts={content.contacts} />
     </ThemeProvider>
   );
 }
