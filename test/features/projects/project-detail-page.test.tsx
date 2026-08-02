@@ -366,9 +366,9 @@ describe("ProjectDetailPage", () => {
       expect(
         within(diagramNavigation).getByRole("link", { name: "Detail" }).getAttribute("href"),
       ).toBe("/projects/desktop-tool?viewer=diagrams&diagram=detail#project-viewer");
-      expect(screen.getByTitle("Desktop Tool Detail").getAttribute("src")).toContain(
-        "diagrams/example/example-detail.svg",
-      );
+      expect(
+        screen.getByRole("img", { name: "Desktop Tool Detail" }).getAttribute("src"),
+      ).toContain("diagrams/example/example-detail.svg");
 
       fireEvent.click(overviewLink);
 
@@ -398,9 +398,9 @@ describe("ProjectDetailPage", () => {
     );
 
     expect(screen.queryByRole("navigation", { name: "Desktop Tool diagrams" })).toBeNull();
-    expect(screen.getByTitle("Desktop Tool Overview").getAttribute("src")).toContain(
-      "diagrams/example/example-overview.svg",
-    );
+    expect(
+      screen.getByRole("img", { name: "Desktop Tool Overview" }).getAttribute("src"),
+    ).toContain("diagrams/example/example-overview.svg");
 
     cleanup();
   });

@@ -254,6 +254,12 @@ html {
   scroll-padding-top: 6rem;
 }
 
+html.file-viewer-fullscreen-active,
+html.file-viewer-fullscreen-active body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   position: relative;
   min-height: 100vh;
@@ -772,12 +778,29 @@ footer {
   min-height: 0;
 }
 
-.file-viewer-shell:fullscreen {
+.file-viewer-shell:fullscreen,
+.file-viewer-shell--fullscreen {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   border: 0;
   border-radius: 0;
   background: var(--bg);
+}
+
+.file-viewer-shell--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+.file-viewer-gesture-exit {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+  z-index: 20;
+  display: none;
+  box-shadow: var(--shadow);
 }
 
 .file-viewer-toolbar {
@@ -1142,7 +1165,8 @@ footer {
   min-height: 0;
 }
 
-.file-viewer-shell:fullscreen .file-viewer-frame-wrap {
+.file-viewer-shell:fullscreen .file-viewer-frame-wrap,
+.file-viewer-shell--fullscreen .file-viewer-frame-wrap {
   height: auto;
   min-height: 0;
   flex: 1;
@@ -1195,7 +1219,12 @@ footer {
   height: 100%;
   overflow: auto;
   padding: 1rem;
+  touch-action: manipulation;
   transform: translateZ(0);
+}
+
+.file-viewer-content--viewport {
+  padding: 0;
 }
 
 .file-viewer-content-wrap .file-viewer-content {
@@ -1346,7 +1375,8 @@ footer {
     var(--shadow-sm);
 }
 
-.file-viewer-shell:fullscreen .file-viewer-drawer {
+.file-viewer-shell:fullscreen .file-viewer-drawer,
+.file-viewer-shell--fullscreen .file-viewer-drawer {
   flex: 0 0 auto;
 }
 
@@ -1579,6 +1609,113 @@ footer {
   min-height: 0;
 }
 
+.project-overview-grid > *,
+.project-overview-notes {
+  animation: site-content-in var(--motion-enter) both;
+}
+
+.project-overview-grid > :nth-child(1) {
+  animation-delay: 80ms;
+}
+
+.project-overview-grid > :nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.project-overview-notes {
+  position: relative;
+  overflow: hidden;
+  animation-delay: 210ms;
+}
+
+.project-overview-notes::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--accent);
+  content: "";
+}
+
+.project-overview-card,
+.project-overview-notes {
+  transition:
+    border-color var(--motion-fast),
+    transform var(--motion-fast);
+  will-change: transform;
+}
+
+.project-overview-card:hover,
+.project-overview-card:focus-within,
+.project-overview-notes:hover,
+.project-overview-notes:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  transform: translate3d(0, -2px, 0);
+}
+
+.project-overview-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.project-overview-icon {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  transition: transform var(--motion-fast);
+}
+
+.project-overview-card:hover .project-overview-icon,
+.project-overview-card:focus-within .project-overview-icon,
+.project-overview-notes:hover .project-overview-icon,
+.project-overview-notes:focus-within .project-overview-icon {
+  transform: translate3d(2px, 0, 0);
+}
+
+.project-diagram-preview {
+  position: relative;
+  display: grid;
+  min-height: 100%;
+  place-items: start center;
+  overflow: auto;
+  background: var(--bg);
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  touch-action: manipulation;
+}
+
+.project-diagram-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  transition: opacity var(--motion-fast);
+}
+
+.project-diagram-image[data-loaded="true"] {
+  opacity: 1;
+}
+
+.project-diagram-error {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-interactive);
+  color: var(--text);
+  padding: 0.65rem 0.8rem;
+}
+
 .project-viewer-empty {
   display: grid;
   min-height: 100%;
@@ -1807,6 +1944,11 @@ footer {
     display: none;
   }
 
+  .file-viewer-shell:fullscreen .file-viewer-gesture-exit,
+  .file-viewer-shell--fullscreen .file-viewer-gesture-exit {
+    display: inline-flex;
+  }
+
   .project-detail-panel .project-detail-header,
   .project-detail-panel .file-viewer-drawer {
     margin-inline: var(--project-detail-mobile-scroll-gutter);
@@ -1830,6 +1972,15 @@ footer {
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     margin: 0.55rem auto 0.8rem;
+  }
+
+  .project-detail-panel .file-viewer-shell:fullscreen .file-viewer-frame-wrap,
+  .project-detail-panel .file-viewer-shell--fullscreen .file-viewer-frame-wrap {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    border: 0;
+    margin: 0;
   }
 
   .file-viewer-content-wrap {
@@ -1967,8 +2118,23 @@ footer {
   .project-card-layout:hover .project-asset-icon,
   .project-card-layout:focus-within .project-asset-icon,
   .timeline-motion-list > article:hover,
-  .timeline-motion-list > article:focus-within {
+  .timeline-motion-list > article:focus-within,
+  .project-overview-card:hover,
+  .project-overview-card:focus-within,
+  .project-overview-notes:hover,
+  .project-overview-notes:focus-within,
+  .project-overview-card:hover .project-overview-icon,
+  .project-overview-card:focus-within .project-overview-icon,
+  .project-overview-notes:hover .project-overview-icon,
+  .project-overview-notes:focus-within .project-overview-icon {
     transform: none;
+  }
+
+  .project-overview-grid > *,
+  .project-overview-notes {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
   }
 
   * {
