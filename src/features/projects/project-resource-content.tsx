@@ -1,7 +1,7 @@
-import { Compass } from "lucide-react";
+import { Blocks, CircleAlert, Compass, NotebookText } from "lucide-react";
 import type { ReactNode } from "react";
 import { StatusPanel } from "@/components/ui/status-panel";
-import { TypographyH3, TypographyMuted } from "@/components/ui/typography";
+import { TypographyEyebrow, TypographyH3, TypographyMuted } from "@/components/ui/typography";
 import type { Project } from "@/content/schema";
 import { renderMarkdown } from "@/lib/markdown";
 import { projectViewerLabel, type ProjectViewerKind } from "./project-viewer-model";
@@ -12,19 +12,49 @@ import { projectViewerLabel, type ProjectViewerKind } from "./project-viewer-mod
  */
 export function ProjectOverviewContent({ project }: { readonly project: Project }): ReactNode {
   return (
-    <div className="project-file-content">
-      <div className="grid gap-4 md:grid-cols-2">
-        <section className="narrative-card p-5">
-          <TypographyH3 as="h2">Problem</TypographyH3>
+    <div className="project-file-content project-overview">
+      <div className="project-overview-grid grid gap-4 md:grid-cols-2">
+        <section className="narrative-card project-overview-card p-5">
+          <div className="project-overview-heading">
+            <span className="project-overview-icon">
+              <CircleAlert aria-hidden="true" className="size-5" />
+            </span>
+            <div>
+              <TypographyEyebrow className="text-(--warm)">Context</TypographyEyebrow>
+              <TypographyH3 as="h2" className="mt-1">
+                Problem
+              </TypographyH3>
+            </div>
+          </div>
           <TypographyMuted className="text-measure mt-3">{project.problem}</TypographyMuted>
         </section>
-        <section className="narrative-card p-5">
-          <TypographyH3 as="h2">Architecture</TypographyH3>
+        <section className="narrative-card project-overview-card p-5">
+          <div className="project-overview-heading">
+            <span className="project-overview-icon">
+              <Blocks aria-hidden="true" className="size-5" />
+            </span>
+            <div>
+              <TypographyEyebrow className="text-(--warm)">System</TypographyEyebrow>
+              <TypographyH3 as="h2" className="mt-1">
+                Architecture
+              </TypographyH3>
+            </div>
+          </div>
           <TypographyMuted className="text-measure mt-3">{project.architecture}</TypographyMuted>
         </section>
       </div>
-      <section className="surface-card mt-4 p-5">
-        <TypographyH3 as="h2">Project Notes</TypographyH3>
+      <section className="project-overview-notes surface-card mt-4 p-5">
+        <div className="project-overview-heading">
+          <span className="project-overview-icon">
+            <NotebookText aria-hidden="true" className="size-5" />
+          </span>
+          <div>
+            <TypographyEyebrow className="text-(--warm)">Reference</TypographyEyebrow>
+            <TypographyH3 as="h2" className="mt-1">
+              Project Notes
+            </TypographyH3>
+          </div>
+        </div>
         <div
           className="portfolio-markdown prose-surface mt-4 text-sm leading-7 text-(--muted)"
           dangerouslySetInnerHTML={{ __html: renderMarkdown(project.markdown) }}

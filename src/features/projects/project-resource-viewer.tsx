@@ -5,6 +5,7 @@ import { ThemedIconImage } from "@/features/theme/theme-icon";
 import { FileViewer } from "@/features/viewer/file-viewer";
 import { emailContact, mailtoHref } from "@/lib/contact";
 import { profileGreetingName } from "@/lib/profile";
+import { ProjectDiagramPreview } from "./project-diagram-preview";
 import { MissingArtifactFallback, ProjectOverviewContent } from "./project-resource-content";
 import { ProjectResourceControls } from "./project-resource-controls";
 import {
@@ -53,6 +54,7 @@ export function ProjectResourceViewer({
     activeViewer === "diagrams" ? selectedDiagramItem(diagrams, diagram) : undefined;
   const sourceHref =
     artifact && !artifact.comingSoon ? (selectedDiagram?.href ?? artifact.href) : undefined;
+  const iframeSourceHref = activeViewer === "diagrams" ? undefined : sourceHref;
   const download = artifactDownload(project, activeViewer, artifact, sourceHref, selectedDiagram);
   const absoluteViewerHref = absoluteSiteUrl(projectDetailViewerHref(project.slug, activeViewer));
   const emailHref = mailtoHref(
@@ -72,6 +74,7 @@ export function ProjectResourceViewer({
       <FileViewer
         actions={navigationActions}
         ariaLabel={`${project.title} ${projectViewerLabel(activeViewer)} viewer`}
+        contentLayout={activeViewer === "diagrams" ? "viewport" : "flow"}
         download={download}
         emailHref={emailHref}
         iframeTitle={title}
@@ -99,10 +102,13 @@ export function ProjectResourceViewer({
             selectedDiagramId={selectedDiagram?.id}
           />
         )}
-        sourceHref={sourceHref}
+        sourceHref={iframeSourceHref}
         title={title}
       >
         {activeViewer === "project" ? <ProjectOverviewContent project={project} /> : null}
+        {activeViewer === "diagrams" && sourceHref ? (
+          <ProjectDiagramPreview href={sourceHref} title={title} />
+        ) : null}
         {activeViewer !== "project" && !artifact ? (
           <MissingArtifactFallback project={project} viewer={activeViewer} />
         ) : null}

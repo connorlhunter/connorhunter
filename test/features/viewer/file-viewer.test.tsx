@@ -3,7 +3,43 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { themeMessageType, themeStorageKey } from "@/features/theme/theme";
-import { FileViewer, navigateInPlace } from "@/features/viewer/file-viewer";
+import {
+  FileViewer,
+  fileViewerFullscreenMessageType,
+  navigateInPlace,
+} from "@/features/viewer/file-viewer";
+
+function firePointerUp(
+  target: Element,
+  options: {
+    readonly at: number;
+    readonly pointerType: string;
+    readonly x: number;
+    readonly y: number;
+  },
+): void {
+  const event = new window.PointerEvent("pointerup", {
+    bubbles: true,
+    clientX: options.x,
+    clientY: options.y,
+    pointerType: options.pointerType,
+  });
+  Object.defineProperty(event, "timeStamp", { configurable: true, value: options.at });
+  fireEvent(target, event);
+}
+
+function fireTimedDoubleClick(target: Element, at: number): void {
+  const event = new window.MouseEvent("dblclick", { bubbles: true });
+  Object.defineProperty(event, "timeStamp", { configurable: true, value: at });
+  fireEvent(target, event);
+}
+
+function dispatchFrameMessage(data: unknown, source: MessageEventSource | null): void {
+  const event = new window.Event("message") as MessageEvent;
+  Object.defineProperty(event, "data", { configurable: true, value: data });
+  Object.defineProperty(event, "source", { configurable: true, value: source });
+  window.dispatchEvent(event);
+}
 
 describe("FileViewer", () => {
   test("does not mount an iframe until the client can listen for its first load", () => {
@@ -96,6 +132,134 @@ describe("FileViewer", () => {
       expect(screen.getByTitle("Coverage").getAttribute("src")).toBe("/coverage.html");
     });
     expect(screen.getByTitle("Coverage").getAttribute("src")).not.toBe("/docs.html");
+
+    cleanup();
+  });
+
+  test("uses fallback fullscreen for direct double-click gestures and exits with Escape", async () => {
+    render(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        title="Example file"
+      >
+        <p>Project overview</p>
+      </FileViewer>,
+    );
+
+    const viewer = screen.getByRole("region", { name: "Example viewer" });
+    Object.defineProperty(viewer, "requestFullscreen", {
+      configurable: true,
+      value: () => Promise.reject(new Error("Fullscreen unavailable.")),
+    });
+
+    fireEvent.doubleClick(screen.getByText("Project overview"));
+
+    await waitFor(() => {
+      expect(viewer.classList.contains("file-viewer-shell--fullscreen")).toBe(true);
+    });
+    expect(document.documentElement.classList.contains("file-viewer-fullscreen-active")).toBe(true);
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    await waitFor(() => {
+      expect(viewer.classList.contains("file-viewer-shell--fullscreen")).toBe(false);
+    });
+    expect(document.documentElement.classList.contains("file-viewer-fullscreen-active")).toBe(
+      false,
+    );
+
+    cleanup();
+  });
+
+  test("recognizes close double taps without intercepting controls or synthetic clicks", async () => {
+    let fullscreenRequests = 0;
+
+    render(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        title="Example file"
+      >
+        <span>Gesture surface</span>
+        <button type="button">Embedded control</button>
+      </FileViewer>,
+    );
+
+    const viewer = screen.getByRole("region", { name: "Example viewer" });
+    const surface = screen.getByText("Gesture surface");
+    const control = screen.getByRole("button", { name: "Embedded control" });
+    Object.defineProperty(viewer, "requestFullscreen", {
+      configurable: true,
+      value: () => {
+        fullscreenRequests += 1;
+        return Promise.reject(new Error("Fullscreen unavailable."));
+      },
+    });
+
+    firePointerUp(surface, { at: 10, pointerType: "mouse", x: 0, y: 0 });
+    firePointerUp(control, { at: 20, pointerType: "touch", x: 0, y: 0 });
+    fireTimedDoubleClick(control, 30);
+    firePointerUp(surface, { at: 100, pointerType: "touch", x: 0, y: 0 });
+    firePointerUp(surface, { at: 200, pointerType: "touch", x: 100, y: 100 });
+    firePointerUp(surface, { at: 700, pointerType: "touch", x: 100, y: 100 });
+
+    expect(fullscreenRequests).toBe(0);
+
+    firePointerUp(surface, { at: 900, pointerType: "touch", x: 104, y: 104 });
+    fireTimedDoubleClick(surface, 950);
+
+    await waitFor(() => {
+      expect(viewer.classList.contains("file-viewer-shell--fullscreen")).toBe(true);
+    });
+    expect(fullscreenRequests).toBe(1);
+
+    fireTimedDoubleClick(surface, 1400);
+    expect(fullscreenRequests).toBe(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Exit full screen" }));
+
+    await waitFor(() => {
+      expect(viewer.classList.contains("file-viewer-shell--fullscreen")).toBe(false);
+    });
+
+    cleanup();
+  });
+
+  test("accepts fullscreen messages only from the current iframe", async () => {
+    let fullscreenRequests = 0;
+
+    render(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="/viewer.html"
+        title="Example file"
+      />,
+    );
+
+    const viewer = screen.getByRole("region", { name: "Example viewer" });
+    const frame = screen.getByTitle("Example file") as HTMLIFrameElement;
+    Object.defineProperty(viewer, "requestFullscreen", {
+      configurable: true,
+      value: () => {
+        fullscreenRequests += 1;
+        return Promise.reject(new Error("Fullscreen unavailable."));
+      },
+    });
+
+    expect(frame.hasAttribute("allowfullscreen")).toBe(true);
+    dispatchFrameMessage({ type: fileViewerFullscreenMessageType }, window);
+    dispatchFrameMessage(null, frame.contentWindow);
+    dispatchFrameMessage({ type: "other" }, frame.contentWindow);
+    expect(fullscreenRequests).toBe(0);
+
+    dispatchFrameMessage({ type: fileViewerFullscreenMessageType }, frame.contentWindow);
+
+    await waitFor(() => {
+      expect(viewer.classList.contains("file-viewer-shell--fullscreen")).toBe(true);
+    });
+    expect(fullscreenRequests).toBe(1);
 
     cleanup();
   });

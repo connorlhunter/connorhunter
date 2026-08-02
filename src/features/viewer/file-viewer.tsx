@@ -1,18 +1,26 @@
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Minimize2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { TypographySmall } from "@/components/ui/typography";
 import { postThemeSchemeToFrame, useOptionalTheme } from "@/features/theme/theme-provider";
+import { cn } from "@/lib/cn";
 import { FileViewerActions, FileViewerHeading } from "./file-viewer-toolbar";
 import type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
+import {
+  isFileViewerFullscreenMessage,
+  useFileViewerFullscreenGesture,
+} from "./hooks/use-file-viewer-fullscreen-gesture";
 import { useFullscreenViewer } from "./hooks/use-fullscreen-viewer";
 
 export { navigateInPlace } from "./file-viewer-navigation";
 export type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
+export { fileViewerFullscreenMessageType } from "./hooks/use-file-viewer-fullscreen-gesture";
 
 interface FileViewerProps {
   readonly actions?: ReadonlyArray<FileViewerAction>;
   readonly ariaLabel: string;
   readonly children?: ReactNode;
+  readonly contentLayout?: "flow" | "viewport";
   readonly download?: FileViewerDownload | undefined;
   readonly emailHref?: string | undefined;
   readonly iframeTitle?: string | undefined;
@@ -34,6 +42,7 @@ export function FileViewer({
   actions = [],
   ariaLabel,
   children,
+  contentLayout = "flow",
   download,
   emailHref,
   iframeTitle,
@@ -45,17 +54,24 @@ export function FileViewer({
   title,
 }: FileViewerProps): ReactNode {
   const [frameSourceHref, setFrameSourceHref] = useState<string | undefined>(undefined);
-  const viewerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const viewerRef = useRef<HTMLElement>(null);
   const [frameLoading, setFrameLoading] = useState(Boolean(sourceHref));
   const theme = useOptionalTheme();
-  const { fullscreen, toggleFullscreen } = useFullscreenViewer(viewerRef);
+  const { enterFullscreen, fallbackFullscreen, fullscreen, toggleFullscreen } =
+    useFullscreenViewer(viewerRef);
+  const fullscreenGesture = useFileViewerFullscreenGesture(enterFullscreen);
   const resolvedOpenHref = openHref ?? sourceHref;
-  const shellClassName = sourceHref
-    ? "file-viewer-shell"
-    : "file-viewer-shell file-viewer-shell--content";
-  const frameWrapClassName = sourceHref
-    ? "file-viewer-frame-wrap"
-    : "file-viewer-frame-wrap file-viewer-content-wrap";
+  const viewportContent = Boolean(sourceHref) || contentLayout === "viewport";
+  const shellClassName = cn(
+    "file-viewer-shell",
+    !viewportContent && "file-viewer-shell--content",
+    fallbackFullscreen && "file-viewer-shell--fullscreen",
+  );
+  const frameWrapClassName = cn(
+    "file-viewer-frame-wrap",
+    !viewportContent && "file-viewer-content-wrap",
+  );
   const heading = <FileViewerHeading icon={icon} title={title} />;
   const actionControls = (
     <FileViewerActions
@@ -81,6 +97,17 @@ export function FileViewer({
     setFrameSourceHref(sourceHref);
   }, [sourceHref]);
 
+  useEffect(() => {
+    function enterFromCurrentFrame(event: MessageEvent): void {
+      if (event.source !== frameRef.current?.contentWindow) return;
+      if (!isFileViewerFullscreenMessage(event.data)) return;
+      void enterFullscreen();
+    }
+
+    window.addEventListener("message", enterFromCurrentFrame);
+    return () => window.removeEventListener("message", enterFromCurrentFrame);
+  }, [enterFullscreen]);
+
   function handleFrameLoad(frame: HTMLIFrameElement, loadedHref: string): void {
     if (loadedHref !== sourceHref) return;
 
@@ -103,15 +130,22 @@ export function FileViewer({
         </div>
       )}
 
-      <div aria-busy={sourceHref ? frameLoading : undefined} className={frameWrapClassName}>
+      <div
+        aria-busy={sourceHref ? frameLoading : undefined}
+        className={frameWrapClassName}
+        onDoubleClick={fullscreenGesture.onDoubleClick}
+        onPointerUp={fullscreenGesture.onPointerUp}
+      >
         {sourceHref ? (
           <>
             {frameSourceHref === sourceHref ? (
               <iframe
+                allowFullScreen
                 className="file-viewer-frame"
                 data-loaded={!frameLoading}
                 key={frameSourceHref}
                 onLoad={(event) => handleFrameLoad(event.currentTarget, frameSourceHref)}
+                ref={frameRef}
                 src={frameSourceHref}
                 title={iframeTitle ?? title}
               />
@@ -124,9 +158,31 @@ export function FileViewer({
             ) : null}
           </>
         ) : (
-          <div className="file-viewer-content">{children}</div>
+          <div
+            className={cn(
+              "file-viewer-content",
+              contentLayout === "viewport" && "file-viewer-content--viewport",
+            )}
+          >
+            {children}
+          </div>
         )}
       </div>
+      {fallbackFullscreen ? (
+        <Button
+          aria-label="Exit full screen"
+          className="file-viewer-gesture-exit"
+          onClick={() => {
+            void toggleFullscreen();
+          }}
+          size="icon"
+          title="Exit full screen"
+          type="button"
+          variant="outline"
+        >
+          <Minimize2 aria-hidden="true" className="size-4" />
+        </Button>
+      ) : null}
     </section>
   );
 }
