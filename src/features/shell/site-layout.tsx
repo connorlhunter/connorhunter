@@ -1,6 +1,7 @@
 import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import type { PortfolioContent } from "@/content/schema";
+import { publicConfig } from "@/config/public-env";
 import { Footer } from "./footer";
 import { SiteHeader } from "./site-header";
 import { ThemeIconSync } from "@/features/theme/theme-icon";
@@ -35,7 +36,11 @@ export function SiteLayout({ children, content }: SiteLayoutProps): ReactNode {
         <main id="main-content" tabIndex={-1}>
           {children}
         </main>
-        <Footer brandName={content.profile.name} contacts={content.contacts} />
+        <Footer
+          brandName={content.profile.name}
+          contacts={content.contacts}
+          lastUpdated={publicConfig.lastUpdated}
+        />
       </MotionConfig>
     </ThemeProvider>
   );

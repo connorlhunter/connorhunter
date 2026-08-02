@@ -23,6 +23,7 @@ describe("public env config", () => {
     expect(publicConfig.contactPhoneHref).toStartWith("tel:");
     expect(publicConfig.githubProfileLabel).toBe(labelFor(publicConfig.githubProfileUrl));
     expect(publicConfig.linkedinLabel).toBe(labelFor(publicConfig.linkedinUrl));
+    expect(publicConfig.lastUpdated).toBe("2026-08-02");
   });
 
   test("builds public URLs from configured origins", () => {
