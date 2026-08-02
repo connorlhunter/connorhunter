@@ -4,10 +4,10 @@ import { ContactPage } from "@/features/contact/contact-page";
 import { mockContent } from "../../mock-content";
 
 describe("ContactPage", () => {
-  test("renders the resume and contact cards with framed icons", () => {
+  test("renders the resume and contact cards with shared framed icons", () => {
     render(<ContactPage content={mockContent} />);
 
-    expect(document.querySelectorAll(".resume-document-icon")).toHaveLength(2);
+    expect(document.querySelectorAll(".content-card-icon")).toHaveLength(2);
     expect(screen.getByRole("link", { name: "Resume" }).getAttribute("href")).toBe("/resume");
 
     cleanup();

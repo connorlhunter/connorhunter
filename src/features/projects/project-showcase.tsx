@@ -53,7 +53,7 @@ export function ProjectShowcase({
 
   return (
     <div className="space-y-8">
-      <div className="grid items-start gap-5 xl:grid-cols-2">
+      <div className="page-motion-grid grid items-start gap-5 xl:grid-cols-2">
         {projects.map((project) => {
           const notesOpen = openNotesSlug === project.slug;
 

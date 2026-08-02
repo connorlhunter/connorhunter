@@ -29,7 +29,7 @@ function ProjectCardComponent({
   return (
     <article
       aria-labelledby={`${project.slug}-heading`}
-      className="project-card-layout surface-card grid scroll-mt-24 gap-6 p-5"
+      className="page-motion-card project-card-layout surface-card grid scroll-mt-24 gap-6 p-5"
       id={project.slug}
     >
       <div className="flex items-start gap-4 lg:block">
