@@ -76,9 +76,28 @@ export function ProjectResourceControls({
         stateKey={drawerStateKey}
       >
         <div className="project-detail-drawer-actions">
-          <div className="project-detail-stack-section" data-file-viewer-drawer-section>
-            <ProjectDetailActionGroup ariaLabel={`${project.title} stack`} label="Stack">
-              <ProjectStackChips project={project} />
+          {mobileViewerActions ? (
+            <div className="project-detail-drawer-viewer-actions" data-file-viewer-drawer-section>
+              <ProjectDetailActionGroup
+                ariaLabel={`${project.title} viewer actions`}
+                label="Viewer"
+              >
+                {actions}
+              </ProjectDetailActionGroup>
+            </div>
+          ) : null}
+          <div data-file-viewer-drawer-section>
+            <ProjectDetailActionGroup
+              ariaLabel={`${project.title} resource views`}
+              className="project-detail-view-actions"
+              label="Views"
+            >
+              <ProjectViewerTabs project={project} viewer={activeViewer} />
+              <DiagramSelector
+                items={diagrams}
+                project={project}
+                selectedDiagramId={selectedDiagramId}
+              />
             </ProjectDetailActionGroup>
           </div>
           {mobileViewerActions && project.links.length > 0 ? (
@@ -129,28 +148,9 @@ export function ProjectResourceControls({
               ) : null}
             </div>
           ) : null}
-          {mobileViewerActions ? (
-            <div className="project-detail-drawer-viewer-actions" data-file-viewer-drawer-section>
-              <ProjectDetailActionGroup
-                ariaLabel={`${project.title} viewer actions`}
-                label="Viewer"
-              >
-                {actions}
-              </ProjectDetailActionGroup>
-            </div>
-          ) : null}
-          <div data-file-viewer-drawer-section>
-            <ProjectDetailActionGroup
-              ariaLabel={`${project.title} resource views`}
-              className="project-detail-view-actions"
-              label="Views"
-            >
-              <ProjectViewerTabs project={project} viewer={activeViewer} />
-              <DiagramSelector
-                items={diagrams}
-                project={project}
-                selectedDiagramId={selectedDiagramId}
-              />
+          <div className="project-detail-stack-section" data-file-viewer-drawer-section>
+            <ProjectDetailActionGroup ariaLabel={`${project.title} stack`} label="Stack">
+              <ProjectStackChips project={project} />
             </ProjectDetailActionGroup>
           </div>
         </div>

@@ -84,13 +84,12 @@ export function FileViewer({
   function handleFrameLoad(frame: HTMLIFrameElement, loadedHref: string): void {
     if (loadedHref !== sourceHref) return;
 
-    setFrameLoading(false);
-
     if (theme) {
       postThemeSchemeToFrame(frame, theme.scheme);
     }
 
     onFrameLoad?.(frame);
+    setFrameLoading(false);
   }
 
   return (
@@ -110,6 +109,7 @@ export function FileViewer({
             {frameSourceHref === sourceHref ? (
               <iframe
                 className="file-viewer-frame"
+                data-loaded={!frameLoading}
                 key={frameSourceHref}
                 onLoad={(event) => handleFrameLoad(event.currentTarget, frameSourceHref)}
                 src={frameSourceHref}
