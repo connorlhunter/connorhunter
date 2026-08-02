@@ -26,7 +26,7 @@ export function ProjectDetailPage({
   const headingId = `${project.slug}-detail-heading`;
 
   return (
-    <SiteLayout content={content}>
+    <SiteLayout content={content} contentSource="Project docs and files">
       <article aria-labelledby={headingId} className="page-band">
         <div className="page-container">
           <nav aria-label="Project navigation" className="page-motion-nav mb-8">

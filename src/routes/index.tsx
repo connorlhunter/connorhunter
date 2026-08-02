@@ -12,11 +12,7 @@ export const Route = createFileRoute("/")({
   head: ({ loaderData }) =>
     loaderData
       ? buildHomeHead(loaderData)
-      : buildPageHead(
-          "Home",
-          "Full-stack software engineering portfolio and project artifacts.",
-          "/",
-        ),
+      : buildPageHead("Home", "Software engineering portfolio and project artifacts.", "/"),
   component: HomeRoute,
 });
 

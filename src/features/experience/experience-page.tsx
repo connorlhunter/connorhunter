@@ -130,7 +130,7 @@ export function ExperiencePage({ content }: ExperiencePageProps): ReactNode {
   const page = navigationPage(content, "/experience");
 
   return (
-    <SiteLayout content={content}>
+    <SiteLayout content={content} contentSource="Work history">
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">

@@ -1,6 +1,7 @@
 import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import type { PortfolioContent } from "@/content/schema";
+import { DynamicContentIndicator } from "./dynamic-content-indicator";
 import { Footer } from "./footer";
 import { SiteHeader } from "./site-header";
 import { ThemeIconSync } from "@/features/theme/theme-icon";
@@ -17,13 +18,14 @@ export type SiteShellContent = Pick<
 interface SiteLayoutProps {
   readonly children: ReactNode;
   readonly content: SiteShellContent;
+  readonly contentSource?: string;
 }
 
 /**
  * @param props - Page content and shared shell data.
  * @returns The site shell with theme, header, main content, and footer.
  */
-export function SiteLayout({ children, content }: SiteLayoutProps): ReactNode {
+export function SiteLayout({ children, content, contentSource }: SiteLayoutProps): ReactNode {
   return (
     <ThemeProvider>
       <ThemeIconSync />
@@ -33,6 +35,13 @@ export function SiteLayout({ children, content }: SiteLayoutProps): ReactNode {
         </a>
         <SiteHeader navigation={content.navigation} profile={content.profile} />
         <main id="main-content" tabIndex={-1}>
+          {contentSource ? (
+            <div className="dynamic-content-band px-5 sm:px-8 lg:px-10">
+              <div className="page-container">
+                <DynamicContentIndicator description={contentSource} />
+              </div>
+            </div>
+          ) : null}
           {children}
         </main>
         <Footer brandName={content.profile.name} contacts={content.contacts} />

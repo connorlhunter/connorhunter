@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
  * @description Theme-aware button class variants by visual intent and size.
  */
 export const buttonVariants = cva(
-  "relative inline-flex transform-gpu cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold outline-none transition-[background-color,border-color,color,box-shadow,transform] duration-200 focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg) disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
+  "relative inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold outline-none transition-[background-color,border-color,color,box-shadow,transform] duration-200 focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg) disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
   {
     variants: {
       variant: {
