@@ -25,6 +25,7 @@ export function ErrorPage({ content, onRetry }: ErrorPageProps): ReactNode {
                 Retry
               </Button>
             }
+            className="page-motion-status"
             eyebrow="Error"
             headingId="route-error-heading"
             icon={<TriangleAlert aria-hidden="true" className="size-6" />}

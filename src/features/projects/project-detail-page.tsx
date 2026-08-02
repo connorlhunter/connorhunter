@@ -29,7 +29,7 @@ export function ProjectDetailPage({
     <SiteLayout content={content}>
       <article aria-labelledby={headingId} className="page-band">
         <div className="page-container">
-          <nav aria-label="Project navigation" className="mb-8">
+          <nav aria-label="Project navigation" className="page-motion-nav mb-8">
             <Button asChild variant="outline">
               <a href="/projects">
                 <ArrowLeft aria-hidden="true" className="size-4" />

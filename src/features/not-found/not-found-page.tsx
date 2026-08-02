@@ -32,6 +32,7 @@ export function NotFoundPage({ content }: NotFoundPageProps): ReactNode {
                 </Button>
               </>
             }
+            className="page-motion-status"
             eyebrow="404"
             headingId="route-not-found-heading"
             icon={<Compass aria-hidden="true" className="size-6" />}
