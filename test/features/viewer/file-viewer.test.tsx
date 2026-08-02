@@ -62,6 +62,7 @@ describe("FileViewer", () => {
       expect(screen.queryByText("No href")).toBeNull();
       expect(screen.getByTitle("Example file").getAttribute("src")).toBe("/viewer.html");
       expect(screen.getByRole("status").textContent).toContain("Loading Example file");
+      expect(screen.getByTitle("Example file").getAttribute("data-loaded")).toBe("false");
     } finally {
       cleanup();
       window.history.pushState = originalPushState;
@@ -161,6 +162,7 @@ describe("FileViewer", () => {
       expect(fetchFile).toHaveBeenCalledWith("https://assets.example.com/file.pdf");
       expect(createObjectUrl).toHaveBeenCalledTimes(1);
       expect(revokeObjectUrl).toHaveBeenCalledWith("blob:example-file");
+      expect(screen.queryByRole("alert")).toBeNull();
     } finally {
       cleanup();
       createObjectUrl.mockRestore();
@@ -194,6 +196,66 @@ describe("FileViewer", () => {
       );
     } finally {
       cleanup();
+      fetchFile.mockRestore();
+    }
+  });
+
+  test("ignores a stale download failure after the viewer file changes", async () => {
+    let rejectFirstDownload: ((error: Error) => void) | undefined;
+    const fetchFile = spyOn(globalThis, "fetch").mockImplementation(((input: URL | RequestInfo) => {
+      if (String(input).endsWith("first.pdf")) {
+        return new Promise<Response>((_resolve, reject) => {
+          rejectFirstDownload = reject;
+        });
+      }
+
+      return Promise.resolve(new Response("second", { status: 200 }));
+    }) as typeof fetch);
+    const createObjectUrl = spyOn(URL, "createObjectURL").mockReturnValue("blob:second-file");
+    const revokeObjectUrl = spyOn(URL, "revokeObjectURL");
+
+    try {
+      const view = render(
+        <FileViewer
+          ariaLabel="Example viewer"
+          download={{ filename: "first.pdf", href: "https://assets.example.com/first.pdf" }}
+          icon={<span aria-hidden="true">F</span>}
+          title="First file"
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Download" }));
+
+      view.rerender(
+        <FileViewer
+          ariaLabel="Example viewer"
+          download={{ filename: "second.pdf", href: "https://assets.example.com/second.pdf" }}
+          icon={<span aria-hidden="true">F</span>}
+          title="Second file"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          (screen.getByRole("button", { name: "Download" }) as HTMLButtonElement).disabled,
+        ).toBe(false);
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "Download" }));
+
+      await waitFor(() => {
+        expect(createObjectUrl).toHaveBeenCalledTimes(1);
+      });
+
+      rejectFirstDownload?.(new Error("First download failed."));
+
+      await waitFor(() => {
+        expect(screen.queryByRole("alert")).toBeNull();
+      });
+    } finally {
+      cleanup();
+      createObjectUrl.mockRestore();
+      revokeObjectUrl.mockRestore();
       fetchFile.mockRestore();
     }
   });
@@ -234,6 +296,7 @@ describe("FileViewer", () => {
 
       expect(postedMessages).toContainEqual([{ scheme: "harbor", type: themeMessageType }, "*"]);
       expect(screen.queryByRole("status")).toBeNull();
+      expect(frame.getAttribute("data-loaded")).toBe("true");
     } finally {
       cleanup();
       window.localStorage.removeItem(themeStorageKey);

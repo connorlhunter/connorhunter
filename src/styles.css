@@ -1134,7 +1134,7 @@ footer {
   z-index: 1;
   height: min(74vh, 54rem);
   min-height: 32rem;
-  background: var(--surface-subtle);
+  background: var(--bg);
 }
 
 .file-viewer-content-wrap {
@@ -1152,7 +1152,15 @@ footer {
   width: 100%;
   height: 100%;
   border: 0;
-  background: var(--panel);
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast);
+}
+
+.file-viewer-frame[data-loaded="true"] {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .file-viewer-frame-loading {
