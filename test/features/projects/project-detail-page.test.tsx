@@ -84,17 +84,14 @@ describe("ProjectDetailPage", () => {
     const resourceViews = within(drawerControls).getByRole("group", {
       name: "Desktop Tool resource views",
     });
-    expect(stack.compareDocumentPosition(projectActions)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(projectActions.parentElement).toBe(desktopDownloads.parentElement);
+    expect(resourceViews.compareDocumentPosition(projectActions)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(projectActions.compareDocumentPosition(desktopDownloads)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(projectActions.compareDocumentPosition(resourceViews)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
-    );
-    expect(desktopDownloads.compareDocumentPosition(resourceViews)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
-    );
+    expect(desktopDownloads.compareDocumentPosition(stack)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(screen.queryByText("Project Actions")).toBeNull();
     expect(screen.getByText("Generic project notes body.")).toBeTruthy();
     expect(within(resourceViews).getByText("Docs")).toBeTruthy();
@@ -223,6 +220,9 @@ describe("ProjectDetailPage", () => {
       const desktopDownloads = within(drawerControls).getByRole("group", {
         name: "Desktop Tool desktop downloads",
       });
+      const stack = within(drawerControls).getByRole("group", {
+        name: "Desktop Tool stack",
+      });
       const viewerActions = await waitFor(() =>
         within(drawerControls).getByRole("group", {
           name: "Desktop Tool viewer actions",
@@ -248,6 +248,12 @@ describe("ProjectDetailPage", () => {
         ),
       ).toBe(true);
       expect(viewerActions.compareDocumentPosition(resourceViews)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      expect(resourceViews.compareDocumentPosition(projectActions)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      expect(desktopDownloads.compareDocumentPosition(stack)).toBe(
         Node.DOCUMENT_POSITION_FOLLOWING,
       );
     } finally {

@@ -39,10 +39,10 @@ function FeaturedLinkCard({
 }): ReactNode {
   return (
     <a
-      className="surface-card surface-card-hover group block p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
+      className="home-link-card surface-card surface-card-hover group block p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
       href={item.href}
     >
-      <span className="mb-5 inline-flex size-10 items-center justify-center rounded-md bg-(--accent-soft) text-(--accent)">
+      <span className="home-link-icon mb-5 inline-flex size-10 items-center justify-center rounded-md bg-(--accent-soft) text-(--accent)">
         <Icon aria-hidden="true" className="size-5" />
       </span>
       <TypographyH4 as="h2">{item.label}</TypographyH4>
@@ -65,13 +65,13 @@ function FeaturedLinkCard({
 function FeaturedProjectCard({ project }: { readonly project: Project }): ReactNode {
   return (
     <a
-      className="surface-card surface-card-hover flex min-w-0 gap-4 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
+      className="home-project-card surface-card surface-card-hover flex min-w-0 gap-4 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
       href={projectsPageViewerHref(project.slug)}
     >
       <ThemedIconImage
         alt=""
         aria-hidden="true"
-        className="project-asset-icon"
+        className="home-project-icon project-asset-icon"
         src={project.icon}
       />
       <span className="min-w-0">
@@ -93,20 +93,23 @@ export function HomePage({ content }: HomePageProps): ReactNode {
 
   return (
     <SiteLayout content={content}>
-      <section className="page-band">
+      <section className="home-hero-band page-band">
         <div className="home-hero-layout page-container grid gap-10 lg:items-center">
-          <div>
+          <div className="home-hero-copy">
             <TypographyEyebrow className="text-(--warm)">{content.profile.role}</TypographyEyebrow>
             <TypographyH1 className="mt-4 max-w-4xl">{content.profile.name}</TypographyH1>
             <TypographyLead className="mt-6 max-w-3xl">{content.profile.intro}</TypographyLead>
             <TypographyP className="mt-5 max-w-3xl">{content.profile.positioning}</TypographyP>
           </div>
 
-          <aside aria-labelledby="featured-work-heading" className="surface-card p-5">
+          <aside
+            aria-labelledby="featured-work-heading"
+            className="home-featured-panel surface-card p-5"
+          >
             <TypographyEyebrow as="h2" className="text-(--muted)" id="featured-work-heading">
               Featured Work
             </TypographyEyebrow>
-            <div className="mt-4 grid gap-3">
+            <div className="home-featured-list mt-4 grid gap-3">
               {featuredProjects.map((project) => (
                 <FeaturedProjectCard key={project.slug} project={project} />
               ))}
@@ -117,13 +120,13 @@ export function HomePage({ content }: HomePageProps): ReactNode {
 
       <section className="home-explore-band page-band-compact border-y border-(--border)">
         <div className="page-container">
-          <div className="mb-6">
+          <div className="home-explore-heading mb-6">
             <div>
               <TypographyEyebrow className="text-(--muted)">Explore</TypographyEyebrow>
               <TypographyH2 className="mt-2">Main Pages</TypographyH2>
             </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="home-link-grid grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {content.navigation.map((item, index) => {
               const Icon = navigationIcons[index % navigationIcons.length] ?? Code2;
 
