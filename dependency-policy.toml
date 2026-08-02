@@ -1,0 +1,10 @@
+[pins."brace-expansion"]
+version = "5.0.8"
+reason = "Fixes high-severity denial-of-service advisories in transitive minimatch dependencies."
+
+[pins."js-yaml"]
+version = "4.3.0"
+reason = "Fixes high-severity YAML merge-key denial-of-service advisory in the TanStack Start transitive dependency chain."
+
+[releaseAgeExcludes."brace-expansion"]
+reason = "Allows the three-day-old security patch that resolves a high-severity denial-of-service advisory."
