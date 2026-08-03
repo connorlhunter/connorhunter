@@ -1147,11 +1147,6 @@ footer {
   text-align: right;
 }
 
-.resume-viewer-toolbar {
-  align-items: stretch;
-  flex-direction: column;
-}
-
 .resume-viewer-toolbar-main {
   display: flex;
   min-width: 0;
@@ -1185,6 +1180,11 @@ footer {
   overflow: auto;
   background: var(--surface-subtle);
   padding: clamp(0.85rem, 2vw, 1.35rem);
+}
+
+.file-viewer-shell:fullscreen .resume-pdf-preview,
+.file-viewer-shell--fullscreen .resume-pdf-preview {
+  min-height: 100%;
 }
 
 .resume-pdf-canvas {

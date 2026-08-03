@@ -13,6 +13,44 @@ function createResumeDocumentLoader(): ResumePdfDocumentLoader {
   });
 }
 
+function setDrawerMetrics(drawer: HTMLElement, sections: NodeListOf<HTMLElement>): void {
+  Object.defineProperty(drawer, "scrollHeight", {
+    configurable: true,
+    get: () => 180,
+  });
+  drawer.getBoundingClientRect = () => {
+    const styledHeight = Number.parseFloat(drawer.style.height);
+    const height = Number.isFinite(styledHeight) ? styledHeight : 180;
+
+    return {
+      bottom: height,
+      height,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 320,
+      x: 0,
+      y: 0,
+    } as DOMRect;
+  };
+
+  [
+    { height: 80, offsetTop: 0 },
+    { height: 100, offsetTop: 80 },
+  ].forEach((metrics, index) => {
+    const section = sections.item(index);
+
+    Object.defineProperty(section, "offsetTop", {
+      configurable: true,
+      get: () => metrics.offsetTop,
+    });
+    Object.defineProperty(section, "scrollHeight", {
+      configurable: true,
+      get: () => metrics.height,
+    });
+  });
+}
+
 describe("ResumePage", () => {
   test("renders the configured PDF with viewer actions", () => {
     render(<ResumePage content={mockContent} loadResumeDocument={createResumeDocumentLoader()} />);
@@ -35,10 +73,41 @@ describe("ResumePage", () => {
       "mailto:example@example.com",
     );
     expect(screen.getByRole("button", { name: /full screen/i })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Resume viewer controls" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Collapse viewer drawer" })).toBeTruthy();
     expect(screen.getByText("Page 1 of 2")).toBeTruthy();
     expect(
       (screen.getByRole("button", { name: "Previous resume page" }) as HTMLButtonElement).disabled,
     ).toBe(true);
+
+    cleanup();
+  });
+
+  test("snaps the two resume control rows before fully collapsing", () => {
+    render(<ResumePage content={mockContent} loadResumeDocument={createResumeDocumentLoader()} />);
+
+    const drawer = screen.getByRole("group", { name: "Resume viewer controls" });
+    const handle = screen.getByRole("button", { name: "Collapse viewer drawer" });
+    const sections = drawer.querySelectorAll<HTMLElement>("[data-file-viewer-drawer-section]");
+
+    expect(sections.length).toBe(2);
+    setDrawerMetrics(drawer, sections);
+
+    fireEvent.click(handle);
+
+    expect(drawer.classList.contains("file-viewer-drawer--collapsed")).toBe(false);
+    expect(drawer.style.height).toBe("80px");
+
+    fireEvent.click(handle);
+
+    expect(drawer.classList.contains("file-viewer-drawer--collapsed")).toBe(true);
+    expect(drawer.style.height).toBe("0px");
+    expect(handle.getAttribute("aria-label")).toBe("Expand viewer drawer");
+
+    fireEvent.click(handle);
+
+    expect(drawer.classList.contains("file-viewer-drawer--collapsed")).toBe(false);
+    expect(drawer.style.height).toBe("180px");
 
     cleanup();
   });

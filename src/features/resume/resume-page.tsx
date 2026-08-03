@@ -5,6 +5,7 @@ import { absoluteSiteUrl } from "@/config/public-env";
 import type { PortfolioContent } from "@/content/schema";
 import { SiteLayout } from "@/features/shell/site-layout";
 import { FileViewer } from "@/features/viewer/file-viewer";
+import { FileViewerDrawer } from "@/features/viewer/file-viewer-drawer";
 import { emailContact, mailtoHref } from "@/lib/contact";
 import { profileGreetingName } from "@/lib/profile";
 import { ResumePdfPreview, type ResumePdfDocumentLoader } from "./resume-pdf-preview";
@@ -45,17 +46,25 @@ export function ResumePage({ content, loadResumeDocument }: ResumePageProps): Re
           <div className="page-motion-viewer">
             <FileViewer
               ariaLabel="Resume viewer"
+              contentLayout="viewport"
               download={{ filename: "connor-hunter-resume.pdf", href: content.resume.href }}
               emailHref={emailHref}
               icon={<FileText aria-hidden="true" className="size-5" />}
               openHref={content.resume.href}
               renderHeader={({ actions, heading }) => (
-                <div className="file-viewer-toolbar resume-viewer-toolbar">
-                  <div className="resume-viewer-toolbar-main">
+                <FileViewerDrawer
+                  ariaLabel="Resume viewer controls"
+                  className="resume-viewer-drawer"
+                >
+                  <div className="resume-viewer-toolbar-main" data-file-viewer-drawer-section>
                     {heading}
                     {actions}
                   </div>
-                  <nav aria-label="Resume pages" className="resume-page-controls">
+                  <nav
+                    aria-label="Resume pages"
+                    className="resume-page-controls"
+                    data-file-viewer-drawer-section
+                  >
                     <Button
                       aria-label="Previous resume page"
                       disabled={currentPage === 1}
@@ -86,7 +95,7 @@ export function ResumePage({ content, loadResumeDocument }: ResumePageProps): Re
                       <ChevronRight aria-hidden="true" className="size-4" />
                     </Button>
                   </nav>
-                </div>
+                </FileViewerDrawer>
               )}
               title={content.resume.label}
             >
