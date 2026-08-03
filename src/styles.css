@@ -429,7 +429,13 @@ footer {
   pointer-events: none;
 }
 
+.dynamic-content-band .page-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .dynamic-content-indicator {
+  width: fit-content;
   padding: 0.25rem 0.625rem;
   border-radius: var(--radius);
   background: var(--panel);
@@ -465,16 +471,17 @@ footer {
 
 .dynamic-content-copy {
   display: grid;
+  min-width: 0;
   max-width: 38rem;
   max-height: 3rem;
-  margin-left: 0.5rem;
+  margin-right: 0.5rem;
   grid-template-columns: 1fr;
   opacity: 1;
   transform: translateX(0);
   transition:
     max-width var(--motion-slow),
     max-height var(--motion-slow),
-    margin-left var(--motion-slow),
+    margin-right var(--motion-slow),
     grid-template-columns var(--motion-slow),
     opacity var(--motion-fast),
     transform var(--motion-slow);
@@ -494,10 +501,10 @@ footer {
 .dynamic-content-indicator[data-expanded="false"] .dynamic-content-copy {
   max-width: 0;
   max-height: 0;
-  margin-left: 0;
+  margin-right: 0;
   grid-template-columns: 0fr;
   opacity: 0;
-  transform: translateX(-0.5rem);
+  transform: translateX(0.5rem);
 }
 
 .dynamic-content-indicator[data-expanded="false"] .dynamic-content-icon {
@@ -507,6 +514,12 @@ footer {
 @supports (background: color-mix(in srgb, white, transparent)) {
   .dynamic-content-indicator {
     background: color-mix(in srgb, var(--panel) 78%, transparent);
+  }
+}
+
+@media (max-width: 639px) {
+  .dynamic-content-copy {
+    max-height: 5rem;
   }
 }
 

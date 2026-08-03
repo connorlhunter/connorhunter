@@ -60,9 +60,6 @@ export function DynamicContentIndicator({ description }: DynamicContentIndicator
       title={expanded ? "Hide dynamic content details" : "Show dynamic content details"}
       type="button"
     >
-      <span className="dynamic-content-icon">
-        <Cloud aria-hidden="true" className="size-3.5 text-(--accent)" />
-      </span>
       <span aria-hidden={!expanded} className="dynamic-content-copy">
         <span className="dynamic-content-copy-inner">
           <TypographySmall className="block text-xs leading-5">
@@ -72,6 +69,9 @@ export function DynamicContentIndicator({ description }: DynamicContentIndicator
             </span>
           </TypographySmall>
         </span>
+      </span>
+      <span className="dynamic-content-icon">
+        <Cloud aria-hidden="true" className="size-3.5 text-(--accent)" />
       </span>
     </button>
   );
