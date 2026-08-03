@@ -180,6 +180,7 @@ describe("FileViewerDrawer", () => {
       window.dispatchEvent(new window.Event("resize"));
 
       fireEvent.pointerDown(handle, { clientY: 120, pointerId: 1 });
+      expect(fireEvent.pointerMove(handle, { clientY: 122, pointerId: 1 })).toBe(false);
       fireEvent.pointerMove(handle, { clientY: 220, pointerId: 1 });
       fireEvent.pointerUp(handle, { clientY: 220, pointerId: 1 });
 
@@ -241,6 +242,43 @@ describe("FileViewerDrawer", () => {
       if (cancelDescriptor) {
         Object.defineProperty(window, "cancelAnimationFrame", cancelDescriptor);
       }
+    }
+  });
+
+  test("reuses prepared measurements across drag frames", () => {
+    const restoreAnimationFrame = mockAnimationFrame();
+    const drawer = document.createElement("div");
+    const content = document.createElement("div");
+    const handle = document.createElement("button");
+    let measurementReads = 0;
+
+    content.className = "file-viewer-drawer-content";
+    drawer.append(content);
+    setMeasuredHeight(drawer, 180);
+    Object.defineProperty(drawer, "scrollHeight", {
+      configurable: true,
+      get: () => {
+        measurementReads += 1;
+        return 180;
+      },
+    });
+    document.body.append(drawer, handle);
+
+    try {
+      const resize = createDrawerResizeController({ drawer, handle });
+
+      resize.prepare();
+      resize.request(150, false);
+      resize.request(130, false);
+
+      expect(measurementReads).toBe(1);
+      expect(drawer.style.height).toBe("130px");
+
+      resize.cancel();
+    } finally {
+      drawer.remove();
+      handle.remove();
+      restoreAnimationFrame();
     }
   });
 
@@ -704,6 +742,7 @@ describe("FileViewerDrawer", () => {
       fireEvent.pointerMove(handle, { clientY: 114, pointerId: 1 });
       fireEvent.pointerUp(handle, { clientY: 114, pointerId: 1 });
 
+      expect(fireEvent.click(handle)).toBe(false);
       expect(drawer.classList.contains("file-viewer-drawer--collapsed")).toBe(true);
       expect(drawer.style.height).toBe("0px");
       expect(header.classList.contains("file-viewer-drawer-anchor--collapsed")).toBe(false);

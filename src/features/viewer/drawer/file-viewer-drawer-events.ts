@@ -86,6 +86,7 @@ export function installFileViewerDrawerDrag({
     startHeight = Number.isFinite(measuredHeight) ? measuredHeight : drawerContentHeight(drawer);
     startedCollapsed = drawer.classList.contains("file-viewer-drawer--collapsed");
     resize.cancel();
+    resize.prepare();
     anchorCollapseLocked = false;
     anchorCollapseLocked = anchorCollapsed(drawerAnchor(drawer));
     if (typeof handle.setPointerCapture === "function") {

@@ -9,7 +9,8 @@ import {
   clampFileViewerDrawerHeight,
   drawerCollapsedHeight,
   drawerContentHeight,
-  drawerSnapHeights,
+  measureFileViewerDrawer,
+  type FileViewerDrawerMeasurements,
 } from "./file-viewer-drawer-measure";
 import {
   readDrawerStateSnapshot,
@@ -21,6 +22,7 @@ export interface SetDrawerHeightOptions {
   readonly allowAnchorCollapse?: boolean;
   readonly magnetLockHeight?: number | null;
   readonly magnet?: boolean;
+  readonly measurements?: FileViewerDrawerMeasurements;
   readonly snap?: boolean;
   readonly stateKey?: string;
 }
@@ -84,8 +86,9 @@ export function setDrawerHeight(
   const allowAnchorCollapse = options.allowAnchorCollapse ?? false;
   const magnet = options.magnet ?? false;
   const snap = options.snap ?? true;
-  const snapHeights = snap || magnet ? drawerSnapHeights(drawer) : [];
-  const contentHeight = drawerContentHeight(drawer);
+  const measurements = options.measurements ?? measureFileViewerDrawer(drawer);
+  const snapHeights = snap || magnet ? measurements.snapHeights : [];
+  const contentHeight = measurements.contentHeight;
 
   if (height > collapsedHeight) {
     setAnchorCollapsed(anchor, false);
@@ -96,7 +99,7 @@ export function setDrawerHeight(
   const clampedHeight = clampFileViewerDrawerHeight(
     contentHeight,
     height,
-    window.innerHeight,
+    measurements.viewportHeight,
     collapsedHeight,
     snapHeights,
     !snap,

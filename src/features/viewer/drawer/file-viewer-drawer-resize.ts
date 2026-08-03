@@ -1,4 +1,8 @@
 import { drawerHeightOptions, setDrawerHeight } from "./file-viewer-drawer-geometry";
+import {
+  measureFileViewerDrawer,
+  type FileViewerDrawerMeasurements,
+} from "./file-viewer-drawer-measure";
 
 interface DrawerResizeControllerOptions {
   readonly drawer: HTMLDivElement;
@@ -13,6 +17,7 @@ interface DrawerResizeSnapshot {
 
 interface DrawerResizeController {
   cancel: () => void;
+  prepare: () => void;
   request: (height?: number | null, snap?: boolean, allowAnchorCollapse?: boolean) => void;
   snapshot: () => DrawerResizeSnapshot;
 }
@@ -31,6 +36,7 @@ export function createDrawerResizeController({
   let pendingAllowAnchorCollapse = false;
   let pendingHeight: number | null = null;
   let pendingSnap = true;
+  let preparedMeasurements: FileViewerDrawerMeasurements | null = null;
 
   function cancel(): void {
     if (pendingFrame) {
@@ -42,6 +48,11 @@ export function createDrawerResizeController({
     pendingAllowAnchorCollapse = false;
     pendingSnap = true;
     magnetLockHeight = null;
+    preparedMeasurements = null;
+  }
+
+  function prepare(): void {
+    preparedMeasurements = measureFileViewerDrawer(drawer);
   }
 
   function snapshot(): DrawerResizeSnapshot {
@@ -53,6 +64,9 @@ export function createDrawerResizeController({
 
   function apply(): void {
     pendingFrame = 0;
+    const measurements = pendingSnap
+      ? null
+      : (preparedMeasurements ??= measureFileViewerDrawer(drawer));
 
     const nextState = setDrawerHeight(
       drawer,
@@ -64,6 +78,7 @@ export function createDrawerResizeController({
           allowAnchorCollapse: pendingAllowAnchorCollapse,
           magnet: !pendingSnap,
           magnetLockHeight,
+          ...(measurements ? { measurements } : {}),
           snap: pendingSnap,
         },
         stateKey,
@@ -90,6 +105,7 @@ export function createDrawerResizeController({
 
   return {
     cancel,
+    prepare,
     request,
     snapshot,
   };

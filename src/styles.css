@@ -1342,6 +1342,10 @@ footer {
   background: var(--surface-interactive);
 }
 
+.resume-viewer-drawer {
+  --file-viewer-drawer-handle-size: 2.25rem;
+}
+
 .file-viewer-drawer-content {
   display: grid;
   max-height: 100%;
@@ -1395,6 +1399,12 @@ footer {
     box-shadow var(--motion-fast),
     height var(--motion-fast),
     width var(--motion-fast);
+}
+
+.file-viewer-drawer-handle:active span,
+.is-resizing-file-viewer-drawer .file-viewer-drawer-handle span {
+  width: 3.25rem;
+  background: var(--accent);
 }
 
 .file-viewer-drawer-handle:hover,
@@ -1493,6 +1503,10 @@ footer {
     overflow: visible;
   }
 
+  .resume-viewer-drawer {
+    --file-viewer-drawer-handle-size: 3rem;
+  }
+
   .file-viewer-drawer-content {
     min-height: 0;
     padding-bottom: 0.5rem;
@@ -1530,6 +1544,15 @@ footer {
   .file-viewer-drawer--collapsed .file-viewer-drawer-handle span {
     width: 3.15rem;
     height: 0.4rem;
+  }
+
+  .resume-viewer-drawer .file-viewer-drawer-handle span {
+    width: 3.5rem;
+    height: 0.375rem;
+  }
+
+  .is-resizing-file-viewer-drawer .resume-viewer-drawer .file-viewer-drawer-handle span {
+    width: 4rem;
   }
 }
 
