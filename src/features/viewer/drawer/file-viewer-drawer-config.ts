@@ -7,6 +7,6 @@ export const drawerMagnetDistance = 28;
 export const drawerMagnetReleaseDistance = 44;
 export const drawerMobileMediaQuery = "(max-width: 860px)";
 export const dragThreshold = 3;
-export const mobileDragThreshold = 8;
+export const mobileDragThreshold = 4;
 export const anchorCollapseThreshold = -24;
 export const drawerSectionSelector = "[data-file-viewer-drawer-section]";

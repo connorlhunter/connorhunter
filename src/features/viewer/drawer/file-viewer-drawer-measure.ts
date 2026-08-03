@@ -9,6 +9,12 @@ import {
   mobileDragThreshold,
 } from "./file-viewer-drawer-config";
 
+export interface FileViewerDrawerMeasurements {
+  readonly contentHeight: number;
+  readonly snapHeights: ReadonlyArray<number>;
+  readonly viewportHeight: number;
+}
+
 /**
  * @param contentHeight - Measured drawer content height.
  * @param height - Requested drawer height.
@@ -96,23 +102,6 @@ export function drawerDragThreshold(): number {
 }
 
 /**
- * @param drawer - Drawer element to measure.
- * @returns The natural drawer height without collapsed clipping.
- */
-export function drawerContentHeight(drawer: HTMLElement): number {
-  const previousHeight = drawer.style.height;
-  const wasCollapsed = drawer.classList.contains("file-viewer-drawer--collapsed");
-
-  drawer.classList.remove("file-viewer-drawer--collapsed");
-  drawer.style.height = "auto";
-  const contentHeight = Math.ceil(drawer.scrollHeight);
-  drawer.style.height = previousHeight;
-  drawer.classList.toggle("file-viewer-drawer--collapsed", wasCollapsed);
-
-  return Math.max(drawerCollapsedHeight(), contentHeight);
-}
-
-/**
  * @param content - Drawer content element whose bottom padding should remain visible when snapped.
  * @returns The bottom padding, rounded up to whole pixels.
  */
@@ -123,21 +112,20 @@ function drawerContentBottomPadding(content: HTMLElement): number {
 }
 
 /**
- * @param drawer - Drawer element containing optional stepped sections.
- * @returns Cumulative drawer heights for section-by-section snapping.
+ * @param drawer - Drawer element to measure once for a resize sequence.
+ * @returns Natural content height, section snap points, and viewport height.
  */
-export function drawerSnapHeights(drawer: HTMLElement): ReadonlyArray<number> {
-  const content = drawer.querySelector<HTMLElement>(".file-viewer-drawer-content");
-  if (!content) return [];
-
+export function measureFileViewerDrawer(drawer: HTMLElement): FileViewerDrawerMeasurements {
   const previousHeight = drawer.style.height;
   const wasCollapsed = drawer.classList.contains("file-viewer-drawer--collapsed");
 
   drawer.classList.remove("file-viewer-drawer--collapsed");
   drawer.style.height = "auto";
-
-  const bottomPadding = drawerContentBottomPadding(content);
-  const sections = [...content.querySelectorAll<HTMLElement>(drawerSectionSelector)];
+  const collapsedHeight = drawerCollapsedHeight();
+  const contentHeight = Math.max(collapsedHeight, Math.ceil(drawer.scrollHeight));
+  const content = drawer.querySelector<HTMLElement>(".file-viewer-drawer-content");
+  const bottomPadding = content ? drawerContentBottomPadding(content) : 0;
+  const sections = content ? [...content.querySelectorAll<HTMLElement>(drawerSectionSelector)] : [];
   const snapHeights = sections
     .map((section, index) => {
       const paddedHeight = Math.ceil(section.offsetTop + section.scrollHeight + bottomPadding);
@@ -145,12 +133,32 @@ export function drawerSnapHeights(drawer: HTMLElement): ReadonlyArray<number> {
 
       return nextSection ? Math.min(paddedHeight, Math.ceil(nextSection.offsetTop)) : paddedHeight;
     })
-    .filter((height) => height > drawerCollapsedHeight());
+    .filter((height) => height > collapsedHeight);
 
   drawer.style.height = previousHeight;
   drawer.classList.toggle("file-viewer-drawer--collapsed", wasCollapsed);
 
-  return snapHeights;
+  return {
+    contentHeight,
+    snapHeights,
+    viewportHeight: window.innerHeight,
+  };
+}
+
+/**
+ * @param drawer - Drawer element to measure.
+ * @returns The natural drawer height without collapsed clipping.
+ */
+export function drawerContentHeight(drawer: HTMLElement): number {
+  return measureFileViewerDrawer(drawer).contentHeight;
+}
+
+/**
+ * @param drawer - Drawer element containing optional stepped sections.
+ * @returns Cumulative drawer heights for section-by-section snapping.
+ */
+export function drawerSnapHeights(drawer: HTMLElement): ReadonlyArray<number> {
+  return measureFileViewerDrawer(drawer).snapHeights;
 }
 
 /**
