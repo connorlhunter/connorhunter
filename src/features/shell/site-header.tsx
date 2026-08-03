@@ -54,7 +54,7 @@ export function SiteHeader({ navigation, profile }: SiteHeaderProps): ReactNode 
   const mobileMenuId = "site-mobile-navigation";
 
   return (
-    <header className="site-header sticky top-0 z-50 border-b border-(--border) backdrop-blur">
+    <header className="site-header sticky top-0 z-50 border-b border-(--border)">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
         {hasNavigation ? (
           <a className={brandClassName} href="/">
@@ -89,14 +89,14 @@ export function SiteHeader({ navigation, profile }: SiteHeaderProps): ReactNode 
                 <Menu
                   aria-hidden="true"
                   className={cn(
-                    "absolute inset-0 size-4 transform-gpu transition-[opacity,transform] duration-200",
+                    "absolute inset-0 size-4 transition-[opacity,transform] duration-200",
                     menuOpen ? "rotate-90 scale-75 opacity-0" : "rotate-0 scale-100 opacity-100",
                   )}
                 />
                 <X
                   aria-hidden="true"
                   className={cn(
-                    "absolute inset-0 size-4 transform-gpu transition-[opacity,transform] duration-200",
+                    "absolute inset-0 size-4 transition-[opacity,transform] duration-200",
                     menuOpen ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-75 opacity-0",
                   )}
                 />

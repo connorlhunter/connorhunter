@@ -79,7 +79,7 @@ export function ProjectsPage({ content, selectedProjectSlug }: ProjectsPageProps
   const page = navigationPage(content, "/projects");
 
   return (
-    <SiteLayout content={content}>
+    <SiteLayout content={content} contentSource="Project manifest">
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">

@@ -92,7 +92,7 @@ export function HomePage({ content }: HomePageProps): ReactNode {
   const featuredProjects = content.projects.slice(0, 3);
 
   return (
-    <SiteLayout content={content}>
+    <SiteLayout content={content} contentSource="Profile and projects">
       <section className="home-hero-band page-band">
         <div className="home-hero-layout page-container grid gap-10 lg:items-center">
           <div className="home-hero-copy">

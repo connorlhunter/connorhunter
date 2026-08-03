@@ -35,7 +35,7 @@ export function ProjectNotes({
       <button
         aria-controls={panelId}
         aria-expanded={open}
-        className="flex w-full transform-gpu cursor-pointer items-center justify-between gap-3 rounded-md text-left transition-[color] duration-200 hover:text-(--accent) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--panel)"
+        className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md text-left transition-[color] duration-200 hover:text-(--accent) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--panel)"
         onClick={() => onOpenChange(!open)}
         type="button"
       >
@@ -48,7 +48,7 @@ export function ProjectNotes({
         <ChevronDown
           aria-hidden="true"
           className={cn(
-            "size-4 shrink-0 transform-gpu text-(--accent) transition-transform duration-200",
+            "size-4 shrink-0 text-(--accent) transition-transform duration-200",
             open ? "rotate-180" : "rotate-0",
           )}
         />

@@ -51,7 +51,7 @@ export function SkillsPage({ content }: SkillsPageProps): ReactNode {
   const page = navigationPage(content, "/skills");
 
   return (
-    <SiteLayout content={content}>
+    <SiteLayout content={content} contentSource="Published skills">
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">

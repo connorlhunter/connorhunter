@@ -30,7 +30,7 @@ export function ResumePage({ content, loadResumeDocument }: ResumePageProps): Re
   );
 
   return (
-    <SiteLayout content={content}>
+    <SiteLayout content={content} contentSource="Generated resume">
       <section className="page-band">
         <div className="page-container">
           <nav aria-label="Resume navigation" className="page-motion-nav mb-8">
