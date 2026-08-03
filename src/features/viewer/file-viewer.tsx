@@ -3,11 +3,13 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { TypographySmall } from "@/components/ui/typography";
 import { postThemeSchemeToFrame, useOptionalTheme } from "@/features/theme/theme-provider";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/cn";
 import { FileViewerActions, FileViewerHeading } from "./file-viewer-toolbar";
 import type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
 import {
   isFileViewerFullscreenMessage,
+  mobileFullscreenGestureMediaQuery,
   useFileViewerFullscreenGesture,
 } from "./hooks/use-file-viewer-fullscreen-gesture";
 import { useFullscreenViewer } from "./hooks/use-fullscreen-viewer";
@@ -60,7 +62,12 @@ export function FileViewer({
   const theme = useOptionalTheme();
   const { enterFullscreen, fallbackFullscreen, fullscreen, toggleFullscreen } =
     useFullscreenViewer(viewerRef);
-  const fullscreenGesture = useFileViewerFullscreenGesture(enterFullscreen);
+  const mobileFullscreenGesture = useMediaQuery(mobileFullscreenGestureMediaQuery);
+  const fullscreenGesturesEnabled = mobileFullscreenGesture === false;
+  const fullscreenGesture = useFileViewerFullscreenGesture(
+    enterFullscreen,
+    fullscreenGesturesEnabled,
+  );
   const resolvedOpenHref = openHref ?? sourceHref;
   const viewportContent = Boolean(sourceHref) || contentLayout === "viewport";
   const shellClassName = cn(
@@ -99,6 +106,7 @@ export function FileViewer({
 
   useEffect(() => {
     function enterFromCurrentFrame(event: MessageEvent): void {
+      if (!fullscreenGesturesEnabled) return;
       if (event.source !== frameRef.current?.contentWindow) return;
       if (!isFileViewerFullscreenMessage(event.data)) return;
       void enterFullscreen();
@@ -106,7 +114,7 @@ export function FileViewer({
 
     window.addEventListener("message", enterFromCurrentFrame);
     return () => window.removeEventListener("message", enterFromCurrentFrame);
-  }, [enterFullscreen]);
+  }, [enterFullscreen, fullscreenGesturesEnabled]);
 
   function handleFrameLoad(frame: HTMLIFrameElement, loadedHref: string): void {
     if (loadedHref !== sourceHref) return;
@@ -140,7 +148,7 @@ export function FileViewer({
           <>
             {frameSourceHref === sourceHref ? (
               <iframe
-                allowFullScreen
+                allowFullScreen={fullscreenGesturesEnabled}
                 className="file-viewer-frame"
                 data-loaded={!frameLoading}
                 key={frameSourceHref}

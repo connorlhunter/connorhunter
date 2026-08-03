@@ -6,6 +6,7 @@ import {
 } from "react";
 
 export const fileViewerFullscreenMessageType = "connorhunter.file-viewer.enter-fullscreen";
+export const mobileFullscreenGestureMediaQuery = "(hover: none) and (pointer: coarse)";
 
 const doubleTapDelay = 360;
 const doubleTapDistance = 28;
@@ -38,16 +39,23 @@ export function isFileViewerFullscreenMessage(value: unknown): boolean {
 
 /**
  * @param enterFullscreen - Idempotent fullscreen entry action.
+ * @param enabled - Whether direct viewer gestures may enter fullscreen.
  * @returns Mouse and touch handlers for a host-rendered viewer surface.
  */
 export function useFileViewerFullscreenGesture(
   enterFullscreen: () => Promise<void>,
+  enabled: boolean,
 ): FileViewerFullscreenGestureHandlers {
   const lastTouch = useRef<TapPoint | null>(null);
   const suppressDoubleClickUntil = useRef(0);
 
   const onDoubleClick = useCallback(
     (event: ReactMouseEvent<HTMLElement>): void => {
+      if (!enabled) {
+        suppressDoubleClickUntil.current = 0;
+        return;
+      }
+
       if (event.timeStamp <= suppressDoubleClickUntil.current) {
         suppressDoubleClickUntil.current = 0;
         return;
@@ -58,11 +66,17 @@ export function useFileViewerFullscreenGesture(
       event.preventDefault();
       void enterFullscreen();
     },
-    [enterFullscreen],
+    [enabled, enterFullscreen],
   );
 
   const onPointerUp = useCallback(
     (event: ReactPointerEvent<HTMLElement>): void => {
+      if (!enabled) {
+        lastTouch.current = null;
+        suppressDoubleClickUntil.current = 0;
+        return;
+      }
+
       if (event.pointerType !== "touch") return;
 
       if (isInteractiveTarget(event.target)) {
@@ -87,7 +101,7 @@ export function useFileViewerFullscreenGesture(
 
       lastTouch.current = currentTouch;
     },
-    [enterFullscreen],
+    [enabled, enterFullscreen],
   );
 
   return { onDoubleClick, onPointerUp };
