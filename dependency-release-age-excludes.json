@@ -1,5 +1,0 @@
-{
-  "brace-expansion": {
-    "reason": "Allows the three-day-old security patch that resolves a high-severity denial-of-service advisory."
-  }
-}

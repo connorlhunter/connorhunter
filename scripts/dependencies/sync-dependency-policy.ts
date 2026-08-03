@@ -3,10 +3,14 @@ import { readFileSync, writeFileSync } from "node:fs";
 type PinRecord = Record<string, { version: string; reason: string }>;
 type ReleaseAgeRecord = Record<string, { reason: string }>;
 
+interface DependencyPolicy {
+  pins: PinRecord;
+  releaseAgeExcludes: ReleaseAgeRecord;
+}
+
 const packageJsonPath = "package.json";
 const bunfigPath = "bunfig.toml";
-const pinsPath = "dependency-pins.json";
-const releaseAgeExcludesPath = "dependency-release-age-excludes.json";
+const dependencyPolicyPath = "dependency-policy.toml";
 
 /**
  * @param path - JSON file path to read.
@@ -14,6 +18,14 @@ const releaseAgeExcludesPath = "dependency-release-age-excludes.json";
  */
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
+}
+
+/**
+ * @param path - TOML dependency policy path to read.
+ * @returns Parsed dependency policy.
+ */
+function readDependencyPolicy(path: string): DependencyPolicy {
+  return Bun.TOML.parse(readFileSync(path, "utf8")) as unknown as DependencyPolicy;
 }
 
 /**
@@ -78,12 +90,11 @@ export function bunfigWithReleaseAgeExcludes(current: string, excludes: ReleaseA
  */
 export function syncDependencyPolicy({ check = false }: { check?: boolean } = {}): void {
   const packageJson = readJson<Record<string, unknown>>(packageJsonPath);
-  const pins = readJson<PinRecord>(pinsPath);
-  const excludes = readJson<ReleaseAgeRecord>(releaseAgeExcludesPath);
+  const { pins, releaseAgeExcludes } = readDependencyPolicy(dependencyPolicyPath);
   const nextPackageJson = packageJsonWithPins(packageJson, pins);
   const currentPackageJson = readFileSync(packageJsonPath, "utf8");
   const currentBunfig = readFileSync(bunfigPath, "utf8");
-  const nextBunfig = bunfigWithReleaseAgeExcludes(currentBunfig, excludes);
+  const nextBunfig = bunfigWithReleaseAgeExcludes(currentBunfig, releaseAgeExcludes);
 
   if (check) {
     const packageChanged = currentPackageJson !== nextPackageJson;

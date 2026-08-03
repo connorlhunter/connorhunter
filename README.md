@@ -55,6 +55,8 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 
 `bun run start` previews the most recent Amplify production build, so run `bun run build` first. It is not needed for normal local development; use `bun run dev` for that.
 
+Exact dependency pins and temporary release-age exceptions live in `dependency-policy.toml`. Run `bun run deps:policy` after changing the policy to sync `package.json` and `bunfig.toml`.
+
 ## Project Shape
 
 ```text
