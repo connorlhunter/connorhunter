@@ -226,6 +226,59 @@ describe("FileViewer", () => {
     cleanup();
   });
 
+  test("ignores direct and embedded fullscreen gestures on mobile devices", async () => {
+    const originalMatchMedia = window.matchMedia;
+    let fullscreenRequests = 0;
+
+    window.matchMedia = (query: string): MediaQueryList => ({
+      addEventListener: () => {},
+      addListener: () => {},
+      dispatchEvent: () => false,
+      matches: query === "(hover: none) and (pointer: coarse)",
+      media: query,
+      onchange: null,
+      removeEventListener: () => {},
+      removeListener: () => {},
+    });
+
+    try {
+      render(
+        <FileViewer
+          ariaLabel="Example viewer"
+          icon={<span aria-hidden="true">F</span>}
+          sourceHref="/viewer.html"
+          title="Example file"
+        />,
+      );
+
+      const viewer = screen.getByRole("region", { name: "Example viewer" });
+      const frame = screen.getByTitle("Example file") as HTMLIFrameElement;
+      const surface = viewer.querySelector(".file-viewer-frame-wrap") as HTMLElement;
+      Object.defineProperty(viewer, "requestFullscreen", {
+        configurable: true,
+        value: () => {
+          fullscreenRequests += 1;
+          return Promise.resolve();
+        },
+      });
+
+      await waitFor(() => {
+        expect(frame.hasAttribute("allowfullscreen")).toBe(false);
+      });
+
+      fireTimedDoubleClick(surface, 100);
+      firePointerUp(surface, { at: 200, pointerType: "touch", x: 10, y: 10 });
+      firePointerUp(surface, { at: 300, pointerType: "touch", x: 12, y: 12 });
+      dispatchFrameMessage({ type: fileViewerFullscreenMessageType }, frame.contentWindow);
+
+      expect(fullscreenRequests).toBe(0);
+      expect(viewer.classList.contains("file-viewer-shell--fullscreen")).toBe(false);
+    } finally {
+      cleanup();
+      window.matchMedia = originalMatchMedia;
+    }
+  });
+
   test("accepts fullscreen messages only from the current iframe", async () => {
     let fullscreenRequests = 0;
 
