@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { PortfolioContent } from "@/content/schema";
+import { publicConfig } from "@/config/public-env";
 import { DynamicContentIndicator } from "./dynamic-content-indicator";
 import { Footer } from "./footer";
 import { SiteHeader } from "./site-header";
@@ -42,7 +43,11 @@ export function SiteLayout({ children, content, contentSource }: SiteLayoutProps
         ) : null}
         {children}
       </main>
-      <Footer brandName={content.profile.name} contacts={content.contacts} />
+      <Footer
+        brandName={content.profile.name}
+        contacts={content.contacts}
+        lastUpdated={publicConfig.lastUpdated}
+      />
     </ThemeProvider>
   );
 }
