@@ -13,6 +13,7 @@ import { loadProjects } from "@/content/profile/projects";
 import { artifactUrl, publicAssetUrl, publicConfig } from "@/config/public-env";
 import { clearPortfolioContentCache, getPortfolioContent, getProjectBySlug } from "@/content";
 import { parseJsonFrontmatter } from "@/content/frontmatter";
+import { projectLinkSchema } from "@/content/schema";
 
 const exampleArtifactEntry: ProjectArtifactEntry = {
   coverageComingSoon: true,
@@ -70,7 +71,7 @@ function projectDocument({
           label: "Roadmap",
           href:
             slug === "connor-hunter"
-              ? "https://github.com/users/connorlhunter/projects/9"
+              ? "https://github.com/users/connorlhunter/projects/13"
               : `https://github.com/connorlhunter/${slug}`,
         },
       ],
@@ -222,7 +223,6 @@ const artifactFixtures = new Map<string, string>([
   [
     "projects/cipher.md",
     projectDocument({
-      comingSoonSource: true,
       downloads: [
         { platform: "mac", label: "Mac", href: "https://example.com/mac", comingSoon: true },
         {
@@ -338,9 +338,37 @@ Body content.`);
   });
 
   test("guards unsafe artifact paths", async () => {
-    await expect(configuredArtifactTextSource.readText("../secrets.md")).rejects.toThrow(
-      "Unsafe artifact path",
-    );
+    for (const path of [
+      "../secrets.md",
+      "%invalid",
+      "%2e%2e/secrets.md",
+      "docs/%2e%2e/secrets.md",
+      "https://example.com/secrets.md",
+      "//example.com/secrets.md",
+      "\\\\example.com\\secrets.md",
+    ]) {
+      await expect(configuredArtifactTextSource.readText(path)).rejects.toThrow(
+        "Unsafe artifact path",
+      );
+      expect(() => artifactUrl(path)).toThrow("Path escapes configured public root");
+    }
+  });
+
+  test("rejects unsafe content href schemes", () => {
+    expect(
+      projectLinkSchema.safeParse({
+        kind: "source",
+        label: "Unsafe",
+        href: "javascript:alert(1)",
+      }).success,
+    ).toBe(false);
+    expect(
+      projectLinkSchema.safeParse({
+        kind: "source",
+        label: "Source",
+        href: "https://github.com/example/repository",
+      }).success,
+    ).toBe(true);
   });
 
   test("fetches artifacts through a CloudFront-style origin", async () => {
@@ -500,7 +528,7 @@ Body content.`);
       content.projects
         .find((project) => project.slug === "connor-hunter")
         ?.links.find((link) => link.kind === "roadmap")?.href,
-    ).toBe("https://github.com/users/connorlhunter/projects/9");
+    ).toBe("https://github.com/users/connorlhunter/projects/13");
     expect(content.certifications.length).toBeGreaterThan(0);
     expect(content.certifications[0]?.href).toBe("https://example.com/credentials/cert");
     expect(content.certifications[0]?.reissuanceDates).toEqual(["2026", "2027"]);
@@ -604,7 +632,7 @@ Body content.`);
     ).toBe(true);
   });
 
-  test("marks private source repositories as coming soon from project markdown", async () => {
+  test("reads source repository availability from project markdown", async () => {
     const content = await getPortfolioContent();
     const sourceAvailability = Object.fromEntries(
       content.projects.map((project) => [
@@ -614,7 +642,7 @@ Body content.`);
     );
 
     expect(sourceAvailability).toMatchObject({
-      cipher: true,
+      cipher: false,
       "cipher-ledger": true,
       "cipher-pay": true,
     });

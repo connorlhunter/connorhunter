@@ -1,10 +1,14 @@
 [pins."brace-expansion"]
-version = "5.0.8"
+version = "5.0.9"
 reason = "Fixes high-severity denial-of-service advisories in transitive minimatch dependencies."
 
 [pins."js-yaml"]
-version = "4.3.0"
+version = "4.3.1"
 reason = "Fixes high-severity YAML merge-key denial-of-service advisory in the TanStack Start transitive dependency chain."
 
-[releaseAgeExcludes."brace-expansion"]
-reason = "Allows the three-day-old security patch that resolves a high-severity denial-of-service advisory."
+[pins.nanoid]
+version = "3.3.18"
+reason = "Fixes a high-severity infinite-loop advisory in the Vite PostCSS dependency chain."
+
+[releaseAgeExcludes.nanoid]
+reason = "Allows the patched infinite-loop fix before the normal release-age gate; remove this after it ages past one week."

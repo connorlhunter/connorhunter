@@ -54,6 +54,10 @@ describe("public env config", () => {
     expect(releaseAssetUrl("cipher", "cipher-macos.dmg")).toBe(
       `${publicConfig.githubOrigin}/${publicConfig.githubOwner}/cipher/releases/${publicConfig.releaseDownloadChannel}/download/cipher-macos.dmg`,
     );
+    expect(() => artifactUrl("docs/%invalid")).toThrow("Path escapes configured public root");
+    expect(() => artifactUrl(" https://example.com/escape")).toThrow(
+      "Path escapes configured public root",
+    );
   });
 
   test("detects CloudFront distribution IDs used as public origins", () => {

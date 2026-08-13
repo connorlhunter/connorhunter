@@ -14,16 +14,27 @@ export interface ArtifactTextSource {
  * @returns A safe relative artifact path.
  */
 function normalizeArtifactPath(path: string): string {
-  const normalizedPath = path.replace(/^\/+/u, "");
+  let decodedPath: string;
+
+  try {
+    decodedPath = decodeURIComponent(path);
+  } catch {
+    throw new Error(`Unsafe artifact path: ${path}`);
+  }
 
   if (
-    normalizedPath.includes("\0") ||
-    normalizedPath.split("/").some((segment) => segment === "..")
+    path.length === 0 ||
+    path.startsWith("/") ||
+    path.includes("\\") ||
+    decodedPath.includes("\0") ||
+    decodedPath.includes("\\") ||
+    /^[a-z][a-z\d+.-]*:/iu.test(decodedPath) ||
+    decodedPath.split("/").some((segment) => segment === "." || segment === "..")
   ) {
     throw new Error(`Unsafe artifact path: ${path}`);
   }
 
-  return normalizedPath;
+  return path;
 }
 
 /**

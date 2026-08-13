@@ -74,12 +74,47 @@ function joinUrl(origin: string, path: string): string {
 }
 
 /**
+ * @param origin - Absolute public URL root.
+ * @param path - Relative path that must remain below the public root.
+ * @returns A URL contained by the configured origin and path prefix.
+ */
+function joinContainedUrl(origin: string, path: string): string {
+  let decodedPath: string;
+
+  try {
+    decodedPath = decodeURIComponent(path);
+  } catch {
+    throw new Error(`Path escapes configured public root: ${path}`);
+  }
+
+  if (
+    path.length === 0 ||
+    path.startsWith("/") ||
+    path.includes("\\") ||
+    decodedPath.includes("\\") ||
+    /^[a-z][a-z\d+.-]*:/iu.test(decodedPath) ||
+    decodedPath.split("/").some((segment) => segment === "." || segment === "..")
+  ) {
+    throw new Error(`Path escapes configured public root: ${path}`);
+  }
+
+  const baseUrl = new URL(`${trimTrailingSlash(origin)}/`);
+  const resolvedUrl = new URL(path, baseUrl);
+
+  if (resolvedUrl.origin !== baseUrl.origin || !resolvedUrl.pathname.startsWith(baseUrl.pathname)) {
+    throw new Error(`Path escapes configured public root: ${path}`);
+  }
+
+  return resolvedUrl.toString();
+}
+
+/**
  * @param value - Public env value that may use an asset URI token.
  * @returns A resolved public asset URL or the original value.
  */
 export function resolvePublicAssetHref(value: string): string {
   if (value.startsWith("asset://")) {
-    return joinUrl(publicAssetsOrigin, value.replace("asset://", ""));
+    return joinContainedUrl(publicAssetsOrigin, value.replace("asset://", ""));
   }
 
   return value;
@@ -149,7 +184,7 @@ export function absoluteSiteUrl(pathOrUrl: string): string {
  * @returns A public artifact URL.
  */
 export function artifactUrl(path: string): string {
-  return joinUrl(publicConfig.artifactsOrigin, path);
+  return joinContainedUrl(publicConfig.artifactsOrigin, path);
 }
 
 /**
@@ -157,7 +192,7 @@ export function artifactUrl(path: string): string {
  * @returns A public static asset URL.
  */
 export function publicAssetUrl(path: string): string {
-  return joinUrl(publicConfig.publicAssetsOrigin, path);
+  return joinContainedUrl(publicConfig.publicAssetsOrigin, path);
 }
 
 /**
