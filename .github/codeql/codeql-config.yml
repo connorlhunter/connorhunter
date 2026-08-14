@@ -1,0 +1,16 @@
+name: Portfolio CodeQL
+
+queries:
+  - uses: security-extended
+
+paths-ignore:
+  - .amplify-hosting/**
+  - .cache/**
+  - .nitro/**
+  - .output/**
+  - .tanstack/tmp/**
+  - .vinxi/**
+  - coverage/**
+  - dist/**
+  - node_modules/**
+  - public/pdf.worker.mjs
