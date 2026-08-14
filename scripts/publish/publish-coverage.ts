@@ -169,7 +169,7 @@ export function coverageInvalidations(
  *
  * @param command - Command to run.
  * @param args - Command arguments.
- * @param subject - Human-readable command label.
+ * @param subject - Command label.
  */
 export const defaultCommandRunner: CommandRunner = (command, args, subject) =>
   new Promise((resolve, reject) => {
