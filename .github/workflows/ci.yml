@@ -20,6 +20,10 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.14
-      - run: bun install --frozen-lockfile
-      - run: bun x puppeteer browsers install chrome
-      - run: set -a && . ./.env.example && set +a && bun run verify
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - uses: browser-actions/setup-chrome@v2
+        id: chrome
+      - run: cp .env.example .env
+      - run: bun run verify
+        env:
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.chrome.outputs.chrome-path }}
