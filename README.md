@@ -8,12 +8,18 @@ Detailed project documentation is published on the live portfolio:
 
 ## Start Here
 
+Prerequisites:
+
+- Bun 1.3.14.
+- CodeQL CLI 2.26.3 available as `codeql` on `PATH`.
+
 ```bash
 bun install
 bun run dev
 bun run typecheck
 bun run format:check
 bun run test:coverage
+bun run codeql:scan
 ```
 
 The app is built with TanStack Start, Vite, React, TanStack Router, Zod, Tailwind CSS, shadcn-style primitives, and Lucide icons. Portfolio content comes from artifact manifests and markdown frontmatter instead of being buried in React components.
@@ -50,16 +56,24 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 | Publish coverage    | `bun run coverage:publish` |
 | Check formatting    | `bun run format:check`     |
 | Run lint            | `bun run lint`             |
+| Run local CodeQL    | `bun run codeql:scan`      |
 | Typecheck           | `bun run typecheck`        |
 | Run full validation | `bun run verify`           |
 
 `bun run start` previews the most recent Amplify production build, so run `bun run build` first. It is not needed for normal local development; use `bun run dev` for that.
+
+`bun run verify` includes the local JavaScript/TypeScript and GitHub Actions CodeQL scan. In GitHub Actions, that step defers to the repository's required hosted CodeQL checks.
 
 Exact dependency pins and temporary release-age exceptions live in `dependency-policy.toml`. Run `bun run deps:policy` after changing the policy to sync `package.json` and `bunfig.toml`.
 
 ## Releases
 
 `package.json` is the portfolio release-version source. Keep the first `CHANGELOG.md` heading aligned with it; `bun run version:check` enforces the pair in the normal verification gate.
+
+## Change Naming
+
+- Start branch names with `feat/`, `fix/`, `chore/`, `docs/`, `test/`, or `refactor/`.
+- Use the matching Conventional Commit type, such as `feat: add local CodeQL verification`.
 
 ## Project Shape
 
