@@ -1,6 +1,7 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { publicConfig } from "@/config/public-env";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { themeMessageType, themeStorageKey } from "@/features/theme/theme";
 import {
@@ -511,7 +512,10 @@ describe("FileViewer", () => {
 
       fireEvent.load(frame);
 
-      expect(postedMessages).toContainEqual([{ scheme: "harbor", type: themeMessageType }, "*"]);
+      expect(postedMessages).toContainEqual([
+        { scheme: "harbor", type: themeMessageType },
+        new URL(publicConfig.siteOrigin).origin,
+      ]);
       expect(screen.queryByRole("status")).toBeNull();
       expect(frame.getAttribute("data-loaded")).toBe("true");
     } finally {

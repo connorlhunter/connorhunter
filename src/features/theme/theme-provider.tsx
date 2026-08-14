@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { publicConfig } from "@/config/public-env";
 import {
   defaultThemeScheme,
   findThemeScheme,
@@ -17,6 +18,43 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+/**
+ * @returns The current document origin, with a configured fallback for non-browser test DOMs.
+ */
+function currentThemeOrigin(): string {
+  return new URL(window.location.origin, publicConfig.siteOrigin).origin;
+}
+
+/**
+ * @param frame - Embedded document that may participate in theme synchronization.
+ * @returns The trusted target origin for the frame, or null when it is not a portfolio viewer.
+ */
+function trustedThemeFrameOrigin(frame: HTMLIFrameElement): string | null {
+  try {
+    const currentOrigin = currentThemeOrigin();
+    const origin = new URL(frame.getAttribute("src") ?? frame.src, `${currentOrigin}/`).origin;
+    const artifactOrigin = new URL(publicConfig.artifactsOrigin).origin;
+
+    return origin === currentOrigin || origin === artifactOrigin ? origin : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * @param event - Cross-frame browser message.
+ * @returns Whether the message came from a trusted embedded portfolio viewer.
+ */
+function isTrustedThemeMessage(event: MessageEvent): boolean {
+  if (!event.source) return false;
+
+  return Array.from(document.querySelectorAll("iframe")).some((frame) => {
+    const origin = trustedThemeFrameOrigin(frame);
+
+    return origin === event.origin && frame.contentWindow === event.source;
+  });
+}
 
 /**
  * @param scheme - Theme scheme to apply.
@@ -53,9 +91,12 @@ function messageScheme(value: unknown): ThemeScheme | null {
  */
 export function postThemeSchemeToFrame(frame: HTMLIFrameElement, scheme: ThemeScheme): void {
   const message = { scheme: scheme.id, type: themeMessageType };
+  const targetOrigin = trustedThemeFrameOrigin(frame);
+
+  if (!targetOrigin) return;
 
   try {
-    frame.contentWindow?.postMessage(message, "*");
+    frame.contentWindow?.postMessage(message, targetOrigin);
   } catch {
     // Cross-origin or unloading frames can reject messages; the saved theme still applies on reload.
   }
@@ -102,6 +143,8 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): 
     }
 
     function onMessage(event: MessageEvent): void {
+      if (!isTrustedThemeMessage(event)) return;
+
       const next = messageScheme(event.data);
       if (next) syncScheme(next, true, true);
     }
