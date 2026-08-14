@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.6] - 2026-08-14
+
+### Added
+
+- Required CodeQL CLI 2.26.3 on `PATH` for local verification.
+- Scanned JavaScript, TypeScript, and GitHub Actions with the security-extended queries and local threat sources.
+
+### Changed
+
+- Included the local CodeQL scan in `verify`, pre-commit, and pre-push checks while deferring GitHub Actions runs to hosted CodeQL.
+- Documented branch prefixes and matching Conventional Commit types in the README.
+
 ## [1.4.5] - 2026-08-14
 
 ### Added
@@ -57,6 +69,7 @@
 - Removed the permanent toolbar footprint from the fullscreen resume view.
 - Kept fullscreen unavailable on mobile while allowing the controls to collapse for more viewing room.
 
+[1.4.6]: https://github.com/connorlhunter/connorhunter/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/connorlhunter/connorhunter/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/connorlhunter/connorhunter/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/connorlhunter/connorhunter/compare/v1.4.2...v1.4.3
