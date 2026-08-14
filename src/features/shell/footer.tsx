@@ -11,8 +11,8 @@ interface FooterProps {
 }
 
 /**
- * @param value - ISO date from the public build environment.
- * @returns A stable human-readable date for server and client rendering.
+ * @param value - ISO date from portfolio content.
+ * @returns A stable formatted date for server and client rendering.
  */
 export function formatLastUpdated(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
