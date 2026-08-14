@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { PortfolioContent } from "@/content/schema";
-import { publicConfig } from "@/config/public-env";
 import { DynamicContentIndicator } from "./dynamic-content-indicator";
 import { Footer } from "./footer";
 import { SiteHeader } from "./site-header";
@@ -12,7 +11,7 @@ import { ThemeProvider } from "@/features/theme/theme-provider";
  */
 export type SiteShellContent = Pick<
   PortfolioContent,
-  "contacts" | "navigation" | "profile" | "resume"
+  "contacts" | "lastUpdated" | "navigation" | "profile" | "resume"
 >;
 
 interface SiteLayoutProps {
@@ -46,7 +45,7 @@ export function SiteLayout({ children, content, contentSource }: SiteLayoutProps
       <Footer
         brandName={content.profile.name}
         contacts={content.contacts}
-        lastUpdated={publicConfig.lastUpdated}
+        lastUpdated={content.lastUpdated}
       />
     </ThemeProvider>
   );

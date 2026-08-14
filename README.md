@@ -57,6 +57,10 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 
 Exact dependency pins and temporary release-age exceptions live in `dependency-policy.toml`. Run `bun run deps:policy` after changing the policy to sync `package.json` and `bunfig.toml`.
 
+## Releases
+
+`package.json` is the portfolio release-version source. Keep the first `CHANGELOG.md` heading aligned with it; `bun run version:check` enforces the pair in the normal verification gate.
+
 ## Project Shape
 
 ```text

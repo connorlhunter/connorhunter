@@ -1,4 +1,5 @@
 import { loadProjectArtifactManifest } from "./artifacts/loader";
+import { publicConfig } from "@/config/public-env";
 import { loadContentManifest } from "./manifest";
 import { loadProfileTimeline } from "./profile/experience";
 import { loadNavigation } from "./profile/navigation";
@@ -34,6 +35,7 @@ async function loadPortfolioContent(): Promise<PortfolioContent> {
   const projects = await loadProjects(projectArtifactManifest);
 
   return portfolioContentSchema.parse({
+    lastUpdated: contentManifest.lastUpdated ?? publicConfig.lastUpdated,
     profile,
     contacts: socialLinks.contacts,
     resume: socialLinks.resume,
