@@ -313,7 +313,7 @@ describe("ThemeSwitcher", () => {
     document.documentElement.dataset.scheme = "atlas";
     const postedMessages: Array<ReadonlyArray<unknown>> = [];
     const iframe = document.createElement("iframe");
-    iframe.setAttribute("src", "http://[");
+    iframe.setAttribute("src", "https://[");
     Object.defineProperty(iframe, "contentWindow", {
       configurable: true,
       value: {
