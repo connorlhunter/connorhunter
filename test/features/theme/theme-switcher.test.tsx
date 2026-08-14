@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { publicConfig } from "@/config/public-env";
 import { ThemeProvider, useTheme } from "@/features/theme/theme-provider";
 import { ThemeSwitcher } from "@/features/theme/theme-switcher";
 import { themeBootstrapScript } from "@/features/theme/theme-bootstrap-script";
@@ -33,6 +34,30 @@ const artifactGeneratorThemeIds = [
   "ember",
   "quartz",
 ] as const;
+const artifactViewerOrigin = new URL(publicConfig.artifactsOrigin).origin;
+
+function artifactViewerFrame(): HTMLIFrameElement {
+  const frame = document.createElement("iframe");
+  frame.src = `${artifactViewerOrigin}/viewer.html`;
+
+  return frame;
+}
+
+function dispatchThemeMessage(
+  data: unknown,
+  origin: string,
+  source: MessageEventSource | null,
+): void {
+  const event = new window.Event("message") as MessageEvent;
+  Object.defineProperties(event, {
+    data: { value: data },
+    origin: { value: origin },
+    source: { value: source },
+  });
+  act(() => {
+    window.dispatchEvent(event);
+  });
+}
 
 function ThemeConsumerWithoutProvider(): null {
   useTheme();
@@ -206,7 +231,7 @@ describe("ThemeSwitcher", () => {
     clearSavedThemes();
     document.documentElement.dataset.scheme = "atlas";
     const postedMessages: Array<ReadonlyArray<unknown>> = [];
-    const iframe = document.createElement("iframe");
+    const iframe = artifactViewerFrame();
 
     Object.defineProperty(iframe, "contentWindow", {
       configurable: true,
@@ -234,7 +259,10 @@ describe("ThemeSwitcher", () => {
       await waitFor(() => {
         expect(document.documentElement.dataset.scheme).toBe("paper");
       });
-      expect(postedMessages).toContainEqual([{ scheme: "paper", type: themeMessageType }, "*"]);
+      expect(postedMessages).toContainEqual([
+        { scheme: "paper", type: themeMessageType },
+        artifactViewerOrigin,
+      ]);
     } finally {
       iframe.remove();
       cleanup();
@@ -247,7 +275,7 @@ describe("ThemeSwitcher", () => {
     window.localStorage.setItem(themeStorageKey, "rose");
     document.documentElement.dataset.scheme = "atlas";
     const postedMessages: Array<ReadonlyArray<unknown>> = [];
-    const iframe = document.createElement("iframe");
+    const iframe = artifactViewerFrame();
 
     Object.defineProperty(iframe, "contentWindow", {
       configurable: true,
@@ -269,7 +297,10 @@ describe("ThemeSwitcher", () => {
       await waitFor(() => {
         expect(document.documentElement.dataset.scheme).toBe("rose");
       });
-      expect(postedMessages).toContainEqual([{ scheme: "rose", type: themeMessageType }, "*"]);
+      expect(postedMessages).toContainEqual([
+        { scheme: "rose", type: themeMessageType },
+        artifactViewerOrigin,
+      ]);
     } finally {
       iframe.remove();
       cleanup();
@@ -277,79 +308,144 @@ describe("ThemeSwitcher", () => {
     }
   });
 
-  test("applies theme messages from embedded artifact viewers", async () => {
+  test("does not broadcast theme data to malformed viewer URLs", async () => {
     clearSavedThemes();
     document.documentElement.dataset.scheme = "atlas";
-
-    render(
-      <ThemeProvider>
-        <ThemeSwitcher />
-      </ThemeProvider>,
-    );
-
-    await waitFor(() => {
-      expect(document.documentElement.dataset.scheme).toBe("atlas");
+    const postedMessages: Array<ReadonlyArray<unknown>> = [];
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("src", "http://[");
+    Object.defineProperty(iframe, "contentWindow", {
+      configurable: true,
+      value: {
+        postMessage: (...args: Array<unknown>) => {
+          postedMessages.push(args);
+        },
+      },
     });
+    document.body.append(iframe);
 
-    const messageEvent = new window.Event("message") as MessageEvent;
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
 
-    Object.defineProperty(messageEvent, "data", {
-      value: { scheme: "rose", type: themeMessageType },
-    });
-    Object.defineProperty(messageEvent, "origin", {
-      value: "https://assets.example.com",
-    });
-    act(() => {
-      window.dispatchEvent(messageEvent);
-    });
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
+      });
+      expect(postedMessages).toEqual([]);
+    } finally {
+      iframe.remove();
+      cleanup();
+      clearSavedThemes();
+    }
+  });
 
-    await waitFor(() => {
-      expect(document.documentElement.dataset.scheme).toBe("rose");
-    });
-    expect(window.localStorage.getItem(themeStorageKey)).toBe("rose");
-
-    cleanup();
+  test("applies theme messages from trusted embedded artifact viewers", async () => {
     clearSavedThemes();
+    document.documentElement.dataset.scheme = "atlas";
+    const iframe = artifactViewerFrame();
+    document.body.append(iframe);
+
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
+      });
+
+      dispatchThemeMessage(
+        { scheme: "rose", type: themeMessageType },
+        artifactViewerOrigin,
+        iframe.contentWindow,
+      );
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("rose");
+      });
+      expect(window.localStorage.getItem(themeStorageKey)).toBe("rose");
+    } finally {
+      iframe.remove();
+      cleanup();
+      clearSavedThemes();
+    }
+  });
+
+  test("ignores theme messages with an untrusted origin or source", async () => {
+    clearSavedThemes();
+    document.documentElement.dataset.scheme = "atlas";
+    const iframe = artifactViewerFrame();
+    document.body.append(iframe);
+
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
+      });
+
+      dispatchThemeMessage(
+        { scheme: "rose", type: themeMessageType },
+        "https://untrusted.example",
+        iframe.contentWindow,
+      );
+      dispatchThemeMessage(
+        { scheme: "rose", type: themeMessageType },
+        artifactViewerOrigin,
+        window,
+      );
+
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+      expect(window.localStorage.getItem(themeStorageKey)).toBeNull();
+    } finally {
+      iframe.remove();
+      cleanup();
+      clearSavedThemes();
+    }
   });
 
   test("ignores invalid theme messages", async () => {
     clearSavedThemes();
     document.documentElement.dataset.scheme = "atlas";
+    const iframe = artifactViewerFrame();
+    document.body.append(iframe);
 
-    render(
-      <ThemeProvider>
-        <ThemeSwitcher />
-      </ThemeProvider>,
-    );
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
 
-    await waitFor(() => {
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
+      });
+
+      dispatchThemeMessage(null, artifactViewerOrigin, iframe.contentWindow);
+
       expect(document.documentElement.dataset.scheme).toBe("atlas");
-    });
 
-    const messageEvent = new window.Event("message") as MessageEvent;
+      dispatchThemeMessage(
+        { scheme: "rose", type: "other.theme.message" },
+        artifactViewerOrigin,
+        iframe.contentWindow,
+      );
 
-    Object.defineProperty(messageEvent, "data", {
-      value: null,
-    });
-    act(() => {
-      window.dispatchEvent(messageEvent);
-    });
-
-    expect(document.documentElement.dataset.scheme).toBe("atlas");
-
-    const wrongTypeMessageEvent = new window.Event("message") as MessageEvent;
-
-    Object.defineProperty(wrongTypeMessageEvent, "data", {
-      value: { scheme: "rose", type: "other.theme.message" },
-    });
-    act(() => {
-      window.dispatchEvent(wrongTypeMessageEvent);
-    });
-
-    expect(document.documentElement.dataset.scheme).toBe("atlas");
-
-    cleanup();
-    clearSavedThemes();
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+    } finally {
+      iframe.remove();
+      cleanup();
+      clearSavedThemes();
+    }
   });
 
   test("applies same-origin theme storage changes from artifact viewers", async () => {
