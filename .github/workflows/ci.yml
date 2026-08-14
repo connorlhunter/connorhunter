@@ -25,6 +25,12 @@ jobs:
         id: chrome
       - run: ${{ steps.chrome.outputs.chrome-path }} --version
       - run: cp .env.example .env
+      - name: Validate pull request title
+        if: github.event_name == 'pull_request'
+        run: bun run naming:subject
+        env:
+          CHANGE_SUBJECT: ${{ github.event.pull_request.title }}
       - run: bun run verify
         env:
+          CHANGE_BRANCH: ${{ github.head_ref || github.ref_name }}
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.chrome.outputs.chrome-path }}
