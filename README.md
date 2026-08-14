@@ -72,8 +72,12 @@ Exact dependency pins and temporary release-age exceptions live in `dependency-p
 
 ## Change Naming
 
-- Start branch names with `feat/`, `fix/`, `chore/`, `docs/`, `test/`, or `refactor/`.
-- Use the matching Conventional Commit type, such as `feat: add local CodeQL verification`.
+- Name branches `<type>/<kebab-summary>` with `feat`, `fix`, `chore`, `docs`, `test`, or `refactor`.
+- Name issues, pull requests, and commit subjects `<type>[(scope)][!]: <summary>`, such as `feat(viewer): add diagram preview`.
+- Use `release/<version>` for a release branch, `chore(release): prepare <version>` for its release commit, and `v<version>` for the tag.
+- Dependabot branches are accepted as an automated exception. Existing commit history is intentionally unchanged.
+
+`bun run verify` checks the current branch, the commit hook checks each new commit subject, and CI checks pull request titles.
 
 ## Project Shape
 

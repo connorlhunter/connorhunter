@@ -1,0 +1,19 @@
+name: Documentation or architecture
+description: Propose a documentation, diagram, or architecture update.
+title: "docs: "
+labels: [documentation]
+body:
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Which documentation, diagram, or architecture decision needs an update?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Describe the expected published or repository result.
+    validations:
+      required: true

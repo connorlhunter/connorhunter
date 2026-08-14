@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+
+CHANGE_SUBJECT="$(sed -n '1p' "$1")" bun run naming:subject
