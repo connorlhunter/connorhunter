@@ -43,20 +43,20 @@ describe("render coverage report", () => {
     expect(html).toContain("Portfolio Coverage");
     expect(html).toContain('data-scheme="atlas"');
     expect(html).toContain("connorhunter.theme.scheme");
-    expect(html).toContain('message.type.endsWith(messageSuffix)');
+    expect(html).toContain("message.type.endsWith(messageSuffix)");
     expect(html).toContain("75.00%");
     expect(html).toContain("50.00%");
     expect(html).toContain("lcov.info");
   });
 
-  test("writes the html report and lcov file to the configured coverage folder", () => {
+  test("writes the HTML report beside the fixed LCOV file", () => {
     spyOn(console, "log").mockImplementation(() => undefined);
     tempDir = mkdtempSync(join(tmpdir(), "portfolio-coverage-"));
     const lcovPath = join(tempDir, "coverage", "lcov.info");
     const outputPath = join(tempDir, "coverage", "index.html");
     writeFixtureFile(lcovPath, sampleLcov);
 
-    expect(renderCoverageReport(lcovPath, outputPath)).toBe(outputPath);
+    expect(renderCoverageReport(tempDir)).toBe(outputPath);
 
     expect(readFileSync(outputPath, "utf8")).toContain("Portfolio Coverage");
     expect(existsSync(join(tempDir, "coverage", "lcov.info"))).toBe(true);
