@@ -3,6 +3,7 @@ import { publicConfig } from "@/config/public-env";
 import { readArtifactJson } from "./artifacts/source";
 
 const contentManifestSchema = z.object({
+  lastUpdated: z.iso.date().optional(),
   profile: z.object({
     experiencePath: z.string().min(1),
     navigationPath: z.string().min(1),

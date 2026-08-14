@@ -2,6 +2,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer from "puppeteer";
+import { pdfBrowserLaunchOptions } from "./pdf-browser";
 
 const defaultCoverageReportPath = "coverage/index.html";
 const defaultCoveragePdfPath = "coverage/index.pdf";
@@ -22,7 +23,7 @@ export async function renderCoveragePdf(
   }
 
   mkdirSync(dirname(output), { recursive: true });
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch(pdfBrowserLaunchOptions(process.env.CI === "true"));
 
   try {
     const page = await browser.newPage();

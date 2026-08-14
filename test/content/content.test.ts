@@ -85,6 +85,7 @@ const artifactFixtures = new Map<string, string>([
   [
     "manifests/content-manifest.json",
     JSON.stringify({
+      lastUpdated: "2026-08-14",
       profile: {
         experiencePath: "profile/experience.md",
         navigationPath: "profile/navigation.md",
@@ -463,6 +464,7 @@ Body content.`);
     const projectOrders = content.projects.map((project) => project.slug);
 
     expect(content.profile.name.length).toBeGreaterThan(0);
+    expect(content.lastUpdated).toBe("2026-08-14");
     expect(projectOrders).toEqual([
       "connor-hunter",
       "artifact-generator",

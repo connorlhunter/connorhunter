@@ -7,6 +7,7 @@ import { projectSchema } from "./projects";
  * @description Complete portfolio content payload consumed by the app.
  */
 export const portfolioContentSchema = z.object({
+  lastUpdated: z.iso.date().optional(),
   profile: profileSchema,
   contacts: z.array(contactLinkSchema).min(1),
   resume: resumeSchema,

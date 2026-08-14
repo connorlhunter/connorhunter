@@ -5,6 +5,7 @@ import type { SiteShellContent } from "@/features/shell/site-layout";
  * @description Minimal shell content used when dynamic content loading fails.
  */
 export const fallbackShellContent: SiteShellContent = {
+  lastUpdated: publicConfig.lastUpdated,
   profile: {
     name: publicConfig.siteName,
     role: "Portfolio",

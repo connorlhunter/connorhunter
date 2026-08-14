@@ -95,6 +95,7 @@ export const projectWithoutDownloads: Project = {
 };
 
 export const mockContent: PortfolioContent = {
+  lastUpdated: "2026-08-14",
   profile: {
     name: "Example Person",
     role: "Example role",
