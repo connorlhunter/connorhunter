@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.5] - 2026-08-14
+
+### Added
+
+- Loaded the portfolio update date from the published content manifest with the configured public date as a fallback.
+- Published refreshed Cipher project, skills, and resume content with CodeQL alongside GitHub Actions.
+- Added a security policy, Dependabot coverage, and a release-version check to hosted verification.
+
+### Changed
+
+- Required both the trusted iframe source and configured artifact origin before applying embedded theme messages.
+- Refreshed supported dependencies while keeping the standard TypeScript compiler on 6.x.
+
+### Fixed
+
+- Confined generated coverage artifacts to the documented coverage directory.
+- Parsed artifact URLs before asserting their trusted origin in tests.
+
 ## [1.4.4] - 2026-08-02
 
 ### Changed
@@ -39,6 +57,7 @@
 - Removed the permanent toolbar footprint from the fullscreen resume view.
 - Kept fullscreen unavailable on mobile while allowing the controls to collapse for more viewing room.
 
+[1.4.5]: https://github.com/connorlhunter/connorhunter/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/connorlhunter/connorhunter/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/connorlhunter/connorhunter/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/connorlhunter/connorhunter/compare/v1.4.1...v1.4.2
