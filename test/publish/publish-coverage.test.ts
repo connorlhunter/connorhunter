@@ -18,23 +18,28 @@ describe("publish coverage", () => {
   });
 
   test("builds source and published S3 destinations", () => {
+    tempDir = mkdtempSync(join(tmpdir(), "coverage-publish-"));
+
     expect(
-      coveragePublishDestinations({
-        ARTIFACTS_BUCKET: "published-artifacts",
-        ARTIFACTS_PREFIX: "/site/",
-        COVERAGE_DIR: "coverage",
-        SOURCE_ARTIFACTS_BUCKET: "source-artifacts",
-        SOURCE_ARTIFACTS_PREFIX: "raw",
-      }),
+      coveragePublishDestinations(
+        {
+          ARTIFACTS_BUCKET: "published-artifacts",
+          ARTIFACTS_PREFIX: "/site/",
+          COVERAGE_DIR: join(tempDir, "outside"),
+          SOURCE_ARTIFACTS_BUCKET: "source-artifacts",
+          SOURCE_ARTIFACTS_PREFIX: "raw",
+        },
+        tempDir,
+      ),
     ).toEqual([
       {
         label: "Source coverage copy",
-        source: "coverage",
+        source: join(tempDir, "coverage"),
         target: "s3://source-artifacts/raw/projects/connor-hunter/coverage/",
       },
       {
         label: "Live coverage artifact",
-        source: "coverage",
+        source: join(tempDir, "coverage"),
         target: "s3://published-artifacts/site/projects/connor-hunter/coverage/",
       },
     ]);
@@ -76,9 +81,9 @@ describe("publish coverage", () => {
       env: {
         ARTIFACTS_BUCKET: "published-artifacts",
         ARTIFACTS_CLOUDFRONT_DISTRIBUTION_ID: "DISTRIBUTION",
-        COVERAGE_DIR: coverageDir,
         SOURCE_ARTIFACTS_BUCKET: "source-artifacts",
       },
+      workspaceRoot: tempDir,
     });
 
     expect(commands).toEqual([
@@ -133,8 +138,8 @@ describe("publish coverage", () => {
         commandRunner: async () => undefined,
         env: {
           ARTIFACTS_BUCKET: "published-artifacts",
-          COVERAGE_DIR: join(tempDir, "coverage"),
         },
+        workspaceRoot: tempDir,
       }),
     ).rejects.toThrow("Missing coverage report");
   });

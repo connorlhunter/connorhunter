@@ -1,5 +1,5 @@
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { coveragePaths } from "./coverage-paths";
 
 interface CoverageMetric {
   covered: number;
@@ -12,9 +12,6 @@ interface CoverageFile {
   lines: CoverageMetric;
   path: string;
 }
-
-const defaultLcovPath = "coverage/lcov.info";
-const defaultCoverageArtifactPath = "coverage/index.html";
 
 /**
  * @returns An empty coverage metric.
@@ -523,23 +520,18 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
 }
 
 /**
- * @param lcovPath - Source LCOV report path.
- * @param outputPath - Target HTML artifact path.
+ * @param workspaceRoot - Workspace containing the fixed coverage folder.
  * @returns The generated HTML artifact path.
  */
-export function renderCoverageReport(
-  lcovPath = defaultLcovPath,
-  outputPath = process.env.COVERAGE_ARTIFACT_PATH ?? defaultCoverageArtifactPath,
-): string {
-  const lcov = readFileSync(lcovPath, "utf8");
-  const outputDirectory = dirname(outputPath);
+export function renderCoverageReport(workspaceRoot = process.cwd()): string {
+  const paths = coveragePaths(workspaceRoot);
+  const lcov = readFileSync(paths.lcov, "utf8");
 
-  mkdirSync(outputDirectory, { recursive: true });
-  writeFileSync(outputPath, renderCoverageHtml(parseLcov(lcov)));
-  copyFileSync(lcovPath, join(outputDirectory, "lcov.info"));
-  console.log(`Rendered coverage artifact: ${outputPath}`);
+  mkdirSync(paths.directory, { recursive: true });
+  writeFileSync(paths.html, renderCoverageHtml(parseLcov(lcov)));
+  console.log(`Rendered coverage artifact: ${paths.html}`);
 
-  return outputPath;
+  return paths.html;
 }
 
 if (import.meta.main) {

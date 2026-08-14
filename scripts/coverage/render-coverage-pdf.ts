@@ -1,35 +1,30 @@
 import { existsSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer from "puppeteer";
+import { coveragePaths } from "./coverage-paths";
 import { pdfBrowserLaunchOptions } from "./pdf-browser";
-
-const defaultCoverageReportPath = "coverage/index.html";
-const defaultCoveragePdfPath = "coverage/index.pdf";
 
 /**
  * Renders the standalone coverage report as a downloadable PDF.
  *
- * @param input - HTML coverage report to render.
- * @param output - PDF file to write beside the report.
+ * @param workspaceRoot - Workspace containing the fixed coverage folder.
  * @returns The generated PDF path.
  */
-export async function renderCoveragePdf(
-  input = process.env.COVERAGE_ARTIFACT_PATH ?? defaultCoverageReportPath,
-  output = process.env.COVERAGE_PDF_PATH ?? defaultCoveragePdfPath,
-): Promise<string> {
-  if (!existsSync(input)) {
-    throw new Error(`Missing coverage report: ${input}. Run \`bun run test:coverage\` first.`);
+export async function renderCoveragePdf(workspaceRoot = process.cwd()): Promise<string> {
+  const paths = coveragePaths(workspaceRoot);
+
+  if (!existsSync(paths.html)) {
+    throw new Error(`Missing coverage report: ${paths.html}. Run \`bun run test:coverage\` first.`);
   }
 
-  mkdirSync(dirname(output), { recursive: true });
+  mkdirSync(paths.directory, { recursive: true });
   const browser = await puppeteer.launch(pdfBrowserLaunchOptions(process.env.CI === "true"));
 
   try {
     const page = await browser.newPage();
 
     await page.emulateMediaType("print");
-    await page.goto(pathToFileURL(input).href, { waitUntil: "networkidle0" });
+    await page.goto(pathToFileURL(paths.html).href, { waitUntil: "networkidle0" });
     await page.pdf({
       format: "Letter",
       landscape: true,
@@ -39,16 +34,16 @@ export async function renderCoveragePdf(
         right: "0.45in",
         top: "0.45in",
       },
-      path: output,
+      path: paths.pdf,
       printBackground: true,
     });
   } finally {
     await browser.close();
   }
 
-  console.log(`Rendered coverage PDF: ${output}`);
+  console.log(`Rendered coverage PDF: ${paths.pdf}`);
 
-  return output;
+  return paths.pdf;
 }
 
 if (import.meta.main) {

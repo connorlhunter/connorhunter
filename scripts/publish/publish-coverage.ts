@@ -1,8 +1,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { coveragePaths } from "../coverage/coverage-paths";
 
-const defaultCoverageDir = "coverage";
 const defaultProjectSlug = "connor-hunter";
 
 export interface CoveragePublishDestination {
@@ -19,6 +18,7 @@ export interface CoverageInvalidation {
 export interface PublishCoverageOptions {
   readonly commandRunner?: CommandRunner;
   readonly env?: NodeJS.ProcessEnv;
+  readonly workspaceRoot?: string;
 }
 
 export type CommandRunner = (
@@ -76,11 +76,11 @@ function s3Destination(input: S3DestinationInput): CoveragePublishDestination {
 }
 
 /**
- * @param env - Environment values.
+ * @param workspaceRoot - Workspace containing the fixed coverage folder.
  * @returns Coverage folder to upload.
  */
-export function coverageSource(env: NodeJS.ProcessEnv = process.env): string {
-  return envValue(env.COVERAGE_DIR) || defaultCoverageDir;
+export function coverageSource(workspaceRoot = process.cwd()): string {
+  return coveragePaths(workspaceRoot).directory;
 }
 
 /**
@@ -97,8 +97,9 @@ export function coverageProjectSlug(env: NodeJS.ProcessEnv = process.env): strin
  */
 export function coveragePublishDestinations(
   env: NodeJS.ProcessEnv = process.env,
+  workspaceRoot = process.cwd(),
 ): CoveragePublishDestination[] {
-  const source = coverageSource(env);
+  const source = coverageSource(workspaceRoot);
   const projectSlug = coverageProjectSlug(env);
   const sourceArtifactsBucket = envValue(env.SOURCE_ARTIFACTS_BUCKET);
   const publishedArtifactsBucket = envValue(env.ARTIFACTS_BUCKET);
@@ -212,17 +213,16 @@ export const defaultCommandRunner: CommandRunner = (command, args, subject) =>
 export async function publishCoverage(options: PublishCoverageOptions = {}): Promise<void> {
   const env = options.env ?? process.env;
   const commandRunner = options.commandRunner ?? defaultCommandRunner;
-  const source = coverageSource(env);
-  const report = join(source, "index.html");
-  const pdf = join(source, "index.pdf");
+  const paths = coveragePaths(options.workspaceRoot);
+  const source = paths.directory;
 
-  if (!existsSync(report) || !existsSync(pdf)) {
+  if (!existsSync(paths.html) || !existsSync(paths.pdf)) {
     throw new Error(
-      `Missing coverage report: ${report} or ${pdf}. Run \`bun run coverage:publish\` first.`,
+      `Missing coverage report: ${paths.html} or ${paths.pdf}. Run \`bun run coverage:publish\` first.`,
     );
   }
 
-  const destinations = coveragePublishDestinations(env);
+  const destinations = coveragePublishDestinations(env, options.workspaceRoot);
   console.log(`Publishing coverage from ${source}`);
 
   for (const destination of destinations) {

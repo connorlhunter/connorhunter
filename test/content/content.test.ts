@@ -554,12 +554,10 @@ Body content.`);
     const artifactUrls = content.projects.flatMap((project) =>
       project.artifacts.map((artifact) => artifact.href),
     );
+    const artifactOrigin = new URL(publicConfig.artifactsOrigin).origin;
 
     expect(content.resume.href).toBe(publicAssetUrl("resume/connor-hunter-resume.pdf"));
-    expect(artifactUrls.every((href) => href.startsWith(`${publicConfig.artifactsOrigin}/`))).toBe(
-      true,
-    );
-    expect(artifactUrls.every((href) => !href.includes("s3.amazonaws.com"))).toBe(true);
+    expect(artifactUrls.every((href) => new URL(href).origin === artifactOrigin)).toBe(true);
   });
 
   test("refreshes content after the cache lifetime", async () => {
