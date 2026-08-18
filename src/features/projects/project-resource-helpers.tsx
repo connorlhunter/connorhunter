@@ -44,13 +44,17 @@ export function diagramItems(artifact: ArtifactLink | undefined): ReadonlyArray<
 /**
  * @param items - Available diagram items.
  * @param selectedDiagramId - Optional selected diagram id from the route.
- * @returns The selected diagram item, defaulting to the first available diagram.
+ * @returns The selected diagram item, defaulting to the overview diagram.
  */
 export function selectedDiagramItem(
   items: ReadonlyArray<ArtifactItem>,
   selectedDiagramId: string | undefined,
 ): ArtifactItem | undefined {
-  return items.find((item) => item.id === selectedDiagramId) ?? items[0];
+  return (
+    items.find((item) => item.id === selectedDiagramId) ??
+    items.find((item) => item.label === "Overview") ??
+    items[0]
+  );
 }
 
 /**
