@@ -11,9 +11,11 @@ import { ProjectResourceControls } from "./project-resource-controls";
 import {
   artifactForViewer,
   artifactDownload,
+  coverageItems,
   diagramItems,
   projectNavigationActions,
   selectedDiagramItem,
+  selectedCoverageItem,
   viewerHref,
   wireDocsDiagramLinks as connectDocsDiagramLinks,
 } from "./project-resource-helpers";
@@ -27,6 +29,7 @@ export { wireDocsDiagramLinks } from "./project-resource-helpers";
 
 interface ProjectResourceViewerProps {
   readonly content: PortfolioContent;
+  readonly coverage?: string | undefined;
   readonly diagram?: string | undefined;
   readonly headingId: string;
   readonly project: Project;
@@ -40,6 +43,7 @@ interface ProjectResourceViewerProps {
  */
 export function ProjectResourceViewer({
   content,
+  coverage,
   diagram,
   headingId,
   project,
@@ -50,22 +54,25 @@ export function ProjectResourceViewer({
   const activeViewer = viewer !== "project" && requestedArtifact?.comingSoon ? "project" : viewer;
   const artifact = artifactForViewer(project, activeViewer);
   const diagrams = activeViewer === "diagrams" ? diagramItems(artifact) : [];
+  const coveragePages = activeViewer === "coverage" ? coverageItems(artifact) : [];
   const selectedDiagram =
     activeViewer === "diagrams" ? selectedDiagramItem(diagrams, diagram) : undefined;
+  const selectedCoverage =
+    activeViewer === "coverage" ? selectedCoverageItem(coveragePages, coverage) : undefined;
+  const selectedItem = selectedDiagram ?? selectedCoverage;
   const sourceHref =
-    artifact && !artifact.comingSoon ? (selectedDiagram?.href ?? artifact.href) : undefined;
+    artifact && !artifact.comingSoon ? (selectedItem?.href ?? artifact.href) : undefined;
   const iframeSourceHref = activeViewer === "diagrams" ? undefined : sourceHref;
-  const download = artifactDownload(project, activeViewer, artifact, sourceHref, selectedDiagram);
+  const download = artifactDownload(project, activeViewer, artifact, sourceHref, selectedItem);
   const absoluteViewerHref = absoluteSiteUrl(projectDetailViewerHref(project.slug, activeViewer));
   const emailHref = mailtoHref(
     emailContact(content.contacts),
     `${project.title} follow-up`,
     `Hi ${profileGreetingName(content.profile)},\n\nI viewed ${project.title} here:\n${absoluteViewerHref}\n`,
   );
-  const title =
-    activeViewer === "diagrams" && selectedDiagram
-      ? `${project.title} ${selectedDiagram.label}`
-      : `${project.title} ${projectViewerLabel(activeViewer)}`;
+  const title = selectedItem
+    ? `${project.title} ${selectedItem.label}`
+    : `${project.title} ${projectViewerLabel(activeViewer)}`;
   const navigationActions = projectNavigationActions(projects, project, activeViewer);
   const diagramsHref = viewerHref(project, "diagrams");
 
@@ -96,10 +103,12 @@ export function ProjectResourceViewer({
           <ProjectResourceControls
             actions={actions}
             activeViewer={activeViewer}
+            coveragePages={coveragePages}
             diagrams={diagrams}
             headingId={headingId}
             project={project}
             selectedDiagramId={selectedDiagram?.id}
+            selectedCoverageId={selectedCoverage?.id}
           />
         )}
         sourceHref={iframeSourceHref}

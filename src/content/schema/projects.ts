@@ -5,6 +5,7 @@ import { hrefSchema } from "./base";
  * @description Project artifact child item metadata.
  */
 export const artifactItemSchema = z.object({
+  downloadHref: hrefSchema.optional(),
   href: hrefSchema,
   id: z.string().min(1),
   label: z.string().min(1),

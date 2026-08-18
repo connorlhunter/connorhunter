@@ -8,6 +8,7 @@ import { SiteLayout } from "@/features/shell/site-layout";
 
 interface ProjectDetailPageProps {
   readonly content: PortfolioContent;
+  readonly coverage?: string | undefined;
   readonly diagram?: string | undefined;
   readonly project: Project;
   readonly viewer?: ProjectViewerKind;
@@ -19,6 +20,7 @@ interface ProjectDetailPageProps {
  */
 export function ProjectDetailPage({
   content,
+  coverage,
   diagram,
   project,
   viewer = "project",
@@ -40,6 +42,7 @@ export function ProjectDetailPage({
 
           <ProjectResourceViewer
             content={content}
+            coverage={coverage}
             diagram={diagram}
             headingId={headingId}
             project={project}

@@ -449,6 +449,51 @@ describe("ProjectDetailPage", () => {
     cleanup();
   });
 
+  test("switches labeled coverage pages without changing the existing coverage view", () => {
+    const project = {
+      ...projectWithDownloads,
+      artifacts: projectWithDownloads.artifacts.map((artifact) =>
+        artifact.label === "Coverage"
+          ? {
+              ...artifact,
+              items: [
+                {
+                  href: "https://assets.example.com/projects/example/coverage/typescript.html",
+                  id: "typescript",
+                  label: "TypeScript",
+                },
+                {
+                  href: "https://assets.example.com/projects/example/coverage/rust.html",
+                  id: "rust",
+                  label: "Rust",
+                },
+              ],
+            }
+          : artifact,
+      ),
+    };
+
+    render(
+      <ProjectDetailPage
+        content={mockContent}
+        coverage="rust"
+        project={project}
+        viewer="coverage"
+      />,
+    );
+
+    expect(screen.getByRole("navigation", { name: "Desktop Tool coverage pages" })).toBeTruthy();
+    const rustLink = screen.getByRole("link", { name: "Rust" });
+
+    expect(rustLink.getAttribute("href")).toContain("viewer=coverage&coverage=rust");
+    expect(fireEvent.click(rustLink)).toBe(false);
+    expect(screen.getByTitle("Desktop Tool Rust").getAttribute("src")).toContain(
+      "coverage/rust.html",
+    );
+
+    cleanup();
+  });
+
   test("renders a missing artifact state inside the shared viewer", () => {
     render(
       <ProjectDetailPage
@@ -483,6 +528,9 @@ describe("ProjectDetailPage", () => {
     expect(parseProjectViewerKind(42)).toBeUndefined();
     expect(projectDetailViewerHref("desktop-tool", "diagrams", { diagram: "detail" })).toBe(
       "/projects/desktop-tool?viewer=diagrams&diagram=detail#project-viewer",
+    );
+    expect(projectDetailViewerHref("desktop-tool", "coverage", { coverage: "rust" })).toBe(
+      "/projects/desktop-tool?viewer=coverage&coverage=rust#project-viewer",
     );
   });
 

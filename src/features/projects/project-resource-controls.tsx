@@ -7,16 +7,18 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/cn";
 import { DownloadActions, ProjectLinkActions } from "./project-actions";
 import { ProjectDetailActionGroup, ProjectStackChips } from "./project-resource-action-sections";
-import { DiagramSelector, ProjectViewerTabs } from "./project-resource-tabs";
+import { CoverageSelector, DiagramSelector, ProjectViewerTabs } from "./project-resource-tabs";
 import type { ProjectViewerKind } from "./project-viewer-model";
 
 interface ProjectResourceControlsProps {
   readonly actions: ReactNode;
   readonly activeViewer: ProjectViewerKind;
+  readonly coveragePages: ReadonlyArray<ArtifactItem>;
   readonly diagrams: ReadonlyArray<ArtifactItem>;
   readonly headingId: string;
   readonly project: Project;
   readonly selectedDiagramId?: string | undefined;
+  readonly selectedCoverageId?: string | undefined;
 }
 
 const mobileViewerActionsMediaQuery = "(max-width: 1023px)";
@@ -28,10 +30,12 @@ const mobileViewerActionsMediaQuery = "(max-width: 1023px)";
 export function ProjectResourceControls({
   actions,
   activeViewer,
+  coveragePages,
   diagrams,
   headingId,
   project,
   selectedDiagramId,
+  selectedCoverageId,
 }: ProjectResourceControlsProps): ReactNode {
   const mobileViewerActionsMatch = useMediaQuery(mobileViewerActionsMediaQuery);
   const mobileViewerActions = mobileViewerActionsMatch ?? false;
@@ -97,6 +101,11 @@ export function ProjectResourceControls({
                 items={diagrams}
                 project={project}
                 selectedDiagramId={selectedDiagramId}
+              />
+              <CoverageSelector
+                items={coveragePages}
+                project={project}
+                selectedCoverageId={selectedCoverageId}
               />
             </ProjectDetailActionGroup>
           </div>

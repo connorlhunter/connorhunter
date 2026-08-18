@@ -52,7 +52,7 @@ export function projectViewerLabel(viewer: ProjectViewerKind): string {
 export function projectDetailViewerHref(
   slug: string,
   viewer: ProjectViewerKind = "project",
-  options: { readonly diagram?: string } = {},
+  options: { readonly coverage?: string; readonly diagram?: string } = {},
 ): string {
   const params = new URLSearchParams();
 
@@ -62,6 +62,10 @@ export function projectDetailViewerHref(
 
   if (viewer === "diagrams" && options.diagram) {
     params.set("diagram", options.diagram);
+  }
+
+  if (viewer === "coverage" && options.coverage) {
+    params.set("coverage", options.coverage);
   }
 
   const search = params.toString();

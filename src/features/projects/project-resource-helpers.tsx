@@ -42,6 +42,14 @@ export function diagramItems(artifact: ArtifactLink | undefined): ReadonlyArray<
 }
 
 /**
+ * @param artifact - Coverage artifact link.
+ * @returns The coverage pages available for the viewer.
+ */
+export function coverageItems(artifact: ArtifactLink | undefined): ReadonlyArray<ArtifactItem> {
+  return artifact?.items ?? [];
+}
+
+/**
  * @param items - Available diagram items.
  * @param selectedDiagramId - Optional selected diagram id from the route.
  * @returns The selected diagram item, defaulting to the overview diagram.
@@ -58,6 +66,18 @@ export function selectedDiagramItem(
 }
 
 /**
+ * @param items - Available coverage pages.
+ * @param selectedCoverageId - Optional selected coverage page id from the route.
+ * @returns The selected coverage page, defaulting to the first available page.
+ */
+export function selectedCoverageItem(
+  items: ReadonlyArray<ArtifactItem>,
+  selectedCoverageId: string | undefined,
+): ArtifactItem | undefined {
+  return items.find((item) => item.id === selectedCoverageId) ?? items[0];
+}
+
+/**
  * @param project - Project slug source.
  * @param viewer - Viewer kind.
  * @returns A viewer href for the project detail page.
@@ -71,7 +91,7 @@ export function viewerHref(project: Project, viewer: ProjectViewerKind): string 
  * @param viewer - Active project artifact viewer.
  * @param artifact - Artifact metadata resolved for the viewer.
  * @param sourceHref - Public source shown in the iframe.
- * @param selectedDiagram - Active diagram when the diagram viewer is open.
+ * @param selectedItem - Active diagram or coverage page when a selector is open.
  * @returns Download metadata for the active artifact when a downloadable file exists.
  */
 export function artifactDownload(
@@ -79,7 +99,7 @@ export function artifactDownload(
   viewer: ProjectViewerKind,
   artifact: ArtifactLink | undefined,
   sourceHref: string | undefined,
-  selectedDiagram: ArtifactItem | undefined,
+  selectedItem: ArtifactItem | undefined,
 ): FileViewerDownload | undefined {
   if (!sourceHref || viewer === "project") {
     return undefined;
@@ -92,13 +112,15 @@ export function artifactDownload(
   }
 
   if (viewer === "coverage") {
-    return artifact?.downloadHref
-      ? { filename: `${project.slug}-coverage.pdf`, href: artifact.downloadHref }
+    const downloadHref = selectedItem?.downloadHref ?? artifact?.downloadHref;
+
+    return downloadHref
+      ? { filename: `${project.slug}-${selectedItem?.id ?? "coverage"}.pdf`, href: downloadHref }
       : { filename: `${project.slug}-coverage.html`, href: sourceHref };
   }
 
   return {
-    filename: `${project.slug}-${selectedDiagram?.id ?? "diagram"}.svg`,
+    filename: `${project.slug}-${selectedItem?.id ?? "diagram"}.svg`,
     href: sourceHref,
   };
 }

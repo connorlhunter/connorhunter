@@ -22,6 +22,12 @@ interface DiagramSelectorProps {
   readonly items: ReadonlyArray<ArtifactItem>;
 }
 
+interface CoverageSelectorProps {
+  readonly project: Project;
+  readonly selectedCoverageId?: string | undefined;
+  readonly items: ReadonlyArray<ArtifactItem>;
+}
+
 /**
  * @param event - Link click event for a project viewer route.
  * @param href - Internal project viewer href.
@@ -123,6 +129,41 @@ export function DiagramSelector({
               </a>
             </Button>
           </span>
+        );
+      })}
+    </nav>
+  );
+}
+
+/**
+ * @param props - Coverage page collection and selected route state.
+ * @returns Route-backed coverage page selector buttons.
+ */
+export function CoverageSelector({
+  items,
+  project,
+  selectedCoverageId,
+}: CoverageSelectorProps): ReactNode {
+  if (items.length <= 1) {
+    return null;
+  }
+
+  return (
+    <nav aria-label={`${project.title} coverage pages`} className="diagram-selector">
+      {items.map((item) => {
+        const href = projectDetailViewerHref(project.slug, "coverage", { coverage: item.id });
+
+        return (
+          <Button
+            asChild
+            key={item.id}
+            size="small"
+            variant={item.id === selectedCoverageId ? "secondary" : "outline"}
+          >
+            <a href={href} onClick={(event) => navigateViewerLink(event, href)}>
+              {item.label}
+            </a>
+          </Button>
         );
       })}
     </nav>

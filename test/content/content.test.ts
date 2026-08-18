@@ -459,6 +459,40 @@ Body content.`);
     expect(coverageWithoutPdf?.downloadHref).toBeUndefined();
   });
 
+  test("exposes labeled coverage pages while retaining the legacy coverage path", () => {
+    const coverage = projectArtifactLinks({
+      ...exampleArtifactEntry,
+      coveragePages: [
+        {
+          id: "typescript",
+          label: "TypeScript",
+          path: "projects/example/coverage/typescript.html",
+          pdfPath: "projects/example/coverage/typescript.pdf",
+        },
+        {
+          id: "rust",
+          label: "Rust",
+          path: "projects/example/coverage/rust.html",
+        },
+      ],
+    }).find((artifact) => artifact.label === "Coverage");
+
+    expect(coverage?.href).toBe(artifactUrl("projects/example/coverage/typescript.html"));
+    expect(coverage?.items).toEqual([
+      {
+        href: artifactUrl("projects/example/coverage/typescript.html"),
+        id: "typescript",
+        label: "TypeScript",
+        downloadHref: artifactUrl("projects/example/coverage/typescript.pdf"),
+      },
+      {
+        href: artifactUrl("projects/example/coverage/rust.html"),
+        id: "rust",
+        label: "Rust",
+      },
+    ]);
+  });
+
   test("validates content and preserves project order", async () => {
     const content = await getPortfolioContent();
     const projectOrders = content.projects.map((project) => project.slug);
