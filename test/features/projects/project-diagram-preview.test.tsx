@@ -30,4 +30,45 @@ describe("ProjectDiagramPreview", () => {
 
     cleanup();
   });
+
+  test("accepts an image that finished loading before navigation completes", () => {
+    const imagePrototype = window.HTMLImageElement.prototype;
+    const completeDescriptor = Object.getOwnPropertyDescriptor(imagePrototype, "complete");
+    const naturalWidthDescriptor = Object.getOwnPropertyDescriptor(imagePrototype, "naturalWidth");
+
+    Object.defineProperties(imagePrototype, {
+      complete: { configurable: true, get: () => false },
+      naturalWidth: { configurable: true, get: () => 0 },
+    });
+
+    try {
+      render(
+        <ProjectDiagramPreview href="https://assets.example.com/overview.svg" title="Overview" />,
+      );
+
+      expect(screen.getByRole("status")).toBeTruthy();
+      cleanup();
+
+      Object.defineProperties(imagePrototype, {
+        complete: { configurable: true, get: () => true },
+        naturalWidth: { configurable: true, get: () => 960 },
+      });
+      render(
+        <ProjectDiagramPreview href="https://assets.example.com/overview.svg" title="Overview" />,
+      );
+
+      expect(screen.queryByRole("status")).toBeNull();
+      expect(screen.getByRole("img", { name: "Overview" }).getAttribute("data-loaded")).toBe(
+        "true",
+      );
+    } finally {
+      if (completeDescriptor) {
+        Object.defineProperty(imagePrototype, "complete", completeDescriptor);
+      }
+      if (naturalWidthDescriptor) {
+        Object.defineProperty(imagePrototype, "naturalWidth", naturalWidthDescriptor);
+      }
+      cleanup();
+    }
+  });
 });
