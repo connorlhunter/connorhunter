@@ -1,5 +1,5 @@
 import { ImageOff, LoaderCircle } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { TypographySmall } from "@/components/ui/typography";
 
 interface ProjectDiagramPreviewProps {
@@ -14,8 +14,23 @@ interface ProjectDiagramPreviewProps {
 export function ProjectDiagramPreview({ href, title }: ProjectDiagramPreviewProps): ReactNode {
   const [failedHref, setFailedHref] = useState<string | null>(null);
   const [loadedHref, setLoadedHref] = useState<string | null>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const failed = failedHref === href;
   const loaded = loadedHref === href;
+
+  useEffect(() => {
+    setFailedHref(null);
+    setLoadedHref(null);
+
+    const image = imageRef.current;
+    if (!image?.complete) {
+      return;
+    }
+
+    if (image.naturalWidth > 0) {
+      setLoadedHref(href);
+    }
+  }, [href]);
 
   return (
     <div aria-busy={!loaded && !failed} className="project-diagram-preview">
@@ -24,11 +39,16 @@ export function ProjectDiagramPreview({ href, title }: ProjectDiagramPreviewProp
         className="project-diagram-image"
         data-loaded={loaded}
         decoding="async"
-        onError={() => setFailedHref(href)}
+        key={href}
+        onError={() => {
+          setLoadedHref(null);
+          setFailedHref(href);
+        }}
         onLoad={() => {
           setFailedHref(null);
           setLoadedHref(href);
         }}
+        ref={imageRef}
         src={href}
       />
       {!loaded && !failed ? (

@@ -1551,6 +1551,11 @@ footer {
     height: 0.375rem;
   }
 
+  .resume-viewer-drawer .resume-page-controls {
+    position: relative;
+    z-index: 3;
+  }
+
   .is-resizing-file-viewer-drawer .resume-viewer-drawer .file-viewer-drawer-handle span {
     width: 4rem;
   }
