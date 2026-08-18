@@ -36,6 +36,7 @@ async function loadProject(slug: string): Promise<ProjectLoaderData> {
 export const Route = createFileRoute("/projects/$slug")({
   loader: ({ params }) => loadProject(params.slug),
   validateSearch: (search) => ({
+    coverage: typeof search.coverage === "string" ? search.coverage : undefined,
     diagram: typeof search.diagram === "string" ? search.diagram : undefined,
     viewer: parseProjectViewerKind(search.viewer),
   }),
@@ -56,6 +57,7 @@ function ProjectRoute(): ReactNode {
   return (
     <ProjectDetailPage
       content={content}
+      coverage={search.coverage}
       diagram={search.diagram}
       project={project}
       viewer={search.viewer}

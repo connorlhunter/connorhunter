@@ -6,6 +6,16 @@ import { readArtifactJson } from "./source";
 
 const projectArtifactEntrySchema = z.object({
   coverageComingSoon: z.boolean().optional(),
+  coveragePages: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        label: z.string().min(1),
+        path: z.string().min(1),
+        pdfPath: z.string().min(1).optional(),
+      }),
+    )
+    .optional(),
   coveragePath: z.string().min(1),
   coveragePdfPath: z.string().min(1).optional(),
   diagramPaths: z.array(z.string().min(1)).optional(),
@@ -150,9 +160,25 @@ export function projectArtifactLinks(entry: ProjectArtifactEntry): Array<Artifac
     },
     {
       label: "Coverage",
-      href: resolveArtifactAlias(entry, "coverage"),
+      href: entry.coveragePages?.[0]
+        ? artifactUrl(entry.coveragePages[0].path)
+        : resolveArtifactAlias(entry, "coverage"),
       comingSoon: entry.coverageComingSoon,
-      ...(entry.coveragePdfPath ? { downloadHref: artifactUrl(entry.coveragePdfPath) } : {}),
+      ...(entry.coveragePages?.[0]?.pdfPath
+        ? { downloadHref: artifactUrl(entry.coveragePages[0].pdfPath) }
+        : entry.coveragePdfPath
+          ? { downloadHref: artifactUrl(entry.coveragePdfPath) }
+          : {}),
+      ...(entry.coveragePages?.length
+        ? {
+            items: entry.coveragePages.map((page) => ({
+              href: artifactUrl(page.path),
+              id: page.id,
+              label: page.label,
+              ...(page.pdfPath ? { downloadHref: artifactUrl(page.pdfPath) } : {}),
+            })),
+          }
+        : {}),
     },
     {
       label: "Diagrams",

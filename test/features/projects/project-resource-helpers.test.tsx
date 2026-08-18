@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   artifactDownload,
+  selectedCoverageItem,
   selectedDiagramItem,
 } from "@/features/projects/project-resource-helpers";
 import { projectWithDownloads } from "../../mock-content";
@@ -72,6 +73,26 @@ describe("artifactDownload", () => {
     });
   });
 
+  test("uses the selected coverage page PDF when one is available", () => {
+    expect(
+      artifactDownload(
+        projectWithDownloads,
+        "coverage",
+        undefined,
+        "https://assets.example.com/projects/example/coverage/rust.html",
+        {
+          href: "https://assets.example.com/projects/example/coverage/rust.html",
+          id: "rust",
+          label: "Rust",
+          downloadHref: "https://assets.example.com/projects/example/coverage/rust.pdf",
+        },
+      ),
+    ).toEqual({
+      filename: "desktop-tool-rust.pdf",
+      href: "https://assets.example.com/projects/example/coverage/rust.pdf",
+    });
+  });
+
   test("uses artifact-specific names for diagrams", () => {
     expect(
       artifactDownload(
@@ -117,5 +138,21 @@ describe("selectedDiagramItem", () => {
   test("keeps overview as the diagrams landing page when the key is pinned first", () => {
     expect(selectedDiagramItem(diagrams, undefined)).toEqual(diagrams[1]);
     expect(selectedDiagramItem(diagrams, "diagram-style-key")).toEqual(diagrams[0]);
+  });
+});
+
+describe("selectedCoverageItem", () => {
+  const pages = [
+    {
+      href: "https://assets.example.com/coverage/typescript.html",
+      id: "typescript",
+      label: "TypeScript",
+    },
+    { href: "https://assets.example.com/coverage/rust.html", id: "rust", label: "Rust" },
+  ];
+
+  test("uses the requested coverage page and otherwise keeps the first page", () => {
+    expect(selectedCoverageItem(pages, undefined)).toEqual(pages[0]);
+    expect(selectedCoverageItem(pages, "rust")).toEqual(pages[1]);
   });
 });
