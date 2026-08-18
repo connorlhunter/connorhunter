@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.7] - 2026-08-18
+
+### Changed
+
+- Enforced semantic naming for branches, issues, pull requests, and commits.
+- Disabled blank issue submissions so the available forms retain their change prefixes.
+
+### Fixed
+
+- Loaded public test defaults directly from `.env.example`, allowing a fresh checkout to run verification without an ignored `.env` file.
+
 ## [1.4.6] - 2026-08-14
 
 ### Added
@@ -69,6 +80,7 @@
 - Removed the permanent toolbar footprint from the fullscreen resume view.
 - Kept fullscreen unavailable on mobile while allowing the controls to collapse for more viewing room.
 
+[1.4.7]: https://github.com/connorlhunter/connorhunter/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/connorlhunter/connorhunter/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/connorlhunter/connorhunter/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/connorlhunter/connorhunter/compare/v1.4.3...v1.4.4
