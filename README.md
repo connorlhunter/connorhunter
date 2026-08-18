@@ -62,6 +62,8 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 
 `bun run start` previews the most recent Amplify production build, so run `bun run build` first. It is not needed for normal local development; use `bun run dev` for that.
 
+The test command loads the public defaults in `.env.example`, so a fresh checkout can run verification without creating `.env`. Explicit environment variables still take precedence. Copy `.env.example` to `.env` before local development when you need to change the defaults.
+
 `bun run verify` includes the local JavaScript/TypeScript and GitHub Actions CodeQL scan. In GitHub Actions, that step defers to the repository's required hosted CodeQL checks.
 
 Exact dependency pins and temporary release-age exceptions live in `dependency-policy.toml`. Run `bun run deps:policy` after changing the policy to sync `package.json` and `bunfig.toml`.
