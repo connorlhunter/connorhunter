@@ -105,20 +105,24 @@ export function DiagramSelector({
 
   return (
     <nav aria-label={`${project.title} diagrams`} className="diagram-selector">
-      {items.map((item) => {
+      {items.map((item, index) => {
         const href = projectDetailViewerHref(project.slug, "diagrams", { diagram: item.id });
 
         return (
-          <Button
-            asChild
-            key={item.id}
-            size="small"
-            variant={item.id === selectedDiagramId ? "secondary" : "outline"}
-          >
-            <a href={href} onClick={(event) => navigateViewerLink(event, href)}>
-              {item.label}
-            </a>
-          </Button>
+          <span className="diagram-selector-item" key={item.id}>
+            {index === 1 && items[0]?.label === "Diagram Style Key" ? (
+              <span aria-hidden="true" className="diagram-selector-divider" />
+            ) : null}
+            <Button
+              asChild
+              size="small"
+              variant={item.id === selectedDiagramId ? "secondary" : "outline"}
+            >
+              <a href={href} onClick={(event) => navigateViewerLink(event, href)}>
+                {item.label}
+              </a>
+            </Button>
+          </span>
         );
       })}
     </nav>

@@ -1713,8 +1713,18 @@ footer {
   scrollbar-width: thin;
 }
 
-.diagram-selector > * {
+.diagram-selector-item {
+  align-items: center;
+  display: flex;
   flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+.diagram-selector-divider {
+  align-self: stretch;
+  background: var(--border);
+  margin-block: 0.15rem;
+  width: 1px;
 }
 
 .project-detail-navigation {

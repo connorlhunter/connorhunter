@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { artifactDownload } from "@/features/projects/project-resource-helpers";
+import {
+  artifactDownload,
+  selectedDiagramItem,
+} from "@/features/projects/project-resource-helpers";
 import { projectWithDownloads } from "../../mock-content";
 
 describe("artifactDownload", () => {
@@ -98,5 +101,21 @@ describe("artifactDownload", () => {
       filename: "desktop-tool-diagram.svg",
       href: "https://assets.example.com/diagrams/example/diagram.svg",
     });
+  });
+});
+
+describe("selectedDiagramItem", () => {
+  const diagrams = [
+    {
+      href: "https://assets.example.com/diagrams/key.svg",
+      id: "diagram-style-key",
+      label: "Diagram Style Key",
+    },
+    { href: "https://assets.example.com/diagrams/overview.svg", id: "overview", label: "Overview" },
+  ];
+
+  test("keeps overview as the diagrams landing page when the key is pinned first", () => {
+    expect(selectedDiagramItem(diagrams, undefined)).toEqual(diagrams[1]);
+    expect(selectedDiagramItem(diagrams, "diagram-style-key")).toEqual(diagrams[0]);
   });
 });
