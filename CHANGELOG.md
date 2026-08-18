@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.8] - 2026-08-18
+
+### Fixed
+
+- Complete cached diagram previews after in-app project navigation.
+- Keep the mobile resume page controls above the drawer resize handle.
+
 ## [1.4.7] - 2026-08-18
 
 ### Changed
@@ -81,6 +88,7 @@
 - Kept fullscreen unavailable on mobile while allowing the controls to collapse for more viewing room.
 
 [1.4.7]: https://github.com/connorlhunter/connorhunter/compare/v1.4.6...v1.4.7
+[1.4.8]: https://github.com/connorlhunter/connorhunter/compare/v1.4.7...v1.4.8
 [1.4.6]: https://github.com/connorlhunter/connorhunter/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/connorlhunter/connorhunter/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/connorlhunter/connorhunter/compare/v1.4.3...v1.4.4
