@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.10] - 2026-08-20
+
+### Changed
+
+- Simplified portfolio footer and coverage update labels to concise date-only wording.
+- Display versioned diagram labels as readable titles with version and update-date metadata.
+- Made diagram controls wrap cleanly at narrow viewport widths.
+
 ## [1.4.9] - 2026-08-20
 
 ### Changed
@@ -94,6 +102,7 @@
 - Removed the permanent toolbar footprint from the fullscreen resume view.
 - Kept fullscreen unavailable on mobile while allowing the controls to collapse for more viewing room.
 
+[1.4.10]: https://github.com/connorlhunter/connorhunter/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/connorlhunter/connorhunter/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/connorlhunter/connorhunter/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/connorlhunter/connorhunter/compare/v1.4.6...v1.4.7
