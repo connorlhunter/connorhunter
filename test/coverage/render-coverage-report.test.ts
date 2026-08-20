@@ -3,6 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
 import {
+  coverageUpdatedAt,
+  coverageUpdatedAtLabel,
   parseLcov,
   renderCoverageHtml,
   renderCoverageReport,
@@ -30,7 +32,7 @@ describe("render coverage report", () => {
 
   test("parses lcov metrics and renders portfolio coverage html", () => {
     const files = parseLcov(sampleLcov);
-    const html = renderCoverageHtml(files);
+    const html = renderCoverageHtml(files, "2026-08-20T18:42:31.123Z");
 
     expect(files).toEqual([
       {
@@ -47,6 +49,28 @@ describe("render coverage report", () => {
     expect(html).toContain("75.00%");
     expect(html).toContain("50.00%");
     expect(html).toContain("lcov.info");
+    expect(html).toContain(
+      'Updated <time datetime="2026-08-20T18:42:31.123Z">Aug 20, 2026 at 6:42 PM UTC</time>',
+    );
+  });
+
+  test("normalizes the coverage publication date to ISO UTC", () => {
+    expect(coverageUpdatedAt("2026-08-20T14:42:31.123-04:00")).toBe(
+      "2026-08-20T18:42:31.123Z",
+    );
+    expect(() => coverageUpdatedAt("not-a-date")).toThrow("Invalid coverage publication date");
+  });
+
+  test("formats the UTC publication date consistently across platforms", () => {
+    expect(coverageUpdatedAtLabel("2026-01-02T00:05:00.000Z")).toBe(
+      "Jan 2, 2026 at 12:05 AM UTC",
+    );
+    expect(coverageUpdatedAtLabel("2026-01-02T12:05:00.000Z")).toBe(
+      "Jan 2, 2026 at 12:05 PM UTC",
+    );
+    expect(coverageUpdatedAtLabel("2026-08-20T18:42:31.123Z")).toBe(
+      "Aug 20, 2026 at 6:42 PM UTC",
+    );
   });
 
   test("writes the HTML report beside the fixed LCOV file", () => {
@@ -56,9 +80,11 @@ describe("render coverage report", () => {
     const outputPath = join(tempDir, "coverage", "index.html");
     writeFixtureFile(lcovPath, sampleLcov);
 
-    expect(renderCoverageReport(tempDir)).toBe(outputPath);
+    expect(renderCoverageReport(tempDir, "2026-08-20T18:42:31.123Z")).toBe(outputPath);
 
-    expect(readFileSync(outputPath, "utf8")).toContain("Portfolio Coverage");
+    const html = readFileSync(outputPath, "utf8");
+    expect(html).toContain("Portfolio Coverage");
+    expect(html).toContain('datetime="2026-08-20T18:42:31.123Z"');
     expect(existsSync(join(tempDir, "coverage", "lcov.info"))).toBe(true);
   });
 });

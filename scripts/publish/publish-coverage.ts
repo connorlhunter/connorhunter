@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { coveragePaths } from "../coverage/coverage-paths";
+import { prepareCoveragePublication } from "../coverage/prepare-coverage-publication";
 
 const defaultProjectSlug = "connor-hunter";
 
@@ -19,6 +20,10 @@ export interface PublishCoverageOptions {
   readonly commandRunner?: CommandRunner;
   readonly env?: NodeJS.ProcessEnv;
   readonly workspaceRoot?: string;
+}
+
+export interface PublishCoveragePublicationOptions extends PublishCoverageOptions {
+  readonly updatedAt?: string;
 }
 
 export type CommandRunner = (
@@ -253,9 +258,21 @@ export async function publishCoverage(options: PublishCoverageOptions = {}): Pro
   console.log("Published coverage artifacts.");
 }
 
+/**
+ * Gives the HTML and PDF one project-owned publication date before uploading them.
+ *
+ * @param options - Publication and destination options.
+ */
+export async function publishCoveragePublication(
+  options: PublishCoveragePublicationOptions = {},
+): Promise<void> {
+  await prepareCoveragePublication(options.workspaceRoot, options.updatedAt);
+  await publishCoverage(options);
+}
+
 if (import.meta.main) {
   try {
-    await publishCoverage();
+    await publishCoveragePublication();
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);
