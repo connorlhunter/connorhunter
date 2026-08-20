@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.9] - 2026-08-20
+
+### Changed
+
+- Stamp portfolio coverage with one project-owned UTC publication timestamp.
+- Render the coverage PDF from the exact stamped HTML before publishing the scoped coverage bundle.
+
 ## [1.4.8] - 2026-08-18
 
 ### Fixed
@@ -87,8 +94,9 @@
 - Removed the permanent toolbar footprint from the fullscreen resume view.
 - Kept fullscreen unavailable on mobile while allowing the controls to collapse for more viewing room.
 
-[1.4.7]: https://github.com/connorlhunter/connorhunter/compare/v1.4.6...v1.4.7
+[1.4.9]: https://github.com/connorlhunter/connorhunter/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/connorlhunter/connorhunter/compare/v1.4.7...v1.4.8
+[1.4.7]: https://github.com/connorlhunter/connorhunter/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/connorlhunter/connorhunter/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/connorlhunter/connorhunter/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/connorlhunter/connorhunter/compare/v1.4.3...v1.4.4
