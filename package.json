@@ -23,7 +23,7 @@
     "start": "node .amplify-hosting/compute/default/server.js",
     "test": "bun --env-file=.env.example test --isolate --timeout 30000",
     "coverage:build": "bun run test -- --coverage && bun run coverage:render",
-    "coverage:publish": "bun run test:coverage && bun run coverage:render:pdf && bun scripts/publish/publish-coverage.ts",
+    "coverage:publish": "bun run test:coverage && bun scripts/publish/publish-coverage.ts",
     "coverage:render": "bun scripts/coverage/render-coverage-report.ts",
     "coverage:render:pdf": "bun scripts/coverage/render-coverage-pdf.ts",
     "test:coverage": "bun run coverage:build && bun scripts/coverage/check-coverage.ts",

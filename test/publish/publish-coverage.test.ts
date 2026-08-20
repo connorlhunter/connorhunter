@@ -1,18 +1,31 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, spyOn, test } from "bun:test";
+import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
 import {
   coverageInvalidations,
   coveragePublishDestinations,
   publishCoverage,
+  publishCoveragePublication,
   type CommandRunner,
 } from "../../scripts/publish/publish-coverage";
+
+const sampleLcov = `TN:
+SF:src/example.ts
+FNF:1
+FNH:1
+LF:2
+LH:2
+BRF:0
+BRH:0
+end_of_record
+`;
 
 describe("publish coverage", () => {
   let tempDir = "";
 
   afterEach(() => {
+    mock.restore();
     if (tempDir) rmSync(tempDir, { force: true, recursive: true });
     tempDir = "";
   });
@@ -121,6 +134,38 @@ describe("publish coverage", () => {
         command: "aws",
         subject: "Coverage CloudFront invalidation",
       },
+    ]);
+  });
+
+  test("stamps the HTML and derives the PDF before publishing", async () => {
+    const commands: Array<ReadonlyArray<string>> = [];
+    spyOn(console, "log").mockImplementation(() => undefined);
+    tempDir = mkdtempSync(join(tmpdir(), "coverage-publish-"));
+    const coverageDir = join(tempDir, "coverage");
+    mkdirSync(coverageDir, { recursive: true });
+    writeFileSync(join(coverageDir, "lcov.info"), sampleLcov);
+
+    await publishCoveragePublication({
+      commandRunner: async (_command, args) => {
+        commands.push(args);
+      },
+      env: { ARTIFACTS_BUCKET: "published-artifacts" },
+      updatedAt: "2026-08-20T14:42:31.123-04:00",
+      workspaceRoot: tempDir,
+    });
+
+    expect(readFileSync(join(coverageDir, "index.html"), "utf8")).toContain(
+      'Updated <time datetime="2026-08-20T18:42:31.123Z">Aug 20, 2026 at 6:42 PM UTC</time>',
+    );
+    expect(readFileSync(join(coverageDir, "index.pdf")).subarray(0, 4).toString()).toBe("%PDF");
+    expect(commands).toEqual([
+      [
+        "s3",
+        "sync",
+        coverageDir,
+        "s3://published-artifacts/projects/connor-hunter/coverage/",
+        "--delete",
+      ],
     ]);
   });
 

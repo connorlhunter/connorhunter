@@ -132,6 +132,38 @@ function escapeHtml(value: string): string {
 }
 
 /**
+ * @param value - ISO publication timestamp.
+ * @returns Canonical UTC timestamp.
+ */
+export function coverageUpdatedAt(value: string): string {
+  const timestamp = new Date(value);
+
+  if (Number.isNaN(timestamp.getTime())) {
+    throw new Error(`Invalid coverage publication date: ${value}`);
+  }
+
+  return timestamp.toISOString();
+}
+
+/**
+ * @param value - ISO publication timestamp.
+ * @returns Human-readable UTC timestamp.
+ */
+function coverageUpdatedAtLabel(value: string): string {
+  const timestamp = new Date(value);
+  const label = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    month: "short",
+    timeZone: "UTC",
+    year: "numeric",
+  }).format(timestamp);
+
+  return `${label} UTC`;
+}
+
+/**
  * @param metric - Coverage metric.
  * @returns HTML table cell for the metric.
  */
@@ -331,11 +363,16 @@ function coverageThemeScript(): string {
 
 /**
  * @param files - Per-file coverage records.
+ * @param updatedAt - ISO UTC time when the report was prepared for publication.
  * @returns Standalone HTML coverage report.
  */
-export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
+export function renderCoverageHtml(
+  files: ReadonlyArray<CoverageFile>,
+  updatedAt = new Date().toISOString(),
+): string {
   const total = totals(files);
   const rows = [total, ...files].map(fileRow).join("\n");
+  const publicationDate = coverageUpdatedAt(updatedAt);
 
   return `<!doctype html>
 <html data-scheme="atlas" lang="en">
@@ -386,6 +423,22 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
       color: var(--accent);
       font-weight: 700;
       text-underline-offset: 0.2em;
+    }
+
+    .report-meta {
+      display: flex;
+      flex: 0 0 auto;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.35rem;
+    }
+
+    .updated-at {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
     .table-wrap {
@@ -465,7 +518,7 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
         margin-bottom: 0.75rem;
       }
 
-      header a {
+      .report-meta a {
         display: none;
       }
 
@@ -497,7 +550,10 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
         <h1>Portfolio Coverage</h1>
         <p>Bun test coverage generated from the portfolio test suite.</p>
       </div>
-      <a href="lcov.info" download>LCOV</a>
+      <div class="report-meta">
+        <p class="updated-at">Updated <time datetime="${publicationDate}">${coverageUpdatedAtLabel(publicationDate)}</time></p>
+        <a href="lcov.info" download>LCOV</a>
+      </div>
     </header>
     <div class="table-wrap">
       <table>
@@ -521,14 +577,18 @@ export function renderCoverageHtml(files: ReadonlyArray<CoverageFile>): string {
 
 /**
  * @param workspaceRoot - Workspace containing the fixed coverage folder.
+ * @param updatedAt - ISO UTC time when the report was prepared for publication.
  * @returns The generated HTML artifact path.
  */
-export function renderCoverageReport(workspaceRoot = process.cwd()): string {
+export function renderCoverageReport(
+  workspaceRoot = process.cwd(),
+  updatedAt = new Date().toISOString(),
+): string {
   const paths = coveragePaths(workspaceRoot);
   const lcov = readFileSync(paths.lcov, "utf8");
 
   mkdirSync(paths.directory, { recursive: true });
-  writeFileSync(paths.html, renderCoverageHtml(parseLcov(lcov)));
+  writeFileSync(paths.html, renderCoverageHtml(parseLcov(lcov), updatedAt));
   console.log(`Rendered coverage artifact: ${paths.html}`);
 
   return paths.html;
