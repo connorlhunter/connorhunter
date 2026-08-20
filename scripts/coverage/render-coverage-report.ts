@@ -147,21 +147,37 @@ export function coverageUpdatedAt(value: string): string {
 
 /**
  * @param value - ISO publication timestamp.
- * @returns Human-readable UTC timestamp.
+ * @returns Human-readable UTC timestamp with platform-independent punctuation.
  */
-function coverageUpdatedAtLabel(value: string): string {
-  const timestamp = new Date(value);
-  const label = new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    month: "short",
-    timeZone: "UTC",
-    year: "numeric",
-  }).format(timestamp);
+export function coverageUpdatedAtLabel(value: string): string {
+  const timestamp = new Date(coverageUpdatedAt(value));
+  const month = coverageMonthLabels[timestamp.getUTCMonth()];
+  const hour = timestamp.getUTCHours();
+  const displayHour = hour % 12 || 12;
+  const minute = String(timestamp.getUTCMinutes()).padStart(2, "0");
+  const period = hour < 12 ? "AM" : "PM";
 
-  return `${label} UTC`;
+  if (month === undefined) {
+    throw new Error(`Invalid coverage publication date: ${value}`);
+  }
+
+  return `${month} ${timestamp.getUTCDate()}, ${timestamp.getUTCFullYear()} at ${displayHour}:${minute} ${period} UTC`;
 }
+
+const coverageMonthLabels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
 
 /**
  * @param metric - Coverage metric.

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
 import {
   coverageUpdatedAt,
+  coverageUpdatedAtLabel,
   parseLcov,
   renderCoverageHtml,
   renderCoverageReport,
@@ -58,6 +59,18 @@ describe("render coverage report", () => {
       "2026-08-20T18:42:31.123Z",
     );
     expect(() => coverageUpdatedAt("not-a-date")).toThrow("Invalid coverage publication date");
+  });
+
+  test("formats the UTC publication date consistently across platforms", () => {
+    expect(coverageUpdatedAtLabel("2026-01-02T00:05:00.000Z")).toBe(
+      "Jan 2, 2026 at 12:05 AM UTC",
+    );
+    expect(coverageUpdatedAtLabel("2026-01-02T12:05:00.000Z")).toBe(
+      "Jan 2, 2026 at 12:05 PM UTC",
+    );
+    expect(coverageUpdatedAtLabel("2026-08-20T18:42:31.123Z")).toBe(
+      "Aug 20, 2026 at 6:42 PM UTC",
+    );
   });
 
   test("writes the HTML report beside the fixed LCOV file", () => {
