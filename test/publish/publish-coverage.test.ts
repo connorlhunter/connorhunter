@@ -155,7 +155,7 @@ describe("publish coverage", () => {
     });
 
     expect(readFileSync(join(coverageDir, "index.html"), "utf8")).toContain(
-      'Updated <time datetime="2026-08-20T18:42:31.123Z">Aug 20, 2026 at 6:42 PM UTC</time>',
+      'Updated <time datetime="2026-08-20T18:42:31.123Z">Aug 20, 2026</time>',
     );
     expect(readFileSync(join(coverageDir, "index.pdf")).subarray(0, 4).toString()).toBe("%PDF");
     expect(commands).toEqual([

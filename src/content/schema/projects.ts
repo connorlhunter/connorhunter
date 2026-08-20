@@ -9,6 +9,11 @@ export const artifactItemSchema = z.object({
   href: hrefSchema,
   id: z.string().min(1),
   label: z.string().min(1),
+  lastUpdated: z.iso.date().optional(),
+  version: z
+    .string()
+    .regex(/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u)
+    .optional(),
 });
 
 /**

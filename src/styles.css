@@ -1718,11 +1718,53 @@ footer {
   scrollbar-width: thin;
 }
 
+.diagram-selector--wrapping {
+  min-width: 0;
+  flex-wrap: wrap;
+  overflow-x: visible;
+  padding-bottom: 0;
+}
+
 .diagram-selector-item {
   align-items: center;
   display: flex;
   flex: 0 0 auto;
   gap: 0.5rem;
+}
+
+.diagram-selector--wrapping .diagram-selector-item {
+  min-width: 0;
+  max-width: 100%;
+  flex: 0 1 auto;
+}
+
+.project-detail-panel .project-detail-action-control .diagram-selector-link {
+  height: auto;
+  min-height: 2rem;
+  min-width: 0;
+  max-width: 100%;
+  padding-block: 0.35rem;
+  white-space: normal;
+}
+
+.diagram-selector-copy {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+}
+
+.diagram-selector-title,
+.diagram-selector-metadata {
+  overflow-wrap: anywhere;
+}
+
+.diagram-selector-metadata {
+  color: var(--muted);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .diagram-selector-divider {

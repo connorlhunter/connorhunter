@@ -28,6 +28,19 @@ interface CoverageSelectorProps {
   readonly items: ReadonlyArray<ArtifactItem>;
 }
 
+const diagramDateFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeZone: "UTC",
+});
+
+/**
+ * @param value - ISO diagram publication date.
+ * @returns A readable UTC date for picker metadata.
+ */
+function formatDiagramDate(value: string): string {
+  return diagramDateFormatter.format(new Date(`${value}T00:00:00Z`));
+}
+
 /**
  * @param event - Link click event for a project viewer route.
  * @param href - Internal project viewer href.
@@ -110,9 +123,17 @@ export function DiagramSelector({
   }
 
   return (
-    <nav aria-label={`${project.title} diagrams`} className="diagram-selector">
+    <nav
+      aria-label={`${project.title} diagrams`}
+      className="diagram-selector diagram-selector--wrapping"
+    >
       {items.map((item, index) => {
         const href = projectDetailViewerHref(project.slug, "diagrams", { diagram: item.id });
+        const updatedDate = item.lastUpdated ? formatDiagramDate(item.lastUpdated) : undefined;
+        const metadataLabel =
+          item.version && updatedDate
+            ? `${item.label}, version ${item.version}, updated ${updatedDate}`
+            : undefined;
 
         return (
           <span className="diagram-selector-item" key={item.id}>
@@ -121,11 +142,27 @@ export function DiagramSelector({
             ) : null}
             <Button
               asChild
+              className="diagram-selector-link"
               size="small"
               variant={item.id === selectedDiagramId ? "secondary" : "outline"}
             >
-              <a href={href} onClick={(event) => navigateViewerLink(event, href)}>
-                {item.label}
+              <a
+                aria-label={metadataLabel}
+                href={href}
+                onClick={(event) => navigateViewerLink(event, href)}
+              >
+                <span className="diagram-selector-copy">
+                  <span className="diagram-selector-title">{item.label}</span>
+                  {item.version && item.lastUpdated && updatedDate ? (
+                    <span className="diagram-selector-metadata">
+                      <span>v{item.version}</span>
+                      <span aria-hidden="true"> · </span>
+                      <span>
+                        Updated <time dateTime={item.lastUpdated}>{updatedDate}</time>
+                      </span>
+                    </span>
+                  ) : null}
+                </span>
               </a>
             </Button>
           </span>

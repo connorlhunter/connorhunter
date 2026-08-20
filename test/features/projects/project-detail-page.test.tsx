@@ -381,6 +381,45 @@ describe("ProjectDetailPage", () => {
     }
   });
 
+  test("shows each diagram's version and date in a wrapping picker", () => {
+    const project = {
+      ...projectWithDownloads,
+      artifacts: projectWithDownloads.artifacts.map((artifact) =>
+        artifact.label === "Diagrams"
+          ? {
+              ...artifact,
+              items: artifact.items?.map((item) =>
+                item.id === "overview"
+                  ? {
+                      ...item,
+                      lastUpdated: "2026-08-18",
+                      version: "2.4.1",
+                    }
+                  : item,
+              ),
+            }
+          : artifact,
+      ),
+    };
+
+    render(<ProjectDetailPage content={mockContent} project={project} viewer="diagrams" />);
+
+    const diagramNavigation = screen.getByRole("navigation", { name: "Desktop Tool diagrams" });
+    const overviewLink = within(diagramNavigation).getByRole("link", { name: /Overview/ });
+    const metadata = overviewLink.querySelector(".diagram-selector-metadata");
+    const date = metadata?.querySelector("time");
+
+    expect(diagramNavigation.classList.contains("diagram-selector--wrapping")).toBe(true);
+    expect(overviewLink.getAttribute("aria-label")).toBe(
+      "Overview, version 2.4.1, updated Aug 18, 2026",
+    );
+    expect(overviewLink.querySelector(".diagram-selector-title")?.textContent).toBe("Overview");
+    expect(metadata?.textContent).toBe("v2.4.1 · Updated Aug 18, 2026");
+    expect(date?.getAttribute("datetime")).toBe("2026-08-18");
+
+    cleanup();
+  });
+
   test("falls back to the overview diagram when no diagram item list exists", () => {
     render(
       <ProjectDetailPage
