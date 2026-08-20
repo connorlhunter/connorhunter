@@ -42,6 +42,22 @@ export type ProjectArtifactManifest = z.infer<typeof projectArtifactManifestSche
 
 type ArtifactAlias = "coverage" | "docs" | "overview-diagram";
 
+interface DiagramPathMetadata {
+  readonly id: string;
+  readonly label: string;
+  readonly lastUpdated?: string | undefined;
+  readonly version?: string | undefined;
+}
+
+interface VersionedDiagramMetadata {
+  readonly lastUpdated: string;
+  readonly title: string;
+  readonly version: string;
+}
+
+const versionedDiagramStemPattern =
+  /^(.+)-v((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))-(\d{4}-\d{2}-\d{2})$/u;
+
 /**
  * @param path - Diagram artifact path.
  * @returns The containing project folder and file stem for that diagram.
@@ -56,28 +72,63 @@ function diagramPathParts(path: string): { readonly folder: string; readonly ste
 }
 
 /**
- * @param path - Diagram artifact path.
- * @returns A stable diagram id derived from the file name.
+ * @param value - Diagram stem value to normalize.
+ * @returns A stable route-safe diagram id.
  */
-function diagramId(path: string): string {
-  const { folder, stem } = diagramPathParts(path);
-  const projectPrefix = `${folder}-`;
-  const compactStem =
-    folder && stem.startsWith(projectPrefix) ? stem.slice(projectPrefix.length) : stem;
-
-  return compactStem.replace(/[^a-z0-9-]+/giu, "-").replace(/^-+|-+$/gu, "");
+function diagramId(value: string): string {
+  return value.replace(/[^a-z0-9-]+/giu, "-").replace(/^-+|-+$/gu, "");
 }
 
 /**
- * @param path - Diagram artifact path.
- * @returns A readable diagram label derived from the file name.
+ * @param value - Diagram title stem to make readable.
+ * @returns A title-cased diagram label.
  */
-function diagramLabel(path: string): string {
-  return diagramId(path)
+function diagramLabel(value: string): string {
+  return diagramId(value)
     .split("-")
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+/**
+ * @param stem - Project-relative diagram file stem.
+ * @returns Parsed metadata when the stem uses a valid published filename.
+ */
+function versionedDiagramMetadata(stem: string): VersionedDiagramMetadata | undefined {
+  const match = versionedDiagramStemPattern.exec(stem);
+
+  if (!match) {
+    return undefined;
+  }
+
+  const title = match[1] as string;
+  const version = match[2] as string;
+  const lastUpdated = match[3] as string;
+
+  if (!z.iso.date().safeParse(lastUpdated).success) {
+    return undefined;
+  }
+
+  return { lastUpdated, title, version };
+}
+
+/**
+ * @param path - Diagram artifact path.
+ * @returns Route, title, and optional version metadata parsed from the file name.
+ */
+function diagramPathMetadata(path: string): DiagramPathMetadata {
+  const { folder, stem } = diagramPathParts(path);
+  const projectPrefix = `${folder}-`;
+  const compactStem =
+    folder && stem.startsWith(projectPrefix) ? stem.slice(projectPrefix.length) : stem;
+  const metadata = versionedDiagramMetadata(compactStem);
+
+  return {
+    id: diagramId(compactStem),
+    label: diagramLabel(metadata?.title ?? compactStem),
+    ...(metadata ? { lastUpdated: metadata.lastUpdated, version: metadata.version } : {}),
+  };
 }
 
 /**
@@ -185,8 +236,7 @@ export function projectArtifactLinks(entry: ProjectArtifactEntry): Array<Artifac
       href: resolveArtifactAlias(entry, "overview-diagram"),
       items: diagramPaths(entry).map((path) => ({
         href: artifactUrl(path),
-        id: diagramId(path),
-        label: diagramLabel(path),
+        ...diagramPathMetadata(path),
       })),
     },
   ];

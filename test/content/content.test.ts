@@ -493,6 +493,46 @@ Body content.`);
     ]);
   });
 
+  test("parses published diagram versions without changing non-versioned labels", () => {
+    const diagrams = projectArtifactLinks({
+      ...exampleArtifactEntry,
+      diagramPaths: [
+        "diagrams/example/example-overview-v2.4.1-2026-08-18.svg",
+        "diagrams/example/example-overview-v2.5.0-2026-08-19.svg",
+        "diagrams/example/example-auth-model.svg",
+        "diagrams/example/example-legacy-v1.0.0-2026-02-30.svg",
+      ],
+      overviewDiagramPath: "diagrams/example/example-overview-v2.4.1-2026-08-18.svg",
+    }).find((artifact) => artifact.label === "Diagrams");
+
+    expect(diagrams?.items).toEqual([
+      {
+        href: artifactUrl("diagrams/example/example-overview-v2.4.1-2026-08-18.svg"),
+        id: "overview-v2-4-1-2026-08-18",
+        label: "Overview",
+        lastUpdated: "2026-08-18",
+        version: "2.4.1",
+      },
+      {
+        href: artifactUrl("diagrams/example/example-overview-v2.5.0-2026-08-19.svg"),
+        id: "overview-v2-5-0-2026-08-19",
+        label: "Overview",
+        lastUpdated: "2026-08-19",
+        version: "2.5.0",
+      },
+      {
+        href: artifactUrl("diagrams/example/example-auth-model.svg"),
+        id: "auth-model",
+        label: "Auth Model",
+      },
+      {
+        href: artifactUrl("diagrams/example/example-legacy-v1.0.0-2026-02-30.svg"),
+        id: "legacy-v1-0-0-2026-02-30",
+        label: "Legacy V1 0 0 2026 02 30",
+      },
+    ]);
+  });
+
   test("validates content and preserves project order", async () => {
     const content = await getPortfolioContent();
     const projectOrders = content.projects.map((project) => project.slug);

@@ -14,6 +14,8 @@ describe("Footer", () => {
     );
 
     expect(screen.getByText(mockContent.profile.name)).toBeTruthy();
+    expect(screen.getByText(/Updated/u).textContent).toBe("Updated Aug 2, 2026");
+    expect(screen.queryByText(/Last updated/u)).toBeNull();
     const contactLink = screen.getByRole("link", { name: mockContent.contacts[0]!.label });
     expect(contactLink.className).toContain("hover:-translate-y-0.5");
     expect(contactLink.className).toContain("hover:bg-(--accent-soft)");

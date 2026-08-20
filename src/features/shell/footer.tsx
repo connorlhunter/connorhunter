@@ -35,7 +35,7 @@ export function Footer({ brandName, contacts, lastUpdated }: FooterProps): React
           </TypographySmall>
           {lastUpdated ? (
             <TypographySmall as="p" className="font-normal opacity-70">
-              Last updated <time dateTime={lastUpdated}>{formatLastUpdated(lastUpdated)}</time>
+              Updated <time dateTime={lastUpdated}>{formatLastUpdated(lastUpdated)}</time>
             </TypographySmall>
           ) : null}
         </div>
