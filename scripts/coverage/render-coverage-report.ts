@@ -560,7 +560,7 @@ export function renderCoverageHtml(
     <header>
       <div>
         <h1>Portfolio Coverage</h1>
-        <p>Bun test coverage generated from the portfolio test suite.</p>
+        <p>Required minimum: 95% lines, functions, and branches. Generated from the Bun test suite for the portfolio.</p>
       </div>
       <div class="report-meta">
         <p class="updated-at">Updated <time datetime="${publicationDate}">${coverageUpdatedAtLabel(publicationDate)}</time></p>

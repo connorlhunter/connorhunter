@@ -95,7 +95,7 @@ Artifact generation and publishing are handled by the Artifact Generator project
 
 ## Coverage Publishing
 
-Portfolio coverage is the one artifact this repo publishes itself:
+Portfolio coverage is the one artifact this repo publishes itself. It requires at least 95% lines, functions, and branches:
 
 ```bash
 bun run coverage:publish

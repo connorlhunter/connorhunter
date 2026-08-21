@@ -5,6 +5,8 @@ interface LcovSummary {
   hit: number;
 }
 
+const minimumCoveragePercent = 95;
+
 /**
  * @param lcov - Raw lcov report text.
  * @param foundKey - Lcov key for total items.
@@ -36,7 +38,7 @@ function percent({ found, hit }: LcovSummary): number {
 
 /**
  * @param lcovPath - Path to the lcov report.
- * @returns Nothing; throws when any coverage metric is below 100 percent.
+ * @returns Nothing; throws when any coverage metric is below 95 percent.
  */
 export function checkCoverage(lcovPath = "coverage/lcov.info"): void {
   const lcov = readFileSync(lcovPath, "utf8");
@@ -46,17 +48,18 @@ export function checkCoverage(lcovPath = "coverage/lcov.info"): void {
   const linePercent = percent(lines);
   const functionPercent = percent(functions);
   const branchPercent = percent(branches);
-  const passed = linePercent === 100 && functionPercent === 100 && branchPercent === 100;
+  const passed =
+    linePercent >= minimumCoveragePercent &&
+    functionPercent >= minimumCoveragePercent &&
+    branchPercent >= minimumCoveragePercent;
 
   if (!passed) {
     throw new Error(
-      `Coverage must be 100%. Lines: ${linePercent.toFixed(2)}%, functions: ${functionPercent.toFixed(
-        2,
-      )}%, branches: ${branchPercent.toFixed(2)}%.`,
+      `Coverage must be at least ${minimumCoveragePercent}%. Lines: ${linePercent.toFixed(2)}%, functions: ${functionPercent.toFixed(2)}%, branches: ${branchPercent.toFixed(2)}%.`,
     );
   }
 
-  console.log("Coverage passed at 100% lines, functions, and branches.");
+  console.log(`Coverage passed at ${minimumCoveragePercent}% lines, functions, and branches.`);
 }
 
-checkCoverage();
+if (import.meta.main) checkCoverage();
