@@ -2067,6 +2067,39 @@ footer {
     height: 0.9rem;
   }
 
+  /* The mobile drawer is height-capped by its drag controller. Keep its
+   * controls reachable when a project has a long diagram list. */
+  .project-detail-navigation .file-viewer-drawer-content {
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Viewer actions and resource views are adjacent controls on mobile. */
+  .project-detail-drawer-viewer-actions {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .project-detail-view-actions .diagram-selector {
+    width: 100%;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .project-detail-view-actions .diagram-selector > * {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .project-detail-view-actions .diagram-selector > * > a {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .project-detail-drawer-action-row {
     display: grid;
     gap: 0.65rem;
