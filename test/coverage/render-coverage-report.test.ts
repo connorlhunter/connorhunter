@@ -43,6 +43,9 @@ describe("render coverage report", () => {
       },
     ]);
     expect(html).toContain("Portfolio Coverage");
+    expect(html).toContain(
+      "Required minimum: 95% lines, functions, and branches. Generated from the Bun test suite for the portfolio.",
+    );
     expect(html).toContain('data-scheme="atlas"');
     expect(html).toContain("connorhunter.theme.scheme");
     expect(html).toContain("message.type.endsWith(messageSuffix)");
