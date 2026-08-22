@@ -959,6 +959,15 @@ footer {
   height: 100%;
 }
 
+.project-live-chip {
+  border-color: color-mix(in srgb, #e5484d 52%, var(--border));
+  background: color-mix(in srgb, #e5484d 14%, var(--panel));
+  color: color-mix(in srgb, #e5484d 76%, var(--text));
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
 .project-notes-spacing {
   margin-top: 1.5rem;
 }

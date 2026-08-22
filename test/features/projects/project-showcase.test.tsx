@@ -14,10 +14,20 @@ describe("ProjectShowcase", () => {
   });
 
   test("renders artifacts, links, hash targets, and desktop downloads only when present", () => {
-    render(<ProjectShowcase projects={[projectWithDownloads, projectWithoutDownloads]} />);
+    render(
+      <ProjectShowcase
+        projects={[projectWithDownloads, { ...projectWithoutDownloads, status: "Live" }]}
+      />,
+    );
 
     expect(screen.getByText("Desktop Tool")).toBeTruthy();
     expect(screen.getByText("Web Tool")).toBeTruthy();
+    expect(
+      document.getElementById("desktop-tool")?.querySelector(".project-live-chip")?.textContent,
+    ).toBe("Live");
+    expect(
+      document.getElementById("web-tool")?.querySelector(".project-live-chip")?.textContent,
+    ).toBe("Live");
     expect(document.querySelectorAll(".project-asset-icon")).toHaveLength(2);
     expect(document.getElementById("desktop-tool")).toBeTruthy();
     expect(document.getElementById("web-tool")).toBeTruthy();
