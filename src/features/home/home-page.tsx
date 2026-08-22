@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/typography";
 import type { NavigationItem, PortfolioContent, Project } from "@/content/schema";
 import { projectsPageViewerHref } from "@/features/projects/project-viewer-model";
+import { ProjectStatusBadge } from "@/features/projects/project-status-badge";
 import { SiteLayout } from "@/features/shell/site-layout";
 import { ThemedIconImage } from "@/features/theme/theme-icon";
 
@@ -75,7 +76,10 @@ function FeaturedProjectCard({ project }: { readonly project: Project }): ReactN
         src={project.icon}
       />
       <span className="min-w-0">
-        <TypographySmall className="block font-bold text-(--text)">{project.title}</TypographySmall>
+        <span className="flex flex-wrap items-center gap-2">
+          <TypographySmall className="font-bold text-(--text)">{project.title}</TypographySmall>
+          <ProjectStatusBadge project={project} />
+        </span>
         <TypographyMuted as="span" className="mt-1 line-clamp-2 block">
           {project.summary}
         </TypographyMuted>

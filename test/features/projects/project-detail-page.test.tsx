@@ -59,6 +59,7 @@ describe("ProjectDetailPage", () => {
     expect(document.querySelector(".file-viewer-project-icon")).toBeNull();
     const projectNavigation = screen.getByRole("navigation", { name: "Project navigation" });
     const projectHeader = document.querySelector(".project-detail-header") as HTMLElement;
+    expect(within(projectHeader).getByTestId("project-status-badge").textContent).toBe("Live");
     expect(
       within(projectNavigation).getByRole("link", { name: "Projects" }).getAttribute("href"),
     ).toBe("/projects");

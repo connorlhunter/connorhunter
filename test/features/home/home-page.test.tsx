@@ -22,5 +22,10 @@ describe("HomePage", () => {
     expect(screen.getByRole("link", { name: /Desktop Tool/ }).getAttribute("href")).toBe(
       "/projects?project=desktop-tool#desktop-tool",
     );
+    expect(
+      screen
+        .getByRole("link", { name: /Desktop Tool/ })
+        .querySelector("[data-testid='project-status-badge']")?.textContent,
+    ).toBe("Live");
   });
 });
