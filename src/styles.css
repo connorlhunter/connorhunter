@@ -959,13 +959,53 @@ footer {
   height: 100%;
 }
 
-.project-live-chip {
-  border-color: color-mix(in srgb, #e5484d 52%, var(--border));
-  background: color-mix(in srgb, #e5484d 14%, var(--panel));
-  color: color-mix(in srgb, #e5484d 76%, var(--text));
+.project-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   font-weight: 800;
   letter-spacing: 0.055em;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.project-status-badge-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex: 0 0 auto;
+}
+
+.project-status-badge-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: currentcolor;
+  box-shadow: 0 0 0 0.14rem color-mix(in srgb, currentcolor 20%, transparent);
+}
+
+.project-status-badge--architecture {
+  border-color: color-mix(in srgb, #93a0b4 50%, var(--border));
+  background: color-mix(in srgb, #93a0b4 13%, var(--panel));
+  color: color-mix(in srgb, #b2bdcd 72%, var(--text));
+}
+
+.project-status-badge--operational {
+  border-color: color-mix(in srgb, #f08c00 52%, var(--border));
+  background: color-mix(in srgb, #f08c00 14%, var(--panel));
+  color: color-mix(in srgb, #f0a435 78%, var(--text));
+}
+
+.project-status-badge--coming-soon {
+  border-color: color-mix(in srgb, #3b82f6 54%, var(--border));
+  background: color-mix(in srgb, #3b82f6 14%, var(--panel));
+  color: color-mix(in srgb, #69a7ff 78%, var(--text));
+}
+
+.project-status-badge--live {
+  border-color: color-mix(in srgb, #e5484d 52%, var(--border));
+  background: color-mix(in srgb, #e5484d 14%, var(--panel));
+  color: color-mix(in srgb, #e5484d 76%, var(--text));
 }
 
 .project-notes-spacing {

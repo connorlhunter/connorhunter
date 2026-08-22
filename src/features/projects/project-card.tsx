@@ -10,6 +10,7 @@ import { ThemedIconImage } from "@/features/theme/theme-icon";
 import { cn } from "@/lib/cn";
 import { ArtifactActions, DownloadActions, ProjectLinkActions } from "./project-actions";
 import { ProjectNotes } from "./project-notes";
+import { ProjectStatusBadge } from "./project-status-badge";
 
 interface ProjectCardProps {
   readonly notesOpen: boolean;
@@ -26,9 +27,6 @@ function ProjectCardComponent({
   onNotesOpenChange,
   project,
 }: ProjectCardProps): ReactNode {
-  const hasLiveStatus = project.status.toLowerCase() === "live";
-  const isLive = hasLiveStatus || project.links.some((link) => link.kind === "live");
-
   return (
     <article
       aria-labelledby={`${project.slug}-heading`}
@@ -46,16 +44,11 @@ function ProjectCardComponent({
 
       <div className="project-card-body min-w-0">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              {isLive ? <TypographyChip className="project-live-chip">Live</TypographyChip> : null}
-              {!hasLiveStatus ? (
-                <TypographyEyebrow className="text-(--warm)">{project.status}</TypographyEyebrow>
-              ) : null}
-            </div>
-            <TypographyH3 as="h2" className="mt-2 text-2xl" id={`${project.slug}-heading`}>
+          <div className="flex flex-wrap items-center gap-2">
+            <TypographyH3 as="h2" className="text-2xl" id={`${project.slug}-heading`}>
               {project.title}
             </TypographyH3>
+            <ProjectStatusBadge project={project} />
           </div>
         </div>
 

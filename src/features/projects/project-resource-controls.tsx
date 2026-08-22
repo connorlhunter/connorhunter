@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { TypographyEyebrow, TypographyH1, TypographyP } from "@/components/ui/typography";
+import { TypographyH1, TypographyP } from "@/components/ui/typography";
 import type { ArtifactItem, Project } from "@/content/schema";
 import { ThemedIconImage } from "@/features/theme/theme-icon";
 import { FileViewerDrawer } from "@/features/viewer/file-viewer-drawer";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { DownloadActions, ProjectLinkActions } from "./project-actions";
 import { ProjectDetailActionGroup, ProjectStackChips } from "./project-resource-action-sections";
 import { CoverageSelector, DiagramSelector, ProjectViewerTabs } from "./project-resource-tabs";
+import { ProjectStatusBadge } from "./project-status-badge";
 import type { ProjectViewerKind } from "./project-viewer-model";
 
 interface ProjectResourceControlsProps {
@@ -58,10 +59,10 @@ export function ProjectResourceControls({
             src={project.icon}
           />
           <div className="min-w-0">
-            <TypographyEyebrow className="text-(--warm)">{project.status}</TypographyEyebrow>
-            <TypographyH1 className="mt-3" id={headingId}>
-              {project.title}
-            </TypographyH1>
+            <div className="flex flex-wrap items-center gap-3">
+              <TypographyH1 id={headingId}>{project.title}</TypographyH1>
+              <ProjectStatusBadge project={project} />
+            </div>
             <TypographyP className="text-measure mt-4">{project.summary}</TypographyP>
           </div>
         </div>

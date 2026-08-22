@@ -16,18 +16,26 @@ describe("ProjectShowcase", () => {
   test("renders artifacts, links, hash targets, and desktop downloads only when present", () => {
     render(
       <ProjectShowcase
-        projects={[projectWithDownloads, { ...projectWithoutDownloads, status: "Live" }]}
+        projects={[
+          {
+            ...projectWithDownloads,
+            status: "Architecture",
+          },
+          { ...projectWithoutDownloads, status: "Coming soon" },
+        ]}
       />,
     );
 
     expect(screen.getByText("Desktop Tool")).toBeTruthy();
     expect(screen.getByText("Web Tool")).toBeTruthy();
     expect(
-      document.getElementById("desktop-tool")?.querySelector(".project-live-chip")?.textContent,
-    ).toBe("Live");
+      document.getElementById("desktop-tool")?.querySelector("[data-testid='project-status-badge']")
+        ?.textContent,
+    ).toBe("Architecture");
     expect(
-      document.getElementById("web-tool")?.querySelector(".project-live-chip")?.textContent,
-    ).toBe("Live");
+      document.getElementById("web-tool")?.querySelector("[data-testid='project-status-badge']")
+        ?.textContent,
+    ).toBe("Coming soon");
     expect(document.querySelectorAll(".project-asset-icon")).toHaveLength(2);
     expect(document.getElementById("desktop-tool")).toBeTruthy();
     expect(document.getElementById("web-tool")).toBeTruthy();
@@ -62,7 +70,7 @@ describe("ProjectShowcase", () => {
     expect(notesButtons[0]?.getAttribute("aria-expanded")).toBe("false");
     expect(notesButtons[1]?.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getAllByText("Problem")).toHaveLength(2);
-    expect(screen.getAllByText("Architecture")).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { level: 3, name: "Architecture" })).toHaveLength(1);
     expect(screen.getAllByText("Notes")).toHaveLength(2);
     expect(screen.getAllByText("Generic project notes body.")).toHaveLength(2);
     expect(screen.getAllByText("Source")).toHaveLength(2);
