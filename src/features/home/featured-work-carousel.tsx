@@ -218,7 +218,7 @@ function FeaturedImageDetails({ item }: { readonly item: CarouselItem }): ReactN
           {label}
         </TypographySmall>
         {summary ? (
-          <TypographyMuted as="span" className="block leading-4 sm:truncate">
+          <TypographyMuted as="span" className="block leading-4">
             {summary}
           </TypographyMuted>
         ) : null}
