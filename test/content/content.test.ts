@@ -101,6 +101,7 @@ const artifactFixtures = new Map<string, string>([
             items: [
               {
                 id: "cipher-preview-card",
+                projectSlug: "cipher",
                 title: "Cipher",
                 summary: "A secure desktop conversation workspace.",
                 href: "site://projects?project=cipher#cipher",
@@ -565,6 +566,7 @@ Body content.`);
           items: [
             {
               id: "cipher-preview-card",
+              projectSlug: "cipher",
               title: "Cipher",
               summary: "A secure desktop conversation workspace.",
               href: `${publicConfig.siteOrigin}/projects?project=cipher#cipher`,

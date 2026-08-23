@@ -12,8 +12,9 @@ const featuredCarouselContent = {
         items: [
           {
             id: "cipher-preview-card",
+            projectSlug: "cipher",
             title: "Cipher preview",
-            summary: "A secure desktop conversation workspace.",
+            summary: "A private space for the conversations that matter most.",
             href: "/projects?project=cipher#cipher",
             imageHref: "https://example.com/cipher-placeholder.webp",
             badge: { icon: "clock" as const, label: "Coming soon", tone: "blue" as const },
@@ -77,9 +78,14 @@ describe("HomePage", () => {
 
     fireEvent.click(screen.getAllByRole("tab")[1]!);
     expect(
-      container.querySelector(".home-featured-image-badge-slot .home-featured-item-badge")
-        ?.className,
+      container.querySelector(".home-featured-image-details .home-featured-item-badge")?.className,
     ).toContain("home-featured-item-badge--blue");
+    expect(
+      container.querySelector(".home-featured-image-details .home-featured-image-project-icon"),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("A private space for the conversations that matter most."),
+    ).toBeTruthy();
     expect(container.querySelector(".home-featured-carousel-footer-badge")).toBeNull();
     expect(screen.getByRole("link", { name: "Cipher preview" }).getAttribute("href")).toBe(
       "/projects?project=cipher#cipher",

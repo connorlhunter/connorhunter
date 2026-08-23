@@ -645,13 +645,28 @@ footer {
   transition: transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.home-featured-image-badge-slot {
+.home-featured-image-details {
   position: absolute;
-  right: 0.65rem;
-  bottom: 0.65rem;
+  bottom: 0.75rem;
+  left: 0.75rem;
   z-index: 2;
-  display: inline-flex;
-  max-width: calc(100% - 1.3rem);
+  display: flex;
+  max-width: min(32rem, calc(100% - 1.5rem));
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  backdrop-filter: blur(10px);
+}
+
+.home-featured-image-project-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
 }
 
 .home-featured-item-badge {
