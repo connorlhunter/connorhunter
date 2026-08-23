@@ -3,10 +3,12 @@ import { TypographySmall } from "@/components/ui/typography";
 import type { ContactLink } from "@/content/schema";
 import { IconLink } from "@/components/ui/icon-link";
 import { contactIcon } from "@/features/contact/contact-icon";
+import { DynamicContentIndicator } from "./dynamic-content-indicator";
 
 interface FooterProps {
   readonly brandName: string;
   readonly contacts: ReadonlyArray<ContactLink>;
+  readonly contentSource?: string | undefined;
   readonly lastUpdated?: string | undefined;
 }
 
@@ -25,7 +27,12 @@ export function formatLastUpdated(value: string): string {
  * @param props - Brand name and contact links from portfolio content.
  * @returns The shared site footer.
  */
-export function Footer({ brandName, contacts, lastUpdated }: FooterProps): ReactNode {
+export function Footer({
+  brandName,
+  contacts,
+  contentSource,
+  lastUpdated,
+}: FooterProps): ReactNode {
   return (
     <footer className="border-t border-(--border) bg-(--panel) px-5 py-8 sm:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-5 text-sm text-(--muted) lg:flex-row lg:items-center lg:justify-between">
@@ -38,6 +45,7 @@ export function Footer({ brandName, contacts, lastUpdated }: FooterProps): React
               Updated <time dateTime={lastUpdated}>{formatLastUpdated(lastUpdated)}</time>
             </TypographySmall>
           ) : null}
+          {contentSource ? <DynamicContentIndicator description={contentSource} /> : null}
         </div>
         <address className="flex flex-wrap gap-3 not-italic">
           {contacts.map((contact) => (

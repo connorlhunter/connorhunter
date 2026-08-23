@@ -420,20 +420,6 @@ footer {
   background: color-mix(in srgb, var(--panel) 92%, transparent);
 }
 
-.dynamic-content-band {
-  position: absolute;
-  top: 0.5rem;
-  right: 0;
-  left: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.dynamic-content-band .page-container {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .dynamic-content-indicator {
   width: fit-content;
   padding: 0.25rem 0.625rem;
