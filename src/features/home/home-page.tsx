@@ -75,7 +75,7 @@ export function HomePage({ content }: HomePageProps): ReactNode {
 
           <aside
             aria-labelledby="featured-work-heading"
-            className="home-featured-panel surface-card p-5"
+            className="home-featured-panel surface-card"
           >
             <TypographyEyebrow as="h2" className="text-(--muted)" id="featured-work-heading">
               Featured Work

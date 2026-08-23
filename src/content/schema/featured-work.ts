@@ -40,11 +40,11 @@ export const featuredWorkItemSchema = z.object({
 });
 
 /**
- * @description A slide of up to three featured-work cards.
+ * @description One full-height featured-work image page.
  */
 export const featuredWorkPageSchema = z.object({
   id: z.string().min(1),
-  items: z.array(featuredWorkItemSchema).min(1).max(3),
+  items: z.array(featuredWorkItemSchema).length(1),
 });
 
 /**

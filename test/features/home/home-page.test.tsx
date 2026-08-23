@@ -62,17 +62,31 @@ describe("HomePage", () => {
     ).toBe("Live");
   });
 
-  test("pages featured projects and supports configured image-overlay badges", () => {
-    render(<HomePage content={featuredCarouselContent} />);
+  test("keeps project cards on the first page and renders configured image pages after it", () => {
+    const { container } = render(<HomePage content={featuredCarouselContent} />);
 
     expect(screen.getByRole("button", { name: "Show next featured work" })).toBeTruthy();
     expect(screen.getByRole("tablist", { name: "Featured work pages" })).toBeTruthy();
-    expect(screen.getAllByRole("tab")).toHaveLength(3);
+    expect(screen.getAllByRole("tab")).toHaveLength(2);
+    expect(container.querySelectorAll(".home-project-card")).toHaveLength(3);
     expect(
-      screen
-        .getAllByText("Coming soon")
-        .some((badge) => badge.className.includes("home-featured-item-badge--blue")),
+      [...container.querySelectorAll(".home-featured-list--images")].every(
+        (page) => page.children.length === 1,
+      ),
     ).toBe(true);
+
+    fireEvent.click(screen.getAllByRole("tab")[1]!);
+    expect(
+      container.querySelector(".home-featured-carousel-footer-badge .home-featured-item-badge")
+        ?.className,
+    ).toContain("home-featured-item-badge--blue");
+    expect(
+      container.querySelector(".home-featured-image-badge-slot .home-featured-item-badge")
+        ?.className,
+    ).toContain("home-featured-item-badge--blue");
+    expect(screen.getByRole("link", { name: "Cipher preview" }).getAttribute("href")).toBe(
+      "/projects?project=cipher#cipher",
+    );
     expect(screen.getByRole("link", { name: /Cipher/ })).toBeTruthy();
   });
 
@@ -83,7 +97,7 @@ describe("HomePage", () => {
     if (!carousel) throw new Error("Expected the Featured Work carousel.");
 
     fireEvent.click(screen.getByRole("button", { name: "Show previous featured work" }));
-    expect(screen.getAllByRole("tab")[2]?.getAttribute("aria-selected")).toBe("true");
+    expect(screen.getAllByRole("tab")[1]?.getAttribute("aria-selected")).toBe("true");
 
     fireEvent.pointerDown(carousel, { clientX: 220, pointerType: "touch" });
     fireEvent.pointerUp(carousel, { clientX: 120, pointerType: "touch" });

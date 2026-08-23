@@ -11,8 +11,10 @@ import {
 import type { FeaturedWork, FeaturedWorkBadge, FeaturedWorkItem, Project } from "@/content/schema";
 import { ProjectStatusBadge } from "@/features/projects/project-status-badge";
 import { projectsPageViewerHref } from "@/features/projects/project-viewer-model";
+import { ThemedIconImage } from "@/features/theme/theme-icon";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/cn";
+import { TypographyMuted, TypographySmall } from "@/components/ui/typography";
 
 const placeholderImage = `data:image/svg+xml,${encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
@@ -63,37 +65,32 @@ type CarouselItem = ConfiguredFeaturedItem | ProjectFeaturedItem;
 interface CarouselPage {
   readonly id: string;
   readonly items: ReadonlyArray<CarouselItem>;
+  readonly presentation: "images" | "projects";
 }
 
 /**
  * @param projects - Published projects, in their configured display order.
- * @returns The standard Featured Work pages, three project cards at a time.
+ * @returns The established first page of compact project cards.
  */
 function projectPages(projects: ReadonlyArray<Project>): ReadonlyArray<CarouselPage> {
-  const pages: Array<CarouselPage> = [];
-
-  for (let start = 0; start < projects.length; start += 3) {
-    const items = projects
-      .slice(start, start + 3)
-      .map((project) => ({ kind: "project", project }) as const);
-
-    if (items.length > 0) {
-      pages.push({ id: `projects-${start / 3 + 1}`, items });
-    }
-  }
-
-  return pages;
+  const firstPage = projects.slice(0, 3).map((project) => ({ kind: "project", project }) as const);
+  return firstPage.length > 0
+    ? [{ id: "projects-1", items: firstPage, presentation: "projects" }]
+    : [];
 }
 
 /**
  * @param configuration - Optional artifact-backed configuration for extra slides.
- * @returns Additional pages converted to carousel items.
+ * @returns One image-only carousel page per configured item.
  */
 function configuredPages(configuration?: FeaturedWork): ReadonlyArray<CarouselPage> {
-  return (configuration?.additionalPages ?? []).map((page) => ({
-    id: page.id,
-    items: page.items.map((item) => ({ item, kind: "configured" }) as const),
-  }));
+  return (configuration?.additionalPages ?? []).flatMap((page) =>
+    page.items.map((item) => ({
+      id: `${page.id}-${item.id}`,
+      items: [{ item, kind: "configured" }] as const,
+      presentation: "images" as const,
+    })),
+  );
 }
 
 /**
@@ -107,7 +104,7 @@ function wrappedIndex(value: number, size: number): number {
 
 /**
  * @param props - Configured badge visual data.
- * @returns A compact overlay badge, or nothing when it is not configured.
+ * @returns A compact footer badge, or nothing when it is not configured.
  */
 function FeaturedWorkBadge({
   badge,
@@ -127,32 +124,60 @@ function FeaturedWorkBadge({
 }
 
 /**
- * @param props - A project or configured item.
- * @returns A full-bleed image card with readable content and an optional overlay badge.
+ * @param props - A standard project on the first Featured Work page.
+ * @returns The established compact project card with its familiar status badge treatment.
  */
-function FeaturedWorkItemCard({ item }: { readonly item: CarouselItem }): ReactNode {
+function FeaturedProjectCard({ project }: { readonly project: Project }): ReactNode {
+  return (
+    <a
+      className="home-project-card surface-card surface-card-hover flex min-w-0 gap-4 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
+      href={projectsPageViewerHref(project.slug)}
+    >
+      <ThemedIconImage
+        alt=""
+        aria-hidden="true"
+        className={cn(
+          "home-project-icon project-asset-icon",
+          project.slug === "cipher" && "project-asset-icon--canonical",
+        )}
+        src={project.icon}
+      />
+      <span className="min-w-0">
+        <span className="flex flex-wrap items-center gap-2">
+          <TypographySmall className="font-bold text-(--text)">{project.title}</TypographySmall>
+          <ProjectStatusBadge project={project} />
+        </span>
+        <TypographyMuted as="span" className="mt-1 line-clamp-2 block">
+          {project.summary}
+        </TypographyMuted>
+      </span>
+    </a>
+  );
+}
+
+/**
+ * @param props - An image-only page item sourced from a project or published configuration.
+ * @returns A full-bleed image link with its configured badge over the lower-right corner.
+ */
+function FeaturedImageCard({ item }: { readonly item: CarouselItem }): ReactNode {
   const configured = item.kind === "configured" ? item.item : undefined;
   const project = item.kind === "project" ? item.project : undefined;
   const href = configured ? configured.href : projectsPageViewerHref(project?.slug ?? "");
+  const label = configured?.title ?? project?.title ?? "Project";
   const imageHref = configured?.imageHref ?? placeholderImage;
-  const title = configured?.title ?? project?.title ?? "Project";
-  const summary = configured?.summary ?? project?.summary ?? "";
 
   return (
     <a
-      className="home-featured-item group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
+      aria-label={label}
+      className="home-featured-image-item group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
       href={href}
     >
-      <img alt="" className="home-featured-item-image" draggable="false" src={imageHref} />
-      <span aria-hidden="true" className="home-featured-item-scrim" />
-      <span className="home-featured-item-copy">
-        <span className="home-featured-item-title">{title}</span>
-        <span className="home-featured-item-summary">{summary}</span>
-      </span>
-      <span className="home-featured-item-badge-slot">
-        {configured ? <FeaturedWorkBadge badge={configured.badge} /> : null}
-        {project ? <ProjectStatusBadge project={project} /> : null}
-      </span>
+      <img alt="" className="home-featured-image" draggable="false" src={imageHref} />
+      {configured?.badge ? (
+        <span className="home-featured-image-badge-slot">
+          <FeaturedWorkBadge badge={configured.badge} />
+        </span>
+      ) : null}
     </a>
   );
 }
@@ -175,6 +200,9 @@ export function FeaturedWorkCarousel({
   );
   const pageCount = pages.length;
   const intervalMs = configuration?.autoAdvanceMs ?? 9_000;
+  const activeConfiguredItem = pages[activePage]?.items[0];
+  const activeBadge =
+    activeConfiguredItem?.kind === "configured" ? activeConfiguredItem.item.badge : undefined;
 
   useEffect(() => {
     setActivePage((current) => (current >= pageCount ? 0 : current));
@@ -245,12 +273,20 @@ export function FeaturedWorkCarousel({
               key={page.id}
               role="group"
             >
-              <div className="home-featured-list grid gap-3">
+              <div
+                className={cn(
+                  "home-featured-list grid gap-3",
+                  page.presentation === "images" && "home-featured-list--images",
+                )}
+              >
                 {page.items.map((item) => (
-                  <FeaturedWorkItemCard
-                    item={item}
-                    key={item.kind === "project" ? item.project.slug : item.item.id}
-                  />
+                  <div key={item.kind === "project" ? item.project.slug : item.item.id}>
+                    {page.presentation === "projects" && item.kind === "project" ? (
+                      <FeaturedProjectCard project={item.project} />
+                    ) : (
+                      <FeaturedImageCard item={item} />
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
@@ -276,22 +312,28 @@ export function FeaturedWorkCarousel({
           >
             <ChevronRight aria-hidden="true" />
           </button>
-          <div
-            aria-label="Featured work pages"
-            className="home-featured-carousel-pagination"
-            role="tablist"
-          >
-            {pages.map((page, pageIndex) => (
-              <button
-                aria-label={`Show featured work page ${pageIndex + 1}`}
-                aria-selected={pageIndex === activePage}
-                className="home-featured-carousel-dot"
-                key={page.id}
-                onClick={() => setActivePage(pageIndex)}
-                role="tab"
-                type="button"
-              />
-            ))}
+          <div className="home-featured-carousel-footer">
+            <div className="home-featured-carousel-footer-badge">
+              <FeaturedWorkBadge badge={activeBadge} />
+            </div>
+            <div
+              aria-label="Featured work pages"
+              className="home-featured-carousel-pagination"
+              role="tablist"
+            >
+              {pages.map((page, pageIndex) => (
+                <button
+                  aria-label={`Show featured work page ${pageIndex + 1}`}
+                  aria-selected={pageIndex === activePage}
+                  className="home-featured-carousel-dot"
+                  key={page.id}
+                  onClick={() => setActivePage(pageIndex)}
+                  role="tab"
+                  type="button"
+                />
+              ))}
+            </div>
+            <span aria-hidden="true" />
           </div>
         </>
       ) : null}
