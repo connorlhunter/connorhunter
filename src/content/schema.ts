@@ -1,5 +1,13 @@
 import { z } from "zod";
 import { certificationItemSchema, skillGroupSchema, timelineItemSchema } from "./schema/experience";
+import {
+  featuredWorkBadgeIconSchema,
+  featuredWorkBadgeSchema,
+  featuredWorkBadgeToneSchema,
+  featuredWorkItemSchema,
+  featuredWorkPageSchema,
+  featuredWorkSchema,
+} from "./schema/featured-work";
 import { portfolioContentSchema } from "./schema/portfolio";
 import {
   contactLinkSchema,
@@ -17,6 +25,12 @@ import {
 
 export {
   certificationItemSchema,
+  featuredWorkBadgeIconSchema,
+  featuredWorkBadgeSchema,
+  featuredWorkBadgeToneSchema,
+  featuredWorkItemSchema,
+  featuredWorkPageSchema,
+  featuredWorkSchema,
   contactLinkSchema,
   navigationItemSchema,
   portfolioContentSchema,
@@ -55,6 +69,26 @@ export type ContactLink = z.infer<typeof contactLinkSchema>;
  * @description Typed desktop download link record.
  */
 export type DownloadLink = z.infer<typeof downloadLinkSchema>;
+
+/**
+ * @description Configurable featured-work section content.
+ */
+export type FeaturedWork = z.infer<typeof featuredWorkSchema>;
+
+/**
+ * @description Configurable badge rendered over a featured-work image.
+ */
+export type FeaturedWorkBadge = z.infer<typeof featuredWorkBadgeSchema>;
+
+/**
+ * @description One configurable featured-work card.
+ */
+export type FeaturedWorkItem = z.infer<typeof featuredWorkItemSchema>;
+
+/**
+ * @description One configurable featured-work slide.
+ */
+export type FeaturedWorkPage = z.infer<typeof featuredWorkPageSchema>;
 
 /**
  * @description Typed navigation item record.

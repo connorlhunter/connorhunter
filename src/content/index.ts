@@ -7,6 +7,7 @@ import { loadProfile } from "./profile/profile";
 import { loadProjects } from "./profile/projects";
 import { loadSkills } from "./profile/skills";
 import { loadSocialLinks } from "./profile/social-links";
+import { resolveContentHref } from "./hrefs";
 import { portfolioContentSchema, type PortfolioContent, type Project } from "./schema";
 
 interface PortfolioContentCache {
@@ -44,6 +45,21 @@ async function loadPortfolioContent(): Promise<PortfolioContent> {
     experience: timeline.experience,
     education: timeline.education,
     certifications: timeline.certifications,
+    ...(contentManifest.featuredWork
+      ? {
+          featuredWork: {
+            ...contentManifest.featuredWork,
+            additionalPages: contentManifest.featuredWork.additionalPages.map((page) => ({
+              ...page,
+              items: page.items.map((item) => ({
+                ...item,
+                href: resolveContentHref(item.href),
+                ...(item.imageHref ? { imageHref: resolveContentHref(item.imageHref) } : {}),
+              })),
+            })),
+          },
+        }
+      : {}),
     projects,
   });
 }
