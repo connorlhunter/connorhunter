@@ -14,7 +14,7 @@ import { projectsPageViewerHref } from "@/features/projects/project-viewer-model
 import { ThemedIconImage } from "@/features/theme/theme-icon";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/cn";
-import { TypographyMuted, TypographySmall } from "@/components/ui/typography";
+import { TypographyChip, TypographyMuted, TypographySmall } from "@/components/ui/typography";
 
 const placeholderImage = `data:image/svg+xml,${encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
@@ -126,10 +126,16 @@ function FeaturedWorkBadge({
   const Icon = badge.icon ? badgeIcons[badge.icon] : null;
 
   return (
-    <span className={cn("home-featured-item-badge", `home-featured-item-badge--${badge.tone}`)}>
+    <TypographyChip
+      className={cn(
+        "home-featured-item-badge",
+        "project-status-badge",
+        `home-featured-item-badge--${badge.tone}`,
+      )}
+    >
       {Icon ? <Icon aria-hidden="true" className="size-3.5" /> : null}
       {badge.label}
-    </span>
+    </TypographyChip>
   );
 }
 
