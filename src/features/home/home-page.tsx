@@ -15,6 +15,7 @@ import { projectsPageViewerHref } from "@/features/projects/project-viewer-model
 import { ProjectStatusBadge } from "@/features/projects/project-status-badge";
 import { SiteLayout } from "@/features/shell/site-layout";
 import { ThemedIconImage } from "@/features/theme/theme-icon";
+import { cn } from "@/lib/cn";
 
 interface HomePageProps {
   readonly content: PortfolioContent;
@@ -72,7 +73,10 @@ function FeaturedProjectCard({ project }: { readonly project: Project }): ReactN
       <ThemedIconImage
         alt=""
         aria-hidden="true"
-        className="home-project-icon project-asset-icon"
+        className={cn(
+          "home-project-icon project-asset-icon",
+          project.slug === "cipher" && "project-asset-icon--canonical",
+        )}
         src={project.icon}
       />
       <span className="min-w-0">

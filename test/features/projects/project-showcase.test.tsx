@@ -93,6 +93,16 @@ describe("ProjectShowcase", () => {
     expect(screen.getByText("Example projects page.")).toBeTruthy();
   });
 
+  test("renders Cipher's published mark without the generic icon shell", () => {
+    render(<ProjectShowcase projects={[{ ...projectWithDownloads, slug: "cipher" }]} />);
+
+    expect(
+      document
+        .querySelector("#cipher .project-asset-icon")
+        ?.classList.contains("project-asset-icon--canonical"),
+    ).toBe(true);
+  });
+
   test("scrolls to a selected project card without rendering a viewer on the projects page", () => {
     let requestAnimationFrameCalled = false;
     const originalRequestAnimationFrame = window.requestAnimationFrame;

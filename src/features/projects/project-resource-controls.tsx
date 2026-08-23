@@ -55,7 +55,10 @@ export function ProjectResourceControls({
           <ThemedIconImage
             alt=""
             aria-hidden="true"
-            className="project-asset-icon"
+            className={cn(
+              "project-asset-icon",
+              project.slug === "cipher" && "project-asset-icon--canonical",
+            )}
             src={project.icon}
           />
           <div className="min-w-0">
