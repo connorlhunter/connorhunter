@@ -58,6 +58,7 @@ interface ProjectFeaturedItem {
 interface ConfiguredFeaturedItem {
   readonly item: FeaturedWorkItem;
   readonly kind: "configured";
+  readonly project?: Project | undefined;
 }
 
 type CarouselItem = ConfiguredFeaturedItem | ProjectFeaturedItem;
@@ -83,11 +84,20 @@ function projectPages(projects: ReadonlyArray<Project>): ReadonlyArray<CarouselP
  * @param configuration - Optional artifact-backed configuration for extra slides.
  * @returns One image-only carousel page per configured item.
  */
-function configuredPages(configuration?: FeaturedWork): ReadonlyArray<CarouselPage> {
+function configuredPages(
+  configuration: FeaturedWork | undefined,
+  projects: ReadonlyArray<Project>,
+): ReadonlyArray<CarouselPage> {
   return (configuration?.additionalPages ?? []).flatMap((page) =>
     page.items.map((item) => ({
       id: `${page.id}-${item.id}`,
-      items: [{ item, kind: "configured" }] as const,
+      items: [
+        {
+          item,
+          kind: "configured",
+          project: projects.find((project) => project.slug === item.projectSlug),
+        },
+      ] as const,
       presentation: "images" as const,
     })),
   );
@@ -157,13 +167,14 @@ function FeaturedProjectCard({ project }: { readonly project: Project }): ReactN
 
 /**
  * @param props - An image-only page item sourced from a project or published configuration.
- * @returns A full-bleed image link with its configured badge over the lower-right corner.
+ * @returns A full-bleed image link with project context anchored at its lower-left corner.
  */
 function FeaturedImageCard({ item }: { readonly item: CarouselItem }): ReactNode {
   const configured = item.kind === "configured" ? item.item : undefined;
-  const project = item.kind === "project" ? item.project : undefined;
+  const project = item.kind === "project" ? item.project : item.project;
   const href = configured ? configured.href : projectsPageViewerHref(project?.slug ?? "");
   const label = configured?.title ?? project?.title ?? "Project";
+  const summary = configured?.summary ?? project?.summary;
   const imageHref = configured?.imageHref ?? placeholderImage;
 
   return (
@@ -173,11 +184,30 @@ function FeaturedImageCard({ item }: { readonly item: CarouselItem }): ReactNode
       href={href}
     >
       <img alt="" className="home-featured-image" draggable="false" src={imageHref} />
-      {configured?.badge ? (
-        <span className="home-featured-image-badge-slot">
-          <FeaturedWorkBadge badge={configured.badge} />
+      <span className="home-featured-image-details">
+        {project ? (
+          <ThemedIconImage
+            alt=""
+            aria-hidden="true"
+            className={cn(
+              "home-featured-image-project-icon project-asset-icon",
+              project.slug === "cipher" && "project-asset-icon--canonical",
+            )}
+            src={project.icon}
+          />
+        ) : null}
+        <span className="min-w-0">
+          <span className="flex flex-wrap items-center gap-2">
+            <TypographySmall className="font-bold text-(--text)">{label}</TypographySmall>
+            {configured?.badge ? <FeaturedWorkBadge badge={configured.badge} /> : null}
+          </span>
+          {summary ? (
+            <TypographyMuted as="span" className="mt-1 line-clamp-2 block">
+              {summary}
+            </TypographyMuted>
+          ) : null}
         </span>
-      ) : null}
+      </span>
     </a>
   );
 }
@@ -195,7 +225,7 @@ export function FeaturedWorkCarousel({
   const [paused, setPaused] = useState(false);
   const pointerStartX = useRef<number | null>(null);
   const pages = useMemo(
-    () => [...projectPages(projects), ...configuredPages(configuration)],
+    () => [...projectPages(projects), ...configuredPages(configuration, projects)],
     [configuration, projects],
   );
   const pageCount = pages.length;

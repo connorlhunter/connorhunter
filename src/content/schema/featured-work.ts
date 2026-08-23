@@ -19,7 +19,7 @@ export const featuredWorkBadgeToneSchema = z.enum([
 export const featuredWorkBadgeIconSchema = z.enum(["clock", "shield", "sparkles", "tag"]);
 
 /**
- * @description Optional, image-overlay badge content for a featured-work item.
+ * @description Optional status badge content for a featured-work item.
  */
 export const featuredWorkBadgeSchema = z.object({
   icon: featuredWorkBadgeIconSchema.optional(),
@@ -35,6 +35,7 @@ export const featuredWorkItemSchema = z.object({
   href: hrefSchema,
   id: z.string().min(1),
   imageHref: hrefSchema.optional(),
+  projectSlug: z.string().min(1).max(80).optional(),
   summary: z.string().min(1).max(280),
   title: z.string().min(1).max(80),
 });
