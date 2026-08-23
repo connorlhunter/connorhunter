@@ -29,4 +29,19 @@ describe("Footer", () => {
   test("formats update dates without a local timezone shift", () => {
     expect(formatLastUpdated("2026-08-02")).toBe("Aug 2, 2026");
   });
+
+  test("places the dynamic content control beside the update stamp", () => {
+    render(
+      <Footer
+        brandName={mockContent.profile.name}
+        contacts={mockContent.contacts}
+        contentSource="Profile and projects"
+        lastUpdated="2026-08-02"
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Show dynamic content details" })).toBeTruthy();
+    expect(screen.getByText("Aug 2, 2026")).toBeTruthy();
+    cleanup();
+  });
 });

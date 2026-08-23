@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { PortfolioContent } from "@/content/schema";
-import { DynamicContentIndicator } from "./dynamic-content-indicator";
 import { Footer } from "./footer";
 import { SiteHeader } from "./site-header";
 import { ThemeIconSync } from "@/features/theme/theme-icon";
@@ -33,18 +32,12 @@ export function SiteLayout({ children, content, contentSource }: SiteLayoutProps
       </a>
       <SiteHeader navigation={content.navigation} profile={content.profile} />
       <main id="main-content" tabIndex={-1}>
-        {contentSource ? (
-          <div className="dynamic-content-band px-5 sm:px-8 lg:px-10">
-            <div className="page-container">
-              <DynamicContentIndicator description={contentSource} />
-            </div>
-          </div>
-        ) : null}
         {children}
       </main>
       <Footer
         brandName={content.profile.name}
         contacts={content.contacts}
+        contentSource={contentSource}
         lastUpdated={content.lastUpdated}
       />
     </ThemeProvider>
