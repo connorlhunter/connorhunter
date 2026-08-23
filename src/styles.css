@@ -601,6 +601,8 @@ footer {
 }
 
 .home-featured-carousel {
+  --home-featured-carousel-footer-height: 2.95rem;
+
   position: relative;
   margin-top: 1rem;
   touch-action: pan-y;
@@ -608,8 +610,7 @@ footer {
 }
 
 .home-featured-carousel-viewport {
-  position: relative;
-  overflow: visible;
+  overflow: hidden;
   border-radius: calc(var(--radius-lg) - 0.1rem);
   perspective: 75rem;
 }
@@ -617,8 +618,6 @@ footer {
 .home-featured-carousel-track {
   display: flex;
   width: 100%;
-  overflow: hidden;
-  border-radius: calc(var(--radius-lg) - 0.1rem);
   transform: translate3d(0, 0, 0);
   transition: transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
@@ -714,7 +713,7 @@ footer {
 
 .home-featured-carousel-control {
   position: absolute;
-  top: 50%;
+  top: calc(50% - (var(--home-featured-carousel-footer-height) / 2));
   z-index: 3;
   display: inline-flex;
   width: var(--home-featured-control-size);
@@ -763,7 +762,7 @@ footer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  min-height: 2.25rem;
+  min-height: var(--home-featured-carousel-footer-height);
   margin-top: 0.7rem;
 }
 
