@@ -109,6 +109,23 @@ describe("ProjectDetailPage", () => {
     cleanup();
   });
 
+  test("uses Cipher's canonical mark in the project header", () => {
+    render(
+      <ProjectDetailPage
+        content={mockContent}
+        project={{ ...projectWithDownloads, slug: "cipher" }}
+      />,
+    );
+
+    expect(
+      document
+        .querySelector(".project-detail-header .project-asset-icon")
+        ?.classList.contains("project-asset-icon--canonical"),
+    ).toBe(true);
+
+    cleanup();
+  });
+
   test("collapses the project title and desktop viewer actions after drawer sections", () => {
     window.sessionStorage.removeItem(
       "connorhunter.file-viewer-drawer.project-resource-viewer:desktop",

@@ -941,6 +941,10 @@ footer {
   object-fit: contain;
 }
 
+.file-viewer-project-icon--canonical {
+  filter: none;
+}
+
 .project-asset-icon {
   display: block;
   width: 2.5rem;
@@ -951,6 +955,13 @@ footer {
   background: var(--accent-soft);
   object-fit: contain;
   padding: 0.5rem;
+}
+
+/* Cipher's published mark already carries its own complete silhouette. */
+.project-asset-icon--canonical {
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
 }
 
 .project-card-body {

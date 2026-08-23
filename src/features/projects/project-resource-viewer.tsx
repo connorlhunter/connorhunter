@@ -4,6 +4,7 @@ import type { PortfolioContent, Project } from "@/content/schema";
 import { ThemedIconImage } from "@/features/theme/theme-icon";
 import { FileViewer } from "@/features/viewer/file-viewer";
 import { emailContact, mailtoHref } from "@/lib/contact";
+import { cn } from "@/lib/cn";
 import { profileGreetingName } from "@/lib/profile";
 import { ProjectDiagramPreview } from "./project-diagram-preview";
 import { MissingArtifactFallback, ProjectOverviewContent } from "./project-resource-content";
@@ -89,7 +90,10 @@ export function ProjectResourceViewer({
           <ThemedIconImage
             alt=""
             aria-hidden="true"
-            className="file-viewer-project-icon"
+            className={cn(
+              "file-viewer-project-icon",
+              project.slug === "cipher" && "file-viewer-project-icon--canonical",
+            )}
             src={project.icon}
           />
         }
