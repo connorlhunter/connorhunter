@@ -78,7 +78,8 @@ describe("HomePage", () => {
 
     fireEvent.click(screen.getAllByRole("tab")[1]!);
     expect(
-      container.querySelector(".home-featured-image-details .home-featured-item-badge")?.className,
+      container.querySelector(".home-featured-carousel-footer .home-featured-item-badge")
+        ?.className,
     ).toContain("home-featured-item-badge--blue");
     expect(
       container.querySelector(".home-featured-image-details .home-featured-image-project-icon"),

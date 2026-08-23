@@ -217,7 +217,6 @@ function FeaturedImageDetails({ item }: { readonly item: CarouselItem }): ReactN
           </TypographyMuted>
         ) : null}
       </span>
-      {configured?.badge ? <FeaturedWorkBadge badge={configured.badge} /> : null}
     </span>
   );
 }
@@ -241,6 +240,8 @@ export function FeaturedWorkCarousel({
   const pageCount = pages.length;
   const activeImageItem =
     pages[activePage]?.presentation === "images" ? pages[activePage]?.items[0] : undefined;
+  const activeImageBadge =
+    activeImageItem?.kind === "configured" ? activeImageItem.item.badge : undefined;
   const intervalMs = configuration?.autoAdvanceMs ?? 9_000;
   useEffect(() => {
     setActivePage((current) => (current >= pageCount ? 0 : current));
@@ -369,7 +370,9 @@ export function FeaturedWorkCarousel({
                 />
               ))}
             </div>
-            <span aria-hidden="true" />
+            <span className="justify-self-end">
+              {activeImageBadge ? <FeaturedWorkBadge badge={activeImageBadge} /> : null}
+            </span>
           </div>
         </>
       ) : null}
