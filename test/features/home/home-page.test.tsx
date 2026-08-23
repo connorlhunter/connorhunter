@@ -80,10 +80,7 @@ describe("HomePage", () => {
       container.querySelector(".home-featured-carousel-footer-badge .home-featured-item-badge")
         ?.className,
     ).toContain("home-featured-item-badge--blue");
-    expect(
-      container.querySelector(".home-featured-image-badge-slot .home-featured-item-badge")
-        ?.className,
-    ).toContain("home-featured-item-badge--blue");
+    expect(container.querySelector(".home-featured-image-badge-slot")).toBeNull();
     expect(screen.getByRole("link", { name: "Cipher preview" }).getAttribute("href")).toBe(
       "/projects?project=cipher#cipher",
     );
