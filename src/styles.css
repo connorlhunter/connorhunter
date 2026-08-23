@@ -661,6 +661,15 @@ footer {
   transition: transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.home-featured-image-badge-slot {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  z-index: 2;
+  display: inline-flex;
+  max-width: calc(100% - 1.3rem);
+}
+
 .home-featured-item-badge {
   display: inline-flex;
   align-items: center;
@@ -759,15 +768,11 @@ footer {
 }
 
 .home-featured-carousel-footer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  display: flex;
   align-items: center;
+  justify-content: center;
   min-height: var(--home-featured-carousel-footer-height);
   margin-top: 0.7rem;
-}
-
-.home-featured-carousel-footer-badge {
-  justify-self: start;
 }
 
 .home-featured-carousel-pagination {
