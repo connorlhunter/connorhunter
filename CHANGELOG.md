@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.12] - 2026-08-23
+
+### Changed
+
+- Added contextual project details to configurable featured image pages, including the project mark, short description, and matching status chip.
+- Kept the carousel image surface clean while placing slide details in its existing footer row.
+
 ## [1.4.11] - 2026-08-23
 
 ### Added
