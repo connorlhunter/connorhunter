@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.11] - 2026-08-23
+
+### Added
+
+- Added configurable, looping featured-work pages with linked image slides, optional overlay badges, keyboard controls, and mobile swipe support.
+
+### Changed
+
+- Moved dynamic-content details into a stable footer control with a centered popover.
+
 ## [1.4.10] - 2026-08-20
 
 ### Changed
