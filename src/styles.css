@@ -421,16 +421,21 @@ footer {
 }
 
 .dynamic-content-indicator {
-  width: fit-content;
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--radius);
-  background: var(--panel);
+  position: relative;
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  padding: 0.25rem;
+  border-radius: 50%;
+  background: var(--surface-interactive);
   box-shadow: var(--shadow-sm);
   pointer-events: auto;
   animation: site-content-in var(--motion-enter) 70ms both;
   transition:
-    padding var(--motion-slow),
-    border-radius var(--motion-slow),
     border-color var(--motion-fast),
     background-color var(--motion-fast),
     box-shadow var(--motion-fast);
@@ -456,45 +461,38 @@ footer {
 }
 
 .dynamic-content-copy {
-  display: grid;
-  min-width: 0;
-  max-width: 38rem;
-  max-height: 3rem;
-  margin-right: 0.5rem;
-  grid-template-columns: 1fr;
-  opacity: 1;
-  transform: translateX(0);
+  position: absolute;
+  z-index: 10;
+  bottom: calc(100% + 0.55rem);
+  left: 50%;
+  width: min(20rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-50%, 0.35rem, 0) scale(0.98);
+  transform-origin: bottom center;
+  visibility: hidden;
   transition:
-    max-width var(--motion-slow),
-    max-height var(--motion-slow),
-    margin-right var(--motion-slow),
-    grid-template-columns var(--motion-slow),
     opacity var(--motion-fast),
-    transform var(--motion-slow);
+    transform var(--motion-fast),
+    visibility var(--motion-fast);
 }
 
 .dynamic-content-copy-inner {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
-.dynamic-content-indicator[data-expanded="false"] {
-  padding: 0.25rem;
-  border-radius: 50%;
-  background: var(--surface-interactive);
-}
-
-.dynamic-content-indicator[data-expanded="false"] .dynamic-content-copy {
-  max-width: 0;
-  max-height: 0;
-  margin-right: 0;
-  grid-template-columns: 0fr;
-  opacity: 0;
-  transform: translateX(0.5rem);
-}
-
-.dynamic-content-indicator[data-expanded="false"] .dynamic-content-icon {
-  transform: scale(1.04);
+.dynamic-content-indicator[data-expanded="true"] .dynamic-content-copy {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(-50%, 0, 0) scale(1);
+  visibility: visible;
 }
 
 @supports (background: color-mix(in srgb, white, transparent)) {
@@ -505,7 +503,7 @@ footer {
 
 @media (max-width: 639px) {
   .dynamic-content-copy {
-    max-height: 5rem;
+    width: min(18rem, calc(100vw - 2rem));
   }
 }
 

@@ -36,7 +36,7 @@ export function Footer({
   return (
     <footer className="border-t border-(--border) bg-(--panel) px-5 py-8 sm:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-5 text-sm text-(--muted) lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <TypographySmall as="p" className="font-normal">
             {brandName}
           </TypographySmall>
