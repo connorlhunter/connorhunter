@@ -608,7 +608,8 @@ footer {
 }
 
 .home-featured-carousel-viewport {
-  overflow: hidden;
+  position: relative;
+  overflow: visible;
   border-radius: calc(var(--radius-lg) - 0.1rem);
   perspective: 75rem;
 }
@@ -616,6 +617,8 @@ footer {
 .home-featured-carousel-track {
   display: flex;
   width: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--radius-lg) - 0.1rem);
   transform: translate3d(0, 0, 0);
   transition: transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
