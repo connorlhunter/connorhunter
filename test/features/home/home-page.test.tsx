@@ -77,10 +77,10 @@ describe("HomePage", () => {
 
     fireEvent.click(screen.getAllByRole("tab")[1]!);
     expect(
-      container.querySelector(".home-featured-carousel-footer-badge .home-featured-item-badge")
+      container.querySelector(".home-featured-image-badge-slot .home-featured-item-badge")
         ?.className,
     ).toContain("home-featured-item-badge--blue");
-    expect(container.querySelector(".home-featured-image-badge-slot")).toBeNull();
+    expect(container.querySelector(".home-featured-carousel-footer-badge")).toBeNull();
     expect(screen.getByRole("link", { name: "Cipher preview" }).getAttribute("href")).toBe(
       "/projects?project=cipher#cipher",
     );

@@ -157,7 +157,7 @@ function FeaturedProjectCard({ project }: { readonly project: Project }): ReactN
 
 /**
  * @param props - An image-only page item sourced from a project or published configuration.
- * @returns A full-bleed image link; configured badge details are shown in the carousel footer.
+ * @returns A full-bleed image link with its configured badge over the lower-right corner.
  */
 function FeaturedImageCard({ item }: { readonly item: CarouselItem }): ReactNode {
   const configured = item.kind === "configured" ? item.item : undefined;
@@ -173,6 +173,11 @@ function FeaturedImageCard({ item }: { readonly item: CarouselItem }): ReactNode
       href={href}
     >
       <img alt="" className="home-featured-image" draggable="false" src={imageHref} />
+      {configured?.badge ? (
+        <span className="home-featured-image-badge-slot">
+          <FeaturedWorkBadge badge={configured.badge} />
+        </span>
+      ) : null}
     </a>
   );
 }
@@ -195,10 +200,6 @@ export function FeaturedWorkCarousel({
   );
   const pageCount = pages.length;
   const intervalMs = configuration?.autoAdvanceMs ?? 9_000;
-  const activeConfiguredItem = pages[activePage]?.items[0];
-  const activeBadge =
-    activeConfiguredItem?.kind === "configured" ? activeConfiguredItem.item.badge : undefined;
-
   useEffect(() => {
     setActivePage((current) => (current >= pageCount ? 0 : current));
   }, [pageCount]);
@@ -308,9 +309,6 @@ export function FeaturedWorkCarousel({
             <ChevronRight aria-hidden="true" />
           </button>
           <div className="home-featured-carousel-footer">
-            <div className="home-featured-carousel-footer-badge">
-              <FeaturedWorkBadge badge={activeBadge} />
-            </div>
             <div
               aria-label="Featured work pages"
               className="home-featured-carousel-pagination"
