@@ -93,6 +93,24 @@ const artifactFixtures = new Map<string, string>([
         skillsPath: "profile/skills.md",
         socialLinksPath: "profile/social-links.md",
       },
+      featuredWork: {
+        autoAdvanceMs: 9000,
+        additionalPages: [
+          {
+            id: "cipher-preview",
+            items: [
+              {
+                id: "cipher-preview-card",
+                title: "Cipher",
+                summary: "A secure desktop conversation workspace.",
+                href: "site://projects?project=cipher#cipher",
+                imageHref: "asset://images/cipher-placeholder.webp",
+                badge: { icon: "clock", label: "Coming soon", tone: "blue" },
+              },
+            ],
+          },
+        ],
+      },
       projectsManifestPath: "manifests/project-artifacts.json",
     }),
   ],
@@ -539,6 +557,24 @@ Body content.`);
 
     expect(content.profile.name.length).toBeGreaterThan(0);
     expect(content.lastUpdated).toBe("2026-08-14");
+    expect(content.featuredWork).toEqual({
+      autoAdvanceMs: 9000,
+      additionalPages: [
+        {
+          id: "cipher-preview",
+          items: [
+            {
+              id: "cipher-preview-card",
+              title: "Cipher",
+              summary: "A secure desktop conversation workspace.",
+              href: `${publicConfig.siteOrigin}/projects?project=cipher#cipher`,
+              imageHref: `${publicConfig.publicAssetsOrigin}/images/cipher-placeholder.webp`,
+              badge: { icon: "clock", label: "Coming soon", tone: "blue" },
+            },
+          ],
+        },
+      ],
+    });
     expect(projectOrders).toEqual([
       "connor-hunter",
       "artifact-generator",
