@@ -287,26 +287,30 @@ export function FeaturedWorkCarousel({
             </div>
           ))}
         </div>
+        {pageCount > 1 ? (
+          <>
+            <button
+              aria-label="Show previous featured work"
+              className="home-featured-carousel-control home-featured-carousel-control--previous"
+              onClick={() => moveBy(-1)}
+              type="button"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+            <button
+              aria-label="Show next featured work"
+              className="home-featured-carousel-control home-featured-carousel-control--next"
+              onClick={() => moveBy(1)}
+              type="button"
+            >
+              <ChevronRight aria-hidden="true" />
+            </button>
+          </>
+        ) : null}
       </div>
 
       {pageCount > 1 ? (
         <>
-          <button
-            aria-label="Show previous featured work"
-            className="home-featured-carousel-control home-featured-carousel-control--previous"
-            onClick={() => moveBy(-1)}
-            type="button"
-          >
-            <ChevronLeft aria-hidden="true" />
-          </button>
-          <button
-            aria-label="Show next featured work"
-            className="home-featured-carousel-control home-featured-carousel-control--next"
-            onClick={() => moveBy(1)}
-            type="button"
-          >
-            <ChevronRight aria-hidden="true" />
-          </button>
           <div className="home-featured-carousel-footer">
             <div className="home-featured-carousel-footer-badge">
               <FeaturedWorkBadge badge={activeBadge} />
