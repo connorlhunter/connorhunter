@@ -64,24 +64,29 @@ function packageJsonWithPins(packageJson: Record<string, unknown>, pins: PinReco
 export function bunfigWithReleaseAgeExcludes(current: string, excludes: ReleaseAgeRecord): string {
   const names = Object.keys(sortedRecord(excludes));
   const withoutExisting = current
-    .replace(/^minimumReleaseAgeExcludes = \[[\s\S]*?^\]\n?/gmu, "")
+    .replace(/^minimumReleaseAgeExcludes = \[(?:[^\n]*\]|\n[\s\S]*?^\])\n?/gmu, "")
     .trimEnd();
 
   if (names.length === 0) {
     return `${withoutExisting}\n`;
   }
 
-  const renderedNames = names.map((name) => `  "${name}",`).join("\n");
+  const renderedNames =
+    names.length === 1
+      ? `["${names[0]}"]`
+      : `[\n${names.map((name) => `  "${name}",`).join("\n")}\n]`;
   const installSectionPattern = /^\[install\][\s\S]*?(?=^\[[^\n]+\]|(?![\s\S]))/mu;
 
   if (!installSectionPattern.test(withoutExisting)) {
     throw new Error("Expected bunfig.toml to contain an [install] section.");
   }
 
-  return withoutExisting.replace(
+  const nextBunfig = withoutExisting.replace(
     installSectionPattern,
-    (section) => `${section.trimEnd()}\nminimumReleaseAgeExcludes = [\n${renderedNames}\n]\n\n`,
+    (section) => `${section.trimEnd()}\nminimumReleaseAgeExcludes = ${renderedNames}\n\n`,
   );
+
+  return `${nextBunfig.trimEnd()}\n`;
 }
 
 /**

@@ -23,8 +23,6 @@ amplifyconfiguration.json
 *.log
 *.tsbuildinfo
 .cache/
-.eslintcache
-.prettiercache
 node_modules/.vite/
 node_modules/.vite-temp/
 tmp/

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.13] - 2026-08-26
+
+### Changed
+
+- Replaced the separate frontend toolchain commands with Vite+.
+- Added a 15-path cyclomatic-complexity limit for application code and simplified the shared viewer and drawer paths to meet it.
+- Removed obsolete formatter and linter configuration.
+
 ## [1.4.12] - 2026-08-23
 
 ### Changed
@@ -119,6 +127,9 @@
 - Removed the permanent toolbar footprint from the fullscreen resume view.
 - Kept fullscreen unavailable on mobile while allowing the controls to collapse for more viewing room.
 
+[1.4.13]: https://github.com/connorlhunter/connorhunter/compare/v1.4.12...v1.4.13
+[1.4.12]: https://github.com/connorlhunter/connorhunter/compare/v1.4.11...v1.4.12
+[1.4.11]: https://github.com/connorlhunter/connorhunter/compare/v1.4.10...v1.4.11
 [1.4.10]: https://github.com/connorlhunter/connorhunter/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/connorlhunter/connorhunter/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/connorlhunter/connorhunter/compare/v1.4.7...v1.4.8

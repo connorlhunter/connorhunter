@@ -34,6 +34,20 @@ export interface DrawerHeightState {
   readonly magnetized: boolean;
 }
 
+interface DrawerHeightContext {
+  readonly allowAnchorCollapse: boolean;
+  readonly anchor: HTMLElement | null;
+  readonly collapsedHeight: number;
+  readonly contentHeight: number;
+  readonly height: number;
+  readonly hideAnchor: boolean;
+  readonly magnet: boolean;
+  readonly magnetLockHeight: number | null;
+  readonly measurements: FileViewerDrawerMeasurements;
+  readonly snap: boolean;
+  readonly snapHeights: ReadonlyArray<number>;
+}
+
 /**
  * @param stateKey - Optional stable drawer state key.
  * @returns Options with state persistence only when a key is present.
@@ -69,6 +83,103 @@ function restoredDrawerHeight(snapshot: DrawerStateSnapshot, contentHeight: numb
     : snapshot.height;
 }
 
+function drawerHeightContext(
+  drawer: HTMLElement,
+  height: number,
+  anchor: HTMLElement | null,
+  options: SetDrawerHeightOptions,
+): DrawerHeightContext {
+  const magnet = options.magnet ?? false;
+  const snap = options.snap ?? true;
+  const measurements = options.measurements ?? measureFileViewerDrawer(drawer);
+
+  return {
+    allowAnchorCollapse: options.allowAnchorCollapse ?? false,
+    anchor,
+    collapsedHeight: drawerCollapsedHeight(),
+    contentHeight: measurements.contentHeight,
+    height,
+    hideAnchor: height < anchorCollapseThreshold,
+    magnet,
+    magnetLockHeight: options.magnetLockHeight ?? null,
+    measurements,
+    snap,
+    snapHeights: snap || magnet ? measurements.snapHeights : [],
+  };
+}
+
+function updateDrawerAnchor(context: DrawerHeightContext): void {
+  if (context.height > context.collapsedHeight) {
+    setAnchorCollapsed(context.anchor, false);
+  } else if (context.allowAnchorCollapse && context.hideAnchor) {
+    setAnchorCollapsed(context.anchor, true);
+  }
+}
+
+function clampedDrawerHeight(context: DrawerHeightContext): number {
+  return clampFileViewerDrawerHeight(
+    context.contentHeight,
+    context.height,
+    context.measurements.viewportHeight,
+    context.collapsedHeight,
+    context.snapHeights,
+    !context.snap,
+    context.magnet ? drawerMagnetDistance : 0,
+    context.magnetLockHeight,
+    drawerMagnetReleaseDistance,
+  );
+}
+
+function drawerHandleLabel(
+  anchorIsCollapsed: boolean,
+  collapsed: boolean,
+  anchor: HTMLElement | null,
+): string {
+  if (anchorIsCollapsed) {
+    return "Expand viewer sections";
+  }
+
+  if (!collapsed) {
+    return "Collapse viewer drawer";
+  }
+
+  return anchor ? "Collapse viewer sections" : "Expand viewer drawer";
+}
+
+function applyDrawerHeight(
+  drawer: HTMLElement,
+  handle: HTMLButtonElement,
+  height: number,
+  collapsed: boolean,
+  anchorIsCollapsed: boolean,
+  magnetized: boolean,
+  anchor: HTMLElement | null,
+): void {
+  drawer.style.height = `${height}px`;
+  drawer.classList.toggle("file-viewer-drawer--collapsed", collapsed);
+  drawer.classList.toggle("file-viewer-drawer--anchor-collapsed", anchorIsCollapsed);
+  drawer.classList.toggle("file-viewer-drawer--magnetized", magnetized);
+  handle.setAttribute("aria-expanded", String(!collapsed));
+  handle.setAttribute("aria-label", drawerHandleLabel(anchorIsCollapsed, collapsed, anchor));
+}
+
+function persistDrawerHeight(
+  stateKey: string | undefined,
+  anchorIsCollapsed: boolean,
+  clampedHeight: number,
+  contentHeight: number,
+): void {
+  if (!stateKey) {
+    return;
+  }
+
+  writeDrawerStateSnapshot(stateKey, {
+    anchorCollapsed: anchorIsCollapsed,
+    full: clampedHeight >= contentHeight - 1,
+    height: clampedHeight,
+  });
+}
+
 /**
  * @param drawer - Drawer element to update.
  * @param handle - Resize handle that reports expanded state.
@@ -81,60 +192,28 @@ export function setDrawerHeight(
   anchor = drawerAnchor(drawer),
   options: SetDrawerHeightOptions = {},
 ): DrawerHeightState {
-  const collapsedHeight = drawerCollapsedHeight();
-  const hideAnchor = height < anchorCollapseThreshold;
-  const allowAnchorCollapse = options.allowAnchorCollapse ?? false;
-  const magnet = options.magnet ?? false;
-  const snap = options.snap ?? true;
-  const measurements = options.measurements ?? measureFileViewerDrawer(drawer);
-  const snapHeights = snap || magnet ? measurements.snapHeights : [];
-  const contentHeight = measurements.contentHeight;
+  const context = drawerHeightContext(drawer, height, anchor, options);
 
-  if (height > collapsedHeight) {
-    setAnchorCollapsed(anchor, false);
-  } else if (allowAnchorCollapse && hideAnchor) {
-    setAnchorCollapsed(anchor, true);
-  }
+  updateDrawerAnchor(context);
 
-  const clampedHeight = clampFileViewerDrawerHeight(
-    contentHeight,
-    height,
-    measurements.viewportHeight,
-    collapsedHeight,
-    snapHeights,
-    !snap,
-    magnet ? drawerMagnetDistance : 0,
-    options.magnetLockHeight ?? null,
-    drawerMagnetReleaseDistance,
-  );
-  const collapsed = clampedHeight === collapsedHeight;
+  const clampedHeight = clampedDrawerHeight(context);
+  const collapsed = clampedHeight === context.collapsedHeight;
   const anchorIsCollapsed = anchorCollapsed(anchor);
   const magnetized =
-    magnet && (Math.abs(clampedHeight - height) > 0.5 || (allowAnchorCollapse && hideAnchor));
+    context.magnet &&
+    (Math.abs(clampedHeight - context.height) > 0.5 ||
+      (context.allowAnchorCollapse && context.hideAnchor));
 
-  drawer.style.height = `${clampedHeight}px`;
-  drawer.classList.toggle("file-viewer-drawer--collapsed", collapsed);
-  drawer.classList.toggle("file-viewer-drawer--anchor-collapsed", anchorIsCollapsed);
-  drawer.classList.toggle("file-viewer-drawer--magnetized", magnetized);
-  handle.setAttribute("aria-expanded", String(!collapsed));
-  handle.setAttribute(
-    "aria-label",
-    anchorIsCollapsed
-      ? "Expand viewer sections"
-      : collapsed
-        ? anchor
-          ? "Collapse viewer sections"
-          : "Expand viewer drawer"
-        : "Collapse viewer drawer",
+  applyDrawerHeight(
+    drawer,
+    handle,
+    clampedHeight,
+    collapsed,
+    anchorIsCollapsed,
+    magnetized,
+    anchor,
   );
-
-  if (options.stateKey) {
-    writeDrawerStateSnapshot(options.stateKey, {
-      anchorCollapsed: anchorIsCollapsed,
-      full: clampedHeight >= contentHeight - 1,
-      height: clampedHeight,
-    });
-  }
+  persistDrawerHeight(options.stateKey, anchorIsCollapsed, clampedHeight, context.contentHeight);
 
   return { height: clampedHeight, magnetized };
 }
