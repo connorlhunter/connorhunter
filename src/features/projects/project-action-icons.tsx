@@ -7,6 +7,7 @@ import {
   ListChecks,
   MonitorDown,
   Network,
+  ScrollText,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ArtifactLink, DownloadLink, ProjectLink } from "@/content/schema";
@@ -22,6 +23,10 @@ export function artifactIcon(label: ArtifactLink["label"]): ReactNode {
 
   if (label === "Coverage") {
     return <ChartNoAxesCombined aria-hidden="true" className="size-4" />;
+  }
+
+  if (label === "Changelog") {
+    return <ScrollText aria-hidden="true" className="size-4" />;
   }
 
   return <Network aria-hidden="true" className="size-4" />;

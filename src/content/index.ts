@@ -1,13 +1,13 @@
-import { loadProjectArtifactManifest } from "./artifacts/loader";
+import {
+  loadProjectArtifactManifest,
+  projectArtifactEntry,
+  projectArtifactLinks,
+  projectIconHref,
+} from "./artifacts/loader";
 import { publicConfig } from "@/config/public-env";
 import { loadContentManifest } from "./manifest";
-import { loadProfileTimeline } from "./profile/experience";
-import { loadNavigation } from "./profile/navigation";
-import { loadProfile } from "./profile/profile";
-import { loadProjects } from "./profile/projects";
-import { loadSkills } from "./profile/skills";
-import { loadSocialLinks } from "./profile/social-links";
 import { resolveContentHref } from "./hrefs";
+import { loadSiteContent } from "./site-content";
 import { portfolioContentSchema, type PortfolioContent, type Project } from "./schema";
 
 interface PortfolioContentCache {
@@ -24,32 +24,44 @@ let portfolioContentCache: PortfolioContentCache | undefined;
  */
 async function loadPortfolioContent(): Promise<PortfolioContent> {
   const contentManifest = await loadContentManifest();
-  const [profile, socialLinks, navigation, skills, timeline, projectArtifactManifest] =
-    await Promise.all([
-      loadProfile(contentManifest),
-      loadSocialLinks(contentManifest),
-      loadNavigation(contentManifest),
-      loadSkills(contentManifest),
-      loadProfileTimeline(contentManifest),
-      loadProjectArtifactManifest(contentManifest.projectsManifestPath),
-    ]);
-  const projects = await loadProjects(projectArtifactManifest);
+  const [siteContent, projectArtifactManifest] = await Promise.all([
+    loadSiteContent(contentManifest.siteContentPath),
+    loadProjectArtifactManifest(contentManifest.projectsManifestPath),
+  ]);
+  const projects = siteContent.projects
+    .map((project) => {
+      const entry = projectArtifactEntry(projectArtifactManifest, project.slug);
+      return {
+        ...project,
+        artifacts: projectArtifactLinks(entry),
+        icon: projectIconHref(entry),
+        links: project.links.map((link) => ({ ...link, href: resolveContentHref(link.href) })),
+      };
+    })
+    .sort((left, right) => left.order - right.order)
+    .map(({ order: _order, ...project }) => project);
 
   return portfolioContentSchema.parse({
-    lastUpdated: contentManifest.lastUpdated ?? publicConfig.lastUpdated,
-    profile,
-    contacts: socialLinks.contacts,
-    resume: socialLinks.resume,
-    navigation,
-    skills,
-    experience: timeline.experience,
-    education: timeline.education,
-    certifications: timeline.certifications,
-    ...(contentManifest.featuredWork
+    lastUpdated: siteContent.lastUpdated ?? contentManifest.lastUpdated ?? publicConfig.lastUpdated,
+    profile: siteContent.profile,
+    contacts: siteContent.contacts.map((contact) => ({
+      ...contact,
+      href: resolveContentHref(contact.href),
+    })),
+    resume: { ...siteContent.resume, href: resolveContentHref(siteContent.resume.href) },
+    navigation: siteContent.navigation.map((item) => ({
+      ...item,
+      href: resolveContentHref(item.href),
+    })),
+    skills: siteContent.skills,
+    experience: siteContent.experience,
+    education: siteContent.education,
+    certifications: siteContent.certifications,
+    ...(siteContent.featuredWork
       ? {
           featuredWork: {
-            ...contentManifest.featuredWork,
-            additionalPages: contentManifest.featuredWork.additionalPages.map((page) => ({
+            ...siteContent.featuredWork,
+            additionalPages: siteContent.featuredWork.additionalPages.map((page) => ({
               ...page,
               items: page.items.map((item) => ({
                 ...item,

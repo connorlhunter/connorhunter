@@ -1,4 +1,11 @@
 import { z } from "zod";
+import {
+  documentBlockSchema,
+  documentInlineSchema,
+  type DocumentBlock,
+  type DocumentInline,
+  type DocumentLinkTarget,
+} from "./schema/document";
 import { certificationItemSchema, skillGroupSchema, timelineItemSchema } from "./schema/experience";
 import {
   featuredWorkBadgeIconSchema,
@@ -40,6 +47,8 @@ export {
   timelineItemSchema,
   artifactItemSchema,
   artifactLinkSchema,
+  documentBlockSchema,
+  documentInlineSchema,
   downloadLinkSchema,
   projectLinkSchema,
   projectSchema,
@@ -54,6 +63,8 @@ export type ArtifactItem = z.infer<typeof artifactItemSchema>;
  * @description Typed project artifact link record.
  */
 export type ArtifactLink = z.infer<typeof artifactLinkSchema>;
+
+export type { DocumentBlock, DocumentInline, DocumentLinkTarget };
 
 /**
  * @description Typed certification record.

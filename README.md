@@ -1,10 +1,10 @@
 # Connor Hunter Portfolio
 
-Content-backed portfolio app for profile content, project pages, artifact viewers, coverage links, and resume delivery.
+Content-backed portfolio app for project pages, native resource readers, coverage summaries, changelogs, and resume delivery.
 
 Detailed project documentation is published on the live portfolio:
 
-- https://connorhunter.me/projects/connor-hunter?viewer=docs#project-viewer
+- https://connorhunter.me/projects/connor-hunter/docs
 
 ## Start Here
 
@@ -21,7 +21,7 @@ bun run test:coverage
 bun run codeql:scan
 ```
 
-The app is built with TanStack Start, Vite+, React, TanStack Router, Zod, Tailwind CSS, shadcn-style primitives, and Lucide icons. Vite+ owns development, builds, formatting, linting, and type checks through the local project commands. Portfolio content comes from artifact manifests and markdown frontmatter instead of being buried in React components.
+The app is built with TanStack Start, Vite+, React, TanStack Router, Zod, Tailwind CSS, shadcn-style primitives, and Lucide icons. Vite+ owns development, builds, formatting, linting, and type checks through the local project commands. Artifact Generator compiles source Markdown into structured JSON; this app owns the presentation and navigation.
 
 ## Runtime Content
 
@@ -38,7 +38,7 @@ distribution domain names such as `https://d111111abcdef8.cloudfront.net`.
 Do not use CloudFront distribution IDs such as `E1CSMY761RI4LF` in these URL
 variables.
 
-The artifact root serves manifests, profile markdown, project markdown, docs, diagrams, and project coverage URLs. Artifact Generator publishes docs and diagrams. This repo publishes the Portfolio coverage page under `projects/connor-hunter/coverage/`. The asset root serves icons, crypto images, and the resume PDF.
+The artifact root serves the project manifest, compiled site content, structured docs, diagram metadata, coverage, and changelog artifacts. Artifact Generator owns source parsing and artifact assembly. This app reads those artifacts into native routes such as `/projects/cipher/docs`, `/projects/cipher/diagrams`, `/projects/cipher/coverage`, and `/projects/cipher/changelog`. The asset root serves icons, crypto images, and the resume PDF.
 
 Portfolio content is deduplicated for 30 seconds in each running SSR instance, then reloaded from the artifact origin. After an artifact publish and CloudFront invalidation, allow up to 30 seconds for an already-warm SSR instance to refresh its content.
 
@@ -46,19 +46,17 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 
 ## Common Commands
 
-| Task                | Command                    |
-| ------------------- | -------------------------- |
-| Start local app     | `bun run dev`              |
-| Build app           | `bun run build`            |
-| Check code          | `bun run check`            |
-| Run tests           | `bun run test`             |
-| Run coverage        | `bun run test:coverage`    |
-| Publish coverage    | `bun run coverage:publish` |
-| Check formatting    | `bun run format:check`     |
-| Run lint            | `bun run lint`             |
-| Run local CodeQL    | `bun run codeql:scan`      |
-| Typecheck           | `bun run typecheck`        |
-| Run full validation | `bun run verify`           |
+| Task                      | Command                    |
+| ------------------------- | -------------------------- |
+| Start local app           | `bun run dev`              |
+| Build app                 | `bun run build`            |
+| Check code                | `bun run check`            |
+| Run tests                 | `bun run test`             |
+| Run coverage              | `bun run test:coverage`    |
+| Publish coverage          | `bun run coverage:publish` |
+| Publish release artifacts | `bun run release:publish`  |
+| Run local CodeQL          | `bun run codeql:scan`      |
+| Run full validation       | `bun run verify`           |
 
 `bun run start` previews the most recent Amplify production build, so run `bun run build` first. It is not needed for normal local development; use `bun run dev` for that.
 
@@ -70,12 +68,12 @@ Exact dependency pins and temporary release-age exceptions live in `dependency-p
 
 ## Releases
 
-`package.json` is the portfolio release-version source. Keep the first `CHANGELOG.md` heading aligned with it; `bun run version:check` enforces the pair in the normal verification gate.
+`package.json` is the portfolio release-version source. Keep the first `CHANGELOG.md` heading aligned with it; `bun run version:check` enforces the pair in the normal verification gate. `bun run release:publish` publishes both coverage and the canonical changelog artifact.
 
 ## Change Naming
 
 - Name branches `<type>/<kebab-summary>` with `feat`, `fix`, `chore`, `docs`, `test`, or `refactor`.
-- Name issues, pull requests, and commit subjects `<type>[(scope)][!]: <summary>`, such as `feat(viewer): add diagram preview`.
+- Name issues, pull requests, and commit subjects `<type>[(scope)][!]: <summary>`, such as `feat(projects): add diagram preview`.
 - Use `release/<version>` for a release branch, `chore(release): prepare <version>` for its release commit, and `v<version>` for the tag.
 - Dependabot branches are accepted as an automated exception. Existing commit history is intentionally unchanged.
 
@@ -87,7 +85,7 @@ Exact dependency pins and temporary release-age exceptions live in `dependency-p
 src/routes/       -> TanStack Router route files
 src/features/     -> page and feature components
 src/content/      -> artifact-backed content loading and Zod schemas
-src/features/viewer/ -> shared file viewer and drawer behavior
+src/features/projects/ -> project detail and native resource readers
 public/           -> app-owned public shell assets only
 ```
 
@@ -101,4 +99,4 @@ Portfolio coverage is the one artifact this repo publishes itself. It requires a
 bun run coverage:publish
 ```
 
-The script runs the coverage gate, creates one UTC publication timestamp, stamps `coverage/index.html`, renders `coverage/index.pdf` from that stamped HTML, syncs the coverage folder to `projects/connor-hunter/coverage/`, and invalidates the artifact CloudFront path when `ARTIFACTS_CLOUDFRONT_DISTRIBUTION_ID` is set. The viewer embeds the HTML report and downloads the PDF. Set `ARTIFACTS_BUCKET` for the live artifact bucket; set `SOURCE_ARTIFACTS_BUCKET` too when you also want a durable source copy.
+The script runs the coverage gate, creates one UTC publication timestamp, writes `coverage/index.json` and `coverage/coverage.pdf`, syncs the coverage folder to `projects/connor-hunter/coverage/`, and invalidates the artifact CloudFront path when `ARTIFACTS_CLOUDFRONT_DISTRIBUTION_ID` is set. The portfolio renders the JSON in its own coverage page and offers the PDF as a download. Set `ARTIFACTS_BUCKET` for the live artifact bucket; set `SOURCE_ARTIFACTS_BUCKET` too when you also want a durable source copy.

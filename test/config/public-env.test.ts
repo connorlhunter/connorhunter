@@ -29,8 +29,8 @@ describe("public env config", () => {
   test("builds public URLs from configured origins", () => {
     expect(absoluteSiteUrl(publicConfig.githubProfileUrl)).toBe(publicConfig.githubProfileUrl);
     expect(absoluteSiteUrl("/projects/cipher")).toBe(`${publicConfig.siteOrigin}/projects/cipher`);
-    expect(artifactUrl("docs/cipher/index.html")).toBe(
-      `${publicConfig.artifactsOrigin}/docs/cipher/index.html`,
+    expect(artifactUrl("docs/cipher/index.json")).toBe(
+      `${publicConfig.artifactsOrigin}/docs/cipher/index.json`,
     );
     expect(artifactUrl(publicConfig.contentManifestPath)).toBe(
       `${publicConfig.artifactsOrigin}/manifests/content-manifest.json`,

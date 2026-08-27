@@ -1,5 +1,5 @@
 import type { ArtifactLink } from "@/content/schema";
-import { artifactViewerKind, projectDetailViewerHref } from "./project-viewer-model";
+import { projectResourceForArtifact, projectResourceHref } from "./project-resource-routes";
 
 export type ArtifactActionSurface = "external" | "projects-page";
 
@@ -23,7 +23,5 @@ export function artifactActionTarget(
     return { href: artifact.href, target: "_blank" };
   }
 
-  const viewer = artifactViewerKind(artifact.label);
-
-  return { href: projectDetailViewerHref(projectSlug, viewer) };
+  return { href: projectResourceHref(projectSlug, projectResourceForArtifact(artifact.label)) };
 }

@@ -101,7 +101,7 @@ function ProjectCardComponent({
         >
           <ProjectNotes
             architecture={project.architecture}
-            markdown={project.markdown}
+            notes={project.notes}
             onOpenChange={onNotesOpenChange}
             open={notesOpen}
             problem={project.problem}

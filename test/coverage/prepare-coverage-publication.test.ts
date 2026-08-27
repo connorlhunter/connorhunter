@@ -25,7 +25,7 @@ describe("prepareCoveragePublication", () => {
     tempDir = "";
   });
 
-  test("uses one UTC publication date for the HTML and PDF", async () => {
+  test("uses one UTC publication date for the JSON and PDF", async () => {
     spyOn(console, "log").mockImplementation(() => undefined);
     tempDir = mkdtempSync(join(tmpdir(), "portfolio-coverage-publication-"));
     const coverageDir = join(tempDir, "coverage");
@@ -36,14 +36,12 @@ describe("prepareCoveragePublication", () => {
     const result = await prepareCoveragePublication(tempDir, "2026-08-20T14:42:31.123-04:00");
 
     expect(result).toEqual({
-      html: join(coverageDir, "index.html"),
-      pdf: join(coverageDir, "index.pdf"),
+      json: join(coverageDir, "index.json"),
+      pdf: join(coverageDir, "coverage.pdf"),
       updatedAt: "2026-08-20T18:42:31.123Z",
     });
-    const html = readFileSync(result.html, "utf8");
-    expect(html).toContain(
-      'Updated <time datetime="2026-08-20T18:42:31.123Z">Aug 20, 2026</time>',
-    );
+    const artifact = JSON.parse(readFileSync(result.json, "utf8"));
+    expect(artifact.updatedAt).toBe("2026-08-20T18:42:31.123Z");
     expect(readFileSync(result.pdf).subarray(0, 4).toString()).toBe("%PDF");
     expect(await normalizedPdfText(result.pdf)).toContain("Updated Aug 20, 2026");
   });

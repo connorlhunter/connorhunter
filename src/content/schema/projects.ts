@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { hrefSchema } from "./base";
+import { documentBlockSchema } from "./document";
 
 /**
  * @description Project artifact child item metadata.
@@ -22,7 +23,7 @@ export const artifactItemSchema = z.object({
 export const artifactLinkSchema = z.object({
   comingSoon: z.boolean().optional(),
   downloadHref: hrefSchema.optional(),
-  label: z.enum(["Docs", "Coverage", "Diagrams"]),
+  label: z.enum(["Docs", "Coverage", "Diagrams", "Changelog"]),
   href: hrefSchema,
   items: z.array(artifactItemSchema).optional(),
 });
@@ -63,5 +64,5 @@ export const projectSchema = z.object({
   links: z.array(projectLinkSchema).min(1),
   downloads: z.array(downloadLinkSchema),
   artifacts: z.array(artifactLinkSchema).min(1),
-  markdown: z.string().min(1),
+  notes: z.array(documentBlockSchema),
 });

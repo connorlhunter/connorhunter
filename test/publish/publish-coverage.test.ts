@@ -86,8 +86,8 @@ describe("publish coverage", () => {
     tempDir = mkdtempSync(join(tmpdir(), "coverage-publish-"));
     const coverageDir = join(tempDir, "coverage");
     mkdirSync(coverageDir, { recursive: true });
-    writeFileSync(join(coverageDir, "index.html"), "<html>coverage</html>");
-    writeFileSync(join(coverageDir, "index.pdf"), "%PDF-1.4");
+    writeFileSync(join(coverageDir, "index.json"), "{}");
+    writeFileSync(join(coverageDir, "coverage.pdf"), "%PDF-1.4");
 
     await publishCoverage({
       commandRunner,
@@ -137,7 +137,7 @@ describe("publish coverage", () => {
     ]);
   });
 
-  test("stamps the HTML and derives the PDF before publishing", async () => {
+  test("stamps JSON and derives the PDF before publishing", async () => {
     const commands: Array<ReadonlyArray<string>> = [];
     spyOn(console, "log").mockImplementation(() => undefined);
     tempDir = mkdtempSync(join(tmpdir(), "coverage-publish-"));
@@ -154,10 +154,10 @@ describe("publish coverage", () => {
       workspaceRoot: tempDir,
     });
 
-    expect(readFileSync(join(coverageDir, "index.html"), "utf8")).toContain(
-      'Updated <time datetime="2026-08-20T18:42:31.123Z">Aug 20, 2026</time>',
+    expect(readFileSync(join(coverageDir, "index.json"), "utf8")).toContain(
+      '"updatedAt": "2026-08-20T18:42:31.123Z"',
     );
-    expect(readFileSync(join(coverageDir, "index.pdf")).subarray(0, 4).toString()).toBe("%PDF");
+    expect(readFileSync(join(coverageDir, "coverage.pdf")).subarray(0, 4).toString()).toBe("%PDF");
     expect(commands).toEqual([
       [
         "s3",
@@ -175,7 +175,7 @@ describe("publish coverage", () => {
     );
   });
 
-  test("requires rendered coverage HTML and PDF files before publishing", async () => {
+  test("requires rendered coverage JSON and PDF files before publishing", async () => {
     tempDir = mkdtempSync(join(tmpdir(), "coverage-publish-"));
 
     await expect(
@@ -186,6 +186,6 @@ describe("publish coverage", () => {
         },
         workspaceRoot: tempDir,
       }),
-    ).rejects.toThrow("Missing coverage report");
+    ).rejects.toThrow("Missing coverage artifacts");
   });
 });
