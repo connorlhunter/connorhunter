@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.15] - 2026-08-27
+
+### Fixed
+
+- Keep project reader navigation and page outlines pinned below the site header while their content is in view.
+
 ## [1.4.14] - 2026-08-27
 
 ### Changed
