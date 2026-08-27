@@ -16,13 +16,12 @@ Prerequisites:
 ```bash
 bun install
 bun run dev
-bun run typecheck
-bun run format:check
+bun run check
 bun run test:coverage
 bun run codeql:scan
 ```
 
-The app is built with TanStack Start, Vite, React, TanStack Router, Zod, Tailwind CSS, shadcn-style primitives, and Lucide icons. Portfolio content comes from artifact manifests and markdown frontmatter instead of being buried in React components.
+The app is built with TanStack Start, Vite+, React, TanStack Router, Zod, Tailwind CSS, shadcn-style primitives, and Lucide icons. Vite+ owns development, builds, formatting, linting, and type checks through the local project commands. Portfolio content comes from artifact manifests and markdown frontmatter instead of being buried in React components.
 
 ## Runtime Content
 
@@ -51,6 +50,7 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 | ------------------- | -------------------------- |
 | Start local app     | `bun run dev`              |
 | Build app           | `bun run build`            |
+| Check code          | `bun run check`            |
 | Run tests           | `bun run test`             |
 | Run coverage        | `bun run test:coverage`    |
 | Publish coverage    | `bun run coverage:publish` |
@@ -64,7 +64,7 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 
 The test command loads the public defaults in `.env.example`, so a fresh checkout can run verification without creating `.env`. Explicit environment variables still take precedence. Copy `.env.example` to `.env` before local development when you need to change the defaults.
 
-`bun run verify` includes the local JavaScript/TypeScript and GitHub Actions CodeQL scan. In GitHub Actions, that step defers to the repository's required hosted CodeQL checks.
+`bun run verify` includes Vite+ formatting, linting, and type checks plus the local CodeQL scan. In GitHub Actions, that CodeQL step defers to the repository's required hosted checks.
 
 Exact dependency pins and temporary release-age exceptions live in `dependency-policy.toml`. Run `bun run deps:policy` after changing the policy to sync `package.json` and `bunfig.toml`.
 

@@ -15,6 +15,75 @@ export interface FileViewerDrawerMeasurements {
   readonly viewportHeight: number;
 }
 
+interface DrawerHeightBounds {
+  readonly clampedHeight: number;
+  readonly expandedMinHeight: number;
+  readonly maxHeight: number;
+}
+
+function drawerHeightBounds(
+  contentHeight: number,
+  height: number,
+  viewportHeight: number,
+  collapsedHeight: number,
+): DrawerHeightBounds {
+  const maxViewportHeight = Math.max(
+    drawerExpandedMinHeight,
+    Math.round(viewportHeight * drawerMaxViewportRatio),
+  );
+  const maxHeight = Math.min(maxViewportHeight, Math.max(collapsedHeight, contentHeight));
+
+  return {
+    clampedHeight: Math.min(maxHeight, Math.max(collapsedHeight, height)),
+    expandedMinHeight: Math.min(drawerExpandedMinHeight, maxHeight),
+    maxHeight,
+  };
+}
+
+function drawerSnapPoints(
+  collapsedHeight: number,
+  maxHeight: number,
+  snapHeights: ReadonlyArray<number>,
+): ReadonlyArray<number> {
+  return [
+    collapsedHeight,
+    ...snapHeights.filter((snapHeight) => snapHeight > collapsedHeight && snapHeight < maxHeight),
+    maxHeight,
+  ].sort((left, right) => left - right);
+}
+
+function nearestDrawerHeight(snapPoints: ReadonlyArray<number>, height: number): number {
+  return snapPoints.reduce((nearest, snapHeight) =>
+    Math.abs(snapHeight - height) < Math.abs(nearest - height) ? snapHeight : nearest,
+  );
+}
+
+function partialDrawerHeight(
+  clampedHeight: number,
+  snapPoints: ReadonlyArray<number>,
+  magnetDistance: number,
+  magnetLockHeight: number | null,
+  magnetReleaseDistance: number,
+): number {
+  if (magnetDistance <= 0) {
+    return clampedHeight;
+  }
+
+  if (
+    magnetLockHeight !== null &&
+    snapPoints.includes(magnetLockHeight) &&
+    Math.abs(magnetLockHeight - clampedHeight) <= magnetReleaseDistance
+  ) {
+    return magnetLockHeight;
+  }
+
+  const nearestSnapPoint = nearestDrawerHeight(snapPoints, clampedHeight);
+
+  return Math.abs(nearestSnapPoint - clampedHeight) <= magnetDistance
+    ? nearestSnapPoint
+    : clampedHeight;
+}
+
 /**
  * @param contentHeight - Measured drawer content height.
  * @param height - Requested drawer height.
@@ -32,54 +101,31 @@ export function clampFileViewerDrawerHeight(
   magnetLockHeight: number | null = null,
   magnetReleaseDistance = magnetDistance,
 ): number {
-  const maxViewportHeight = Math.max(
-    drawerExpandedMinHeight,
-    Math.round(viewportHeight * drawerMaxViewportRatio),
+  const { clampedHeight, expandedMinHeight, maxHeight } = drawerHeightBounds(
+    contentHeight,
+    height,
+    viewportHeight,
+    collapsedHeight,
   );
-  const maxHeight = Math.min(maxViewportHeight, Math.max(collapsedHeight, contentHeight));
-  const expandedMinHeight = Math.min(drawerExpandedMinHeight, maxHeight);
-  const clampedHeight = Math.min(maxHeight, Math.max(collapsedHeight, height));
 
   if (clampedHeight === collapsedHeight) {
     return collapsedHeight;
   }
 
-  const snapPoints = [
-    collapsedHeight,
-    ...snapHeights.filter((snapHeight) => snapHeight > collapsedHeight && snapHeight < maxHeight),
-    maxHeight,
-  ].sort((left, right) => left - right);
+  const snapPoints = drawerSnapPoints(collapsedHeight, maxHeight, snapHeights);
 
   if (allowPartial) {
-    if (magnetDistance <= 0) {
-      return clampedHeight;
-    }
-
-    if (
-      magnetLockHeight !== null &&
-      snapPoints.includes(magnetLockHeight) &&
-      Math.abs(magnetLockHeight - clampedHeight) <= magnetReleaseDistance
-    ) {
-      return magnetLockHeight;
-    }
-
-    const nearestSnapPoint = snapPoints.reduce((nearest, snapHeight) =>
-      Math.abs(snapHeight - clampedHeight) < Math.abs(nearest - clampedHeight)
-        ? snapHeight
-        : nearest,
+    return partialDrawerHeight(
+      clampedHeight,
+      snapPoints,
+      magnetDistance,
+      magnetLockHeight,
+      magnetReleaseDistance,
     );
-
-    return Math.abs(nearestSnapPoint - clampedHeight) <= magnetDistance
-      ? nearestSnapPoint
-      : clampedHeight;
   }
 
   if (snapHeights.length > 0) {
-    return snapPoints.reduce((nearest, snapHeight) =>
-      Math.abs(snapHeight - clampedHeight) < Math.abs(nearest - clampedHeight)
-        ? snapHeight
-        : nearest,
-    );
+    return nearestDrawerHeight(snapPoints, clampedHeight);
   }
 
   return clampedHeight < expandedMinHeight ? collapsedHeight : clampedHeight;

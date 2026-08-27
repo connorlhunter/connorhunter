@@ -1,7 +1,0 @@
-node_modules
-dist
-.output
-coverage
-routeTree.gen.ts
-bun.lock
-public/pdf.worker.mjs

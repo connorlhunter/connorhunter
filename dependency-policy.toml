@@ -10,5 +10,9 @@ reason = "Fixes high-severity YAML merge-key denial-of-service advisory in the T
 version = "3.3.18"
 reason = "Fixes a high-severity infinite-loop advisory in the Vite PostCSS dependency chain."
 
+[pins.vite]
+version = "npm:@voidzero-dev/vite-plus-core@0.2.9"
+reason = "Keeps Vite+ as the shared Vite implementation for application plugins and peer resolution."
+
 [releaseAgeExcludes.nanoid]
 reason = "Allows the patched infinite-loop fix before the normal release-age gate; remove this after it ages past one week."
