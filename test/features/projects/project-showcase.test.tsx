@@ -48,14 +48,15 @@ describe("ProjectShowcase", () => {
     expect(screen.getAllByText("Docs")).toHaveLength(2);
     expect(screen.getAllByText("Coverage")).toHaveLength(2);
     expect(screen.getAllByText("Diagrams")).toHaveLength(2);
+    expect(screen.getAllByText("Changelog")).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: "Docs" })[0]?.getAttribute("href")).toBe(
-      "/projects/desktop-tool?viewer=docs#project-viewer",
+      "/projects/desktop-tool/docs",
     );
     expect(screen.getAllByRole("link", { name: "Diagrams" })[0]?.getAttribute("href")).toBe(
-      "/projects/desktop-tool?viewer=diagrams#project-viewer",
+      "/projects/desktop-tool/diagrams",
     );
     expect(screen.getAllByRole("link", { name: "Coverage" })[0]?.getAttribute("href")).toBe(
-      "/projects/desktop-tool?viewer=coverage#project-viewer",
+      "/projects/desktop-tool/coverage",
     );
     expect(screen.getByText("Open")).toBeTruthy();
     expect(screen.queryByText("Details")).toBeNull();
@@ -177,7 +178,7 @@ describe("ProjectShowcase", () => {
     render(<ArtifactActions artifacts={[projectWithDownloads.artifacts[0]!]} />);
 
     expect(screen.getByRole("link", { name: "Docs" }).getAttribute("href")).toContain(
-      "docs/example/index.html",
+      "docs/example/index.json",
     );
     expect(screen.getByRole("link", { name: "Docs" }).getAttribute("target")).toBe("_blank");
   });

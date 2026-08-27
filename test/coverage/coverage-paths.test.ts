@@ -17,9 +17,9 @@ describe("coverage paths", () => {
 
     expect(coveragePaths(tempDir)).toEqual({
       directory: join(tempDir, "coverage"),
-      html: join(tempDir, "coverage", "index.html"),
+      json: join(tempDir, "coverage", "index.json"),
       lcov: join(tempDir, "coverage", "lcov.info"),
-      pdf: join(tempDir, "coverage", "index.pdf"),
+      pdf: join(tempDir, "coverage", "coverage.pdf"),
     });
   });
 });

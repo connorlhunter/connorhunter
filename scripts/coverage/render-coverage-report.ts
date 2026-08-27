@@ -1,34 +1,40 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { coveragePaths } from "./coverage-paths";
 
-interface CoverageMetric {
-  covered: number;
-  found: number;
+export interface CoverageMetric {
+  readonly covered: number;
+  readonly found: number;
 }
 
-interface CoverageFile {
-  branches: CoverageMetric;
-  functions: CoverageMetric;
-  lines: CoverageMetric;
-  path: string;
+export interface CoverageFile {
+  readonly branches: CoverageMetric;
+  readonly functions: CoverageMetric;
+  readonly lines: CoverageMetric;
+  readonly path: string;
 }
 
-/**
- * @returns An empty coverage metric.
- */
+export interface CoverageArtifact {
+  readonly minimumCoverage: number;
+  readonly schemaVersion: 2;
+  readonly surfaces: ReadonlyArray<{
+    readonly files: ReadonlyArray<CoverageFile>;
+    readonly id: string;
+    readonly label: string;
+    readonly totals: CoverageFile;
+  }>;
+  readonly updatedAt: string;
+}
+
 function emptyMetric(): CoverageMetric {
   return { covered: 0, found: 0 };
 }
 
-/**
- * @param lcov - Raw LCOV report.
- * @returns Per-file coverage records.
- */
-export function parseLcov(lcov: string): Array<CoverageFile> {
-  const files: Array<CoverageFile> = [];
-  let current: CoverageFile | null = null;
+/** Parses LCOV into typed per-file metrics. */
+export function parseLcov(lcov: string): CoverageFile[] {
+  const files: CoverageFile[] = [];
+  let current: CoverageFile | undefined;
 
-  for (const line of lcov.split("\n")) {
+  for (const line of lcov.split(/\r?\n/u)) {
     if (line.startsWith("SF:")) {
       current = {
         branches: emptyMetric(),
@@ -36,576 +42,81 @@ export function parseLcov(lcov: string): Array<CoverageFile> {
         lines: emptyMetric(),
         path: line.slice(3),
       };
+      continue;
+    }
+    if (!current) continue;
+    if (line.startsWith("LF:")) current = { ...current, lines: { ...current.lines, found: value(line) } };
+    if (line.startsWith("LH:")) current = { ...current, lines: { ...current.lines, covered: value(line) } };
+    if (line.startsWith("FNF:")) current = { ...current, functions: { ...current.functions, found: value(line) } };
+    if (line.startsWith("FNH:")) current = { ...current, functions: { ...current.functions, covered: value(line) } };
+    if (line.startsWith("BRF:")) current = { ...current, branches: { ...current.branches, found: value(line) } };
+    if (line.startsWith("BRH:")) current = { ...current, branches: { ...current.branches, covered: value(line) } };
+    if (line === "end_of_record") {
       files.push(current);
-      continue;
+      current = undefined;
     }
-
-    if (!current) {
-      continue;
-    }
-
-    applyMetricLine(current, line);
   }
 
   return files;
 }
 
-/**
- * @param file - Current coverage file record.
- * @param line - One LCOV line.
- */
-function applyMetricLine(file: CoverageFile, line: string): void {
-  if (line.startsWith("LF:")) {
-    file.lines.found = Number(line.slice(3));
-  } else if (line.startsWith("LH:")) {
-    file.lines.covered = Number(line.slice(3));
-  } else if (line.startsWith("FNF:")) {
-    file.functions.found = Number(line.slice(4));
-  } else if (line.startsWith("FNH:")) {
-    file.functions.covered = Number(line.slice(4));
-  } else if (line.startsWith("BRF:")) {
-    file.branches.found = Number(line.slice(4));
-  } else if (line.startsWith("BRH:")) {
-    file.branches.covered = Number(line.slice(4));
-  }
+function value(line: string): number {
+  return Number(line.split(":")[1] ?? 0);
 }
 
-/**
- * @param metric - Coverage metric.
- * @returns Coverage percentage.
- */
-function percent(metric: CoverageMetric): number {
-  return metric.found === 0 ? 100 : (metric.covered / metric.found) * 100;
+function add(left: CoverageMetric, right: CoverageMetric): CoverageMetric {
+  return { covered: left.covered + right.covered, found: left.found + right.found };
 }
 
-/**
- * @param metric - Coverage metric.
- * @returns Display-ready percentage.
- */
-function percentLabel(metric: CoverageMetric): string {
-  return `${percent(metric).toFixed(2)}%`;
-}
-
-/**
- * @param left - Existing aggregate metric.
- * @param right - Metric to add.
- * @returns Combined metric.
- */
-function addMetric(left: CoverageMetric, right: CoverageMetric): CoverageMetric {
-  return {
-    covered: left.covered + right.covered,
-    found: left.found + right.found,
-  };
-}
-
-/**
- * @param files - Per-file coverage records.
- * @returns Aggregate coverage totals.
- */
-function totals(files: ReadonlyArray<CoverageFile>): CoverageFile {
+/** Aggregates records for the summary tiles. */
+export function coverageTotals(files: ReadonlyArray<CoverageFile>): CoverageFile {
   return files.reduce<CoverageFile>(
     (total, file) => ({
-      branches: addMetric(total.branches, file.branches),
-      functions: addMetric(total.functions, file.functions),
-      lines: addMetric(total.lines, file.lines),
-      path: "Total",
+      branches: add(total.branches, file.branches),
+      functions: add(total.functions, file.functions),
+      lines: add(total.lines, file.lines),
+      path: "All files",
     }),
-    {
-      branches: emptyMetric(),
-      functions: emptyMetric(),
-      lines: emptyMetric(),
-      path: "Total",
-    },
+    { branches: emptyMetric(), functions: emptyMetric(), lines: emptyMetric(), path: "All files" },
   );
 }
 
-/**
- * @param value - Text to escape for HTML output.
- * @returns HTML-safe text.
- */
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/gu, "&amp;")
-    .replace(/</gu, "&lt;")
-    .replace(/>/gu, "&gt;")
-    .replace(/"/gu, "&quot;");
-}
-
-/**
- * @param value - ISO publication timestamp.
- * @returns Canonical UTC timestamp.
- */
+/** Normalizes an accepted publication time to UTC. */
 export function coverageUpdatedAt(value: string): string {
   const timestamp = new Date(value);
-
-  if (Number.isNaN(timestamp.getTime())) {
-    throw new Error(`Invalid coverage publication date: ${value}`);
-  }
-
+  if (Number.isNaN(timestamp.getTime())) throw new Error(`Invalid coverage publication date: ${value}`);
   return timestamp.toISOString();
 }
 
-/**
- * @param value - ISO publication timestamp.
- * @returns Human-readable UTC publication date.
- */
-export function coverageUpdatedAtLabel(value: string): string {
-  const timestamp = new Date(coverageUpdatedAt(value));
-  const month = coverageMonthLabels[timestamp.getUTCMonth()];
-
-  if (month === undefined) {
-    throw new Error(`Invalid coverage publication date: ${value}`);
-  }
-
-  return `${month} ${timestamp.getUTCDate()}, ${timestamp.getUTCFullYear()}`;
+/** Builds the reader payload from one LCOV file. */
+export function coverageArtifact(files: ReadonlyArray<CoverageFile>, updatedAt: string): CoverageArtifact {
+  return {
+    minimumCoverage: 95,
+    schemaVersion: 2,
+    surfaces: [
+      {
+        files: [...files].sort((left, right) => left.path.localeCompare(right.path)),
+        id: "typescript",
+        label: "TypeScript",
+        totals: coverageTotals(files),
+      },
+    ],
+    updatedAt: coverageUpdatedAt(updatedAt),
+  };
 }
 
-const coverageMonthLabels = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-] as const;
-
-/**
- * @param metric - Coverage metric.
- * @returns HTML table cell for the metric.
- */
-function metricCell(metric: CoverageMetric): string {
-  return `<td>${percentLabel(metric)} <span>${metric.covered}/${metric.found}</span></td>`;
-}
-
-/**
- * @param file - Coverage row data.
- * @returns HTML table row.
- */
-function fileRow(file: CoverageFile): string {
-  return `<tr>
-    <th scope="row">${escapeHtml(file.path)}</th>
-    ${metricCell(file.lines)}
-    ${metricCell(file.functions)}
-    ${metricCell(file.branches)}
-  </tr>`;
-}
-
-const coverageThemeStorageKeys = ["connorhunter.theme.scheme", "portfolio.theme.scheme"] as const;
-const coverageThemeSchemes = {
-  atlas: {
-    accent: "#0f6b7a",
-    accentSoft: "#e4f3f5",
-    bg: "#f4f6f8",
-    border: "#d8dee8",
-    colorScheme: "light",
-    muted: "#667085",
-    panel: "#ffffff",
-    text: "#17202a",
-  },
-  paper: {
-    accent: "#68737a",
-    accentSoft: "#ecefed",
-    bg: "#f6f6f3",
-    border: "#dcdfdc",
-    colorScheme: "light",
-    muted: "#697176",
-    panel: "#ffffff",
-    text: "#1f2528",
-  },
-  citrine: {
-    accent: "#766f18",
-    accentSoft: "#eeebc7",
-    bg: "#f7f6ea",
-    border: "#dedbb8",
-    colorScheme: "light",
-    muted: "#70705c",
-    panel: "#fffef8",
-    text: "#20231a",
-  },
-  harbor: {
-    accent: "#35b8cd",
-    accentSoft: "#0e2f3a",
-    bg: "#111a24",
-    border: "#2a3a4c",
-    colorScheme: "dark",
-    muted: "#7d92a8",
-    panel: "#1a2636",
-    text: "#dde4ee",
-  },
-  midnight: {
-    accent: "#5fc0ee",
-    accentSoft: "#0d3040",
-    bg: "#06111a",
-    border: "#1f3547",
-    colorScheme: "dark",
-    muted: "#89a6b8",
-    panel: "#0b1a24",
-    text: "#eaf6ff",
-  },
-  onyx: {
-    accent: "#8fb4ff",
-    accentSoft: "#182234",
-    bg: "#0b0d10",
-    border: "#2a3139",
-    colorScheme: "dark",
-    muted: "#9aa4ad",
-    panel: "#14181d",
-    text: "#edf0f2",
-  },
-  rose: {
-    accent: "#9e4c58",
-    accentSoft: "#f1e6e8",
-    bg: "#fbf6f7",
-    border: "#e2d2d5",
-    colorScheme: "light",
-    muted: "#74676b",
-    panel: "#ffffff",
-    text: "#241b1e",
-  },
-  tide: {
-    accent: "#3f82a8",
-    accentSoft: "#e4f0f6",
-    bg: "#f2f8fb",
-    border: "#d2e2ea",
-    colorScheme: "light",
-    muted: "#627584",
-    panel: "#ffffff",
-    text: "#17242c",
-  },
-  ember: {
-    accent: "#df6532",
-    accentSoft: "#ffe8d8",
-    bg: "#fff7e8",
-    border: "#efd8bd",
-    colorScheme: "light",
-    muted: "#7a6658",
-    panel: "#fffdf9",
-    text: "#251a12",
-  },
-  quartz: {
-    accent: "#7c6f9f",
-    accentSoft: "#eeeaf8",
-    bg: "#f7f5fb",
-    border: "#ddd7ed",
-    colorScheme: "light",
-    muted: "#706b7a",
-    panel: "#ffffff",
-    text: "#211f29",
-  },
-} as const;
-
-function coverageThemeCss(): string {
-  const themeBlocks = Object.entries(coverageThemeSchemes)
-    .map(
-      ([scheme, tokens]) => `:root[data-scheme="${scheme}"] {
-      color-scheme: ${tokens.colorScheme};
-      --bg: ${tokens.bg};
-      --panel: ${tokens.panel};
-      --text: ${tokens.text};
-      --muted: ${tokens.muted};
-      --border: ${tokens.border};
-      --accent: ${tokens.accent};
-      --accent-soft: ${tokens.accentSoft};
-    }`,
-    )
-    .join("\n\n    ");
-
-  const atlas = coverageThemeSchemes.atlas;
-
-  return `:root {
-      color-scheme: ${atlas.colorScheme};
-      --bg: ${atlas.bg};
-      --panel: ${atlas.panel};
-      --text: ${atlas.text};
-      --muted: ${atlas.muted};
-      --border: ${atlas.border};
-      --accent: ${atlas.accent};
-      --accent-soft: ${atlas.accentSoft};
-    }
-
-    ${themeBlocks}`;
-}
-
-function coverageThemeScript(): string {
-  return `<script>
-    (() => {
-      const schemes = new Set(${JSON.stringify(Object.keys(coverageThemeSchemes))});
-      const storageKeys = ${JSON.stringify([...coverageThemeStorageKeys])};
-      const messageSuffix = ".theme.scheme";
-      const fallback = window.matchMedia?.("(prefers-color-scheme: dark)").matches
-        ? "midnight"
-        : "atlas";
-
-      function savedScheme() {
-        for (const key of storageKeys) {
-          try {
-            const value = window.localStorage.getItem(key);
-            if (schemes.has(value)) return value;
-          } catch {}
-        }
-        return null;
-      }
-
-      function applyScheme(scheme) {
-        if (!schemes.has(scheme)) return;
-        document.documentElement.dataset.scheme = scheme;
-        try {
-          window.localStorage.setItem(storageKeys[0], scheme);
-        } catch {}
-      }
-
-      applyScheme(savedScheme() || fallback);
-
-      window.addEventListener("message", (event) => {
-        const message = event.data;
-        if (!message || typeof message !== "object") return;
-        if (!schemes.has(message.scheme)) return;
-        if (typeof message.type === "string" && !message.type.endsWith(messageSuffix)) return;
-        applyScheme(message.scheme);
-      });
-    })();
-  </script>`;
-}
-
-/**
- * @param files - Per-file coverage records.
- * @param updatedAt - ISO UTC time when the report was prepared for publication.
- * @returns Standalone HTML coverage report.
- */
-export function renderCoverageHtml(
-  files: ReadonlyArray<CoverageFile>,
-  updatedAt = new Date().toISOString(),
-): string {
-  const total = totals(files);
-  const rows = [total, ...files].map(fileRow).join("\n");
-  const publicationDate = coverageUpdatedAt(updatedAt);
-
-  return `<!doctype html>
-<html data-scheme="atlas" lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Portfolio Coverage</title>
-  <style>
-    ${coverageThemeCss()}
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font: 0.9375rem/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    main {
-      width: min(100%, 72rem);
-      margin: 0 auto;
-      padding: clamp(1.25rem, 4vw, 3rem);
-    }
-
-    header {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(1.75rem, 4vw, 2.75rem);
-      line-height: 1.05;
-    }
-
-    p {
-      margin: 0.5rem 0 0;
-      color: var(--muted);
-    }
-
-    a {
-      color: var(--accent);
-      font-weight: 700;
-      text-underline-offset: 0.2em;
-    }
-
-    .report-meta {
-      display: flex;
-      flex: 0 0 auto;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 0.35rem;
-    }
-
-    .updated-at {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .table-wrap {
-      overflow: auto;
-      border: 1px solid var(--border);
-      border-radius: 0.5rem;
-      background: var(--panel);
-    }
-
-    table {
-      width: 100%;
-      min-width: 46rem;
-      border-collapse: collapse;
-    }
-
-    th,
-    td {
-      border-bottom: 1px solid var(--border);
-      padding: 0.85rem 1rem;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    thead th {
-      color: var(--muted);
-      font-size: 0.75rem;
-      letter-spacing: 0;
-      text-transform: uppercase;
-    }
-
-    tbody tr:first-child {
-      background: color-mix(in srgb, var(--accent) 10%, transparent);
-      font-weight: 800;
-    }
-
-    tbody tr:last-child th,
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-    td span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    @media print {
-      @page {
-        size: letter landscape;
-        margin: 0.45in;
-      }
-
-      :root {
-        color-scheme: light !important;
-        --accent: #0f6b7a !important;
-        --accent-soft: #e4f3f5 !important;
-        --bg: #f4f6f8 !important;
-        --border: #d8dee8 !important;
-        --muted: #667085 !important;
-        --panel: #ffffff !important;
-        --text: #17202a !important;
-      }
-
-      html,
-      body {
-        background: #ffffff;
-        color: #17202a;
-      }
-
-      main {
-        width: 100%;
-        padding: 0;
-      }
-
-      header {
-        margin-bottom: 0.75rem;
-      }
-
-      .report-meta a {
-        display: none;
-      }
-
-      .table-wrap {
-        overflow: visible;
-        border: 0;
-      }
-
-      table {
-        min-width: 0;
-      }
-
-      th,
-      td {
-        padding: 0.45rem 0.55rem;
-      }
-
-      th:first-child {
-        overflow-wrap: anywhere;
-      }
-    }
-  </style>
-  ${coverageThemeScript()}
-</head>
-<body>
-  <main>
-    <header>
-      <div>
-        <h1>Portfolio Coverage</h1>
-        <p>Required minimum: 95% lines, functions, and branches. Generated from the Bun test suite for the portfolio.</p>
-      </div>
-      <div class="report-meta">
-        <p class="updated-at">Updated <time datetime="${publicationDate}">${coverageUpdatedAtLabel(publicationDate)}</time></p>
-        <a href="lcov.info" download>LCOV</a>
-      </div>
-    </header>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">File</th>
-            <th scope="col">Lines</th>
-            <th scope="col">Functions</th>
-            <th scope="col">Branches</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
-    </div>
-  </main>
-</body>
-</html>`;
-}
-
-/**
- * @param workspaceRoot - Workspace containing the fixed coverage folder.
- * @param updatedAt - ISO UTC time when the report was prepared for publication.
- * @returns The generated HTML artifact path.
- */
+/** Writes the public coverage JSON. */
 export function renderCoverageReport(
   workspaceRoot = process.cwd(),
   updatedAt = new Date().toISOString(),
 ): string {
   const paths = coveragePaths(workspaceRoot);
-  const lcov = readFileSync(paths.lcov, "utf8");
-
+  const artifact = coverageArtifact(parseLcov(readFileSync(paths.lcov, "utf8")), updatedAt);
   mkdirSync(paths.directory, { recursive: true });
-  writeFileSync(paths.html, renderCoverageHtml(parseLcov(lcov), updatedAt));
-  console.log(`Rendered coverage artifact: ${paths.html}`);
+  writeFileSync(paths.json, `${JSON.stringify(artifact, null, 2)}\n`);
+  console.log(`Rendered coverage artifact: ${paths.json}`);
 
-  return paths.html;
+  return paths.json;
 }
 
-if (import.meta.main) {
-  renderCoverageReport();
-}
+if (import.meta.main) renderCoverageReport();

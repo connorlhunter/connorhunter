@@ -10,7 +10,7 @@ import {
 } from "react";
 import type { FeaturedWork, FeaturedWorkBadge, FeaturedWorkItem, Project } from "@/content/schema";
 import { ProjectStatusBadge } from "@/features/projects/project-status-badge";
-import { projectsPageViewerHref } from "@/features/projects/project-viewer-model";
+import { projectResourceHref } from "@/features/projects/project-resource-routes";
 import { ThemedIconImage } from "@/features/theme/theme-icon";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/cn";
@@ -147,7 +147,7 @@ function FeaturedProjectCard({ project }: { readonly project: Project }): ReactN
   return (
     <a
       className="home-project-card surface-card surface-card-hover flex min-w-0 gap-4 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
-      href={projectsPageViewerHref(project.slug)}
+      href={projectResourceHref(project.slug)}
     >
       <ThemedIconImage
         alt=""
@@ -178,7 +178,7 @@ function FeaturedProjectCard({ project }: { readonly project: Project }): ReactN
 function FeaturedImageCard({ item }: { readonly item: CarouselItem }): ReactNode {
   const configured = item.kind === "configured" ? item.item : undefined;
   const project = item.kind === "project" ? item.project : item.project;
-  const href = configured ? configured.href : projectsPageViewerHref(project?.slug ?? "");
+  const href = configured ? configured.href : projectResourceHref(project?.slug ?? "");
   const label = configured?.title ?? project?.title ?? "Project";
   const imageHref = configured?.imageHref ?? placeholderImage;
 

@@ -15,7 +15,7 @@ const featuredCarouselContent = {
             projectSlug: "cipher",
             title: "Cipher",
             summary: "A private space for the conversations that matter most.",
-            href: "/projects?project=cipher#cipher",
+            href: "/projects/cipher",
             imageHref: "https://example.com/cipher-placeholder.webp",
             badge: { icon: "clock" as const, label: "Coming soon", tone: "blue" as const },
           },
@@ -54,7 +54,7 @@ describe("HomePage", () => {
         .some((link) => link.getAttribute("href") === "/skills"),
     ).toBe(true);
     expect(screen.getByRole("link", { name: /Desktop Tool/ }).getAttribute("href")).toBe(
-      "/projects?project=desktop-tool#desktop-tool",
+      "/projects/desktop-tool",
     );
     expect(
       screen
@@ -89,7 +89,7 @@ describe("HomePage", () => {
     ).toBeTruthy();
     expect(container.querySelector(".home-featured-carousel-footer-badge")).toBeNull();
     expect(screen.getByRole("link", { name: "Cipher" }).getAttribute("href")).toBe(
-      "/projects?project=cipher#cipher",
+      "/projects/cipher",
     );
     expect(screen.getByRole("link", { name: /Cipher/ })).toBeTruthy();
   });

@@ -16,6 +16,15 @@ import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as ProjectsSlugIndexRouteImport } from './routes/projects.$slug.index'
+import { Route as ProjectsSlugChangelogRouteImport } from './routes/projects.$slug.changelog'
+import { Route as ProjectsSlugCoverageRouteImport } from './routes/projects.$slug.coverage'
+import { Route as ProjectsSlugDiagramsRouteImport } from './routes/projects.$slug.diagrams'
+import { Route as ProjectsSlugDocsRouteImport } from './routes/projects.$slug.docs'
+import { Route as ProjectsSlugDiagramsIndexRouteImport } from './routes/projects.$slug.diagrams.index'
+import { Route as ProjectsSlugDiagramsDiagramIdRouteImport } from './routes/projects.$slug.diagrams.$diagramId'
+import { Route as ProjectsSlugDocsIndexRouteImport } from './routes/projects.$slug.docs.index'
+import { Route as ProjectsSlugDocsPageIdRouteImport } from './routes/projects.$slug.docs.$pageId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +61,53 @@ const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ProjectsRoute,
 } as any)
+const ProjectsSlugIndexRoute = ProjectsSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsSlugRoute,
+} as any)
+const ProjectsSlugChangelogRoute = ProjectsSlugChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => ProjectsSlugRoute,
+} as any)
+const ProjectsSlugCoverageRoute = ProjectsSlugCoverageRouteImport.update({
+  id: '/coverage',
+  path: '/coverage',
+  getParentRoute: () => ProjectsSlugRoute,
+} as any)
+const ProjectsSlugDiagramsRoute = ProjectsSlugDiagramsRouteImport.update({
+  id: '/diagrams',
+  path: '/diagrams',
+  getParentRoute: () => ProjectsSlugRoute,
+} as any)
+const ProjectsSlugDocsRoute = ProjectsSlugDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => ProjectsSlugRoute,
+} as any)
+const ProjectsSlugDiagramsIndexRoute =
+  ProjectsSlugDiagramsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ProjectsSlugDiagramsRoute,
+  } as any)
+const ProjectsSlugDiagramsDiagramIdRoute =
+  ProjectsSlugDiagramsDiagramIdRouteImport.update({
+    id: '/$diagramId',
+    path: '/$diagramId',
+    getParentRoute: () => ProjectsSlugDiagramsRoute,
+  } as any)
+const ProjectsSlugDocsIndexRoute = ProjectsSlugDocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsSlugDocsRoute,
+} as any)
+const ProjectsSlugDocsPageIdRoute = ProjectsSlugDocsPageIdRouteImport.update({
+  id: '/$pageId',
+  path: '/$pageId',
+  getParentRoute: () => ProjectsSlugDocsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,7 +116,16 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRouteWithChildren
   '/resume': typeof ResumeRoute
   '/skills': typeof SkillsRoute
-  '/projects/$slug': typeof ProjectsSlugRoute
+  '/projects/$slug': typeof ProjectsSlugRouteWithChildren
+  '/projects/$slug/changelog': typeof ProjectsSlugChangelogRoute
+  '/projects/$slug/coverage': typeof ProjectsSlugCoverageRoute
+  '/projects/$slug/diagrams': typeof ProjectsSlugDiagramsRouteWithChildren
+  '/projects/$slug/docs': typeof ProjectsSlugDocsRouteWithChildren
+  '/projects/$slug/': typeof ProjectsSlugIndexRoute
+  '/projects/$slug/diagrams/$diagramId': typeof ProjectsSlugDiagramsDiagramIdRoute
+  '/projects/$slug/docs/$pageId': typeof ProjectsSlugDocsPageIdRoute
+  '/projects/$slug/diagrams/': typeof ProjectsSlugDiagramsIndexRoute
+  '/projects/$slug/docs/': typeof ProjectsSlugDocsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,7 +134,13 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsRouteWithChildren
   '/resume': typeof ResumeRoute
   '/skills': typeof SkillsRoute
-  '/projects/$slug': typeof ProjectsSlugRoute
+  '/projects/$slug/changelog': typeof ProjectsSlugChangelogRoute
+  '/projects/$slug/coverage': typeof ProjectsSlugCoverageRoute
+  '/projects/$slug': typeof ProjectsSlugIndexRoute
+  '/projects/$slug/diagrams/$diagramId': typeof ProjectsSlugDiagramsDiagramIdRoute
+  '/projects/$slug/docs/$pageId': typeof ProjectsSlugDocsPageIdRoute
+  '/projects/$slug/diagrams': typeof ProjectsSlugDiagramsIndexRoute
+  '/projects/$slug/docs': typeof ProjectsSlugDocsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +150,16 @@ export interface FileRoutesById {
   '/projects': typeof ProjectsRouteWithChildren
   '/resume': typeof ResumeRoute
   '/skills': typeof SkillsRoute
-  '/projects/$slug': typeof ProjectsSlugRoute
+  '/projects/$slug': typeof ProjectsSlugRouteWithChildren
+  '/projects/$slug/changelog': typeof ProjectsSlugChangelogRoute
+  '/projects/$slug/coverage': typeof ProjectsSlugCoverageRoute
+  '/projects/$slug/diagrams': typeof ProjectsSlugDiagramsRouteWithChildren
+  '/projects/$slug/docs': typeof ProjectsSlugDocsRouteWithChildren
+  '/projects/$slug/': typeof ProjectsSlugIndexRoute
+  '/projects/$slug/diagrams/$diagramId': typeof ProjectsSlugDiagramsDiagramIdRoute
+  '/projects/$slug/docs/$pageId': typeof ProjectsSlugDocsPageIdRoute
+  '/projects/$slug/diagrams/': typeof ProjectsSlugDiagramsIndexRoute
+  '/projects/$slug/docs/': typeof ProjectsSlugDocsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +171,15 @@ export interface FileRouteTypes {
     | '/resume'
     | '/skills'
     | '/projects/$slug'
+    | '/projects/$slug/changelog'
+    | '/projects/$slug/coverage'
+    | '/projects/$slug/diagrams'
+    | '/projects/$slug/docs'
+    | '/projects/$slug/'
+    | '/projects/$slug/diagrams/$diagramId'
+    | '/projects/$slug/docs/$pageId'
+    | '/projects/$slug/diagrams/'
+    | '/projects/$slug/docs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -99,7 +188,13 @@ export interface FileRouteTypes {
     | '/projects'
     | '/resume'
     | '/skills'
+    | '/projects/$slug/changelog'
+    | '/projects/$slug/coverage'
     | '/projects/$slug'
+    | '/projects/$slug/diagrams/$diagramId'
+    | '/projects/$slug/docs/$pageId'
+    | '/projects/$slug/diagrams'
+    | '/projects/$slug/docs'
   id:
     | '__root__'
     | '/'
@@ -109,6 +204,15 @@ export interface FileRouteTypes {
     | '/resume'
     | '/skills'
     | '/projects/$slug'
+    | '/projects/$slug/changelog'
+    | '/projects/$slug/coverage'
+    | '/projects/$slug/diagrams'
+    | '/projects/$slug/docs'
+    | '/projects/$slug/'
+    | '/projects/$slug/diagrams/$diagramId'
+    | '/projects/$slug/docs/$pageId'
+    | '/projects/$slug/diagrams/'
+    | '/projects/$slug/docs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,15 +275,124 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsSlugRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/projects/$slug/': {
+      id: '/projects/$slug/'
+      path: '/'
+      fullPath: '/projects/$slug/'
+      preLoaderRoute: typeof ProjectsSlugIndexRouteImport
+      parentRoute: typeof ProjectsSlugRoute
+    }
+    '/projects/$slug/changelog': {
+      id: '/projects/$slug/changelog'
+      path: '/changelog'
+      fullPath: '/projects/$slug/changelog'
+      preLoaderRoute: typeof ProjectsSlugChangelogRouteImport
+      parentRoute: typeof ProjectsSlugRoute
+    }
+    '/projects/$slug/coverage': {
+      id: '/projects/$slug/coverage'
+      path: '/coverage'
+      fullPath: '/projects/$slug/coverage'
+      preLoaderRoute: typeof ProjectsSlugCoverageRouteImport
+      parentRoute: typeof ProjectsSlugRoute
+    }
+    '/projects/$slug/diagrams': {
+      id: '/projects/$slug/diagrams'
+      path: '/diagrams'
+      fullPath: '/projects/$slug/diagrams'
+      preLoaderRoute: typeof ProjectsSlugDiagramsRouteImport
+      parentRoute: typeof ProjectsSlugRoute
+    }
+    '/projects/$slug/docs': {
+      id: '/projects/$slug/docs'
+      path: '/docs'
+      fullPath: '/projects/$slug/docs'
+      preLoaderRoute: typeof ProjectsSlugDocsRouteImport
+      parentRoute: typeof ProjectsSlugRoute
+    }
+    '/projects/$slug/diagrams/': {
+      id: '/projects/$slug/diagrams/'
+      path: '/'
+      fullPath: '/projects/$slug/diagrams/'
+      preLoaderRoute: typeof ProjectsSlugDiagramsIndexRouteImport
+      parentRoute: typeof ProjectsSlugDiagramsRoute
+    }
+    '/projects/$slug/diagrams/$diagramId': {
+      id: '/projects/$slug/diagrams/$diagramId'
+      path: '/$diagramId'
+      fullPath: '/projects/$slug/diagrams/$diagramId'
+      preLoaderRoute: typeof ProjectsSlugDiagramsDiagramIdRouteImport
+      parentRoute: typeof ProjectsSlugDiagramsRoute
+    }
+    '/projects/$slug/docs/': {
+      id: '/projects/$slug/docs/'
+      path: '/'
+      fullPath: '/projects/$slug/docs/'
+      preLoaderRoute: typeof ProjectsSlugDocsIndexRouteImport
+      parentRoute: typeof ProjectsSlugDocsRoute
+    }
+    '/projects/$slug/docs/$pageId': {
+      id: '/projects/$slug/docs/$pageId'
+      path: '/$pageId'
+      fullPath: '/projects/$slug/docs/$pageId'
+      preLoaderRoute: typeof ProjectsSlugDocsPageIdRouteImport
+      parentRoute: typeof ProjectsSlugDocsRoute
+    }
   }
 }
 
+interface ProjectsSlugDiagramsRouteChildren {
+  ProjectsSlugDiagramsDiagramIdRoute: typeof ProjectsSlugDiagramsDiagramIdRoute
+  ProjectsSlugDiagramsIndexRoute: typeof ProjectsSlugDiagramsIndexRoute
+}
+
+const ProjectsSlugDiagramsRouteChildren: ProjectsSlugDiagramsRouteChildren = {
+  ProjectsSlugDiagramsDiagramIdRoute: ProjectsSlugDiagramsDiagramIdRoute,
+  ProjectsSlugDiagramsIndexRoute: ProjectsSlugDiagramsIndexRoute,
+}
+
+const ProjectsSlugDiagramsRouteWithChildren =
+  ProjectsSlugDiagramsRoute._addFileChildren(ProjectsSlugDiagramsRouteChildren)
+
+interface ProjectsSlugDocsRouteChildren {
+  ProjectsSlugDocsPageIdRoute: typeof ProjectsSlugDocsPageIdRoute
+  ProjectsSlugDocsIndexRoute: typeof ProjectsSlugDocsIndexRoute
+}
+
+const ProjectsSlugDocsRouteChildren: ProjectsSlugDocsRouteChildren = {
+  ProjectsSlugDocsPageIdRoute: ProjectsSlugDocsPageIdRoute,
+  ProjectsSlugDocsIndexRoute: ProjectsSlugDocsIndexRoute,
+}
+
+const ProjectsSlugDocsRouteWithChildren =
+  ProjectsSlugDocsRoute._addFileChildren(ProjectsSlugDocsRouteChildren)
+
+interface ProjectsSlugRouteChildren {
+  ProjectsSlugChangelogRoute: typeof ProjectsSlugChangelogRoute
+  ProjectsSlugCoverageRoute: typeof ProjectsSlugCoverageRoute
+  ProjectsSlugDiagramsRoute: typeof ProjectsSlugDiagramsRouteWithChildren
+  ProjectsSlugDocsRoute: typeof ProjectsSlugDocsRouteWithChildren
+  ProjectsSlugIndexRoute: typeof ProjectsSlugIndexRoute
+}
+
+const ProjectsSlugRouteChildren: ProjectsSlugRouteChildren = {
+  ProjectsSlugChangelogRoute: ProjectsSlugChangelogRoute,
+  ProjectsSlugCoverageRoute: ProjectsSlugCoverageRoute,
+  ProjectsSlugDiagramsRoute: ProjectsSlugDiagramsRouteWithChildren,
+  ProjectsSlugDocsRoute: ProjectsSlugDocsRouteWithChildren,
+  ProjectsSlugIndexRoute: ProjectsSlugIndexRoute,
+}
+
+const ProjectsSlugRouteWithChildren = ProjectsSlugRoute._addFileChildren(
+  ProjectsSlugRouteChildren,
+)
+
 interface ProjectsRouteChildren {
-  ProjectsSlugRoute: typeof ProjectsSlugRoute
+  ProjectsSlugRoute: typeof ProjectsSlugRouteWithChildren
 }
 
 const ProjectsRouteChildren: ProjectsRouteChildren = {
-  ProjectsSlugRoute: ProjectsSlugRoute,
+  ProjectsSlugRoute: ProjectsSlugRouteWithChildren,
 }
 
 const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(

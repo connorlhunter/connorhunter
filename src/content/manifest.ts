@@ -1,19 +1,12 @@
 import { z } from "zod";
 import { publicConfig } from "@/config/public-env";
 import { readArtifactJson } from "./artifacts/source";
-import { featuredWorkSchema } from "./schema/featured-work";
 
 const contentManifestSchema = z.object({
   lastUpdated: z.iso.date().optional(),
-  profile: z.object({
-    experiencePath: z.string().min(1),
-    navigationPath: z.string().min(1),
-    profilePath: z.string().min(1),
-    skillsPath: z.string().min(1),
-    socialLinksPath: z.string().min(1),
-  }),
-  featuredWork: featuredWorkSchema.optional(),
   projectsManifestPath: z.string().min(1),
+  schemaVersion: z.literal(2),
+  siteContentPath: z.string().min(1),
 });
 
 /**

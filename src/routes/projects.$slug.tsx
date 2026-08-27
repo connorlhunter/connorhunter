@@ -1,66 +1,43 @@
 import type { ReactNode } from "react";
-import { createFileRoute, notFound } from "@tanstack/react-router";
-import { getPortfolioContent, getProjectBySlug } from "@/content";
-import type { PortfolioContent } from "@/content/schema";
-import type { Project } from "@/content/schema";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { ProjectDetailPage } from "@/features/projects/project-detail-page";
-import { parseProjectViewerKind } from "@/features/projects/project-viewer-model";
+import { loadProjectRouteData } from "@/features/projects/project-route-data";
+import {
+  projectResourceHref,
+  type ProjectResourceKind,
+} from "@/features/projects/project-resource-routes";
 import { buildPageHead, buildProjectHead } from "@/lib/seo";
 
-/**
- * @property content - Complete portfolio content for the shared shell.
- * @property project - Project matched by the route slug.
- */
-export interface ProjectLoaderData {
-  readonly content: PortfolioContent;
-  readonly project: Project;
-}
-
-/**
- * @param slug - Project slug from the route params.
- * @returns Loader data for the project detail route.
- */
-async function loadProject(slug: string): Promise<ProjectLoaderData> {
-  const [content, project] = await Promise.all([getPortfolioContent(), getProjectBySlug(slug)]);
-
-  if (!project) {
-    throw notFound();
-  }
-
-  return { content, project };
-}
-
-/**
- * @description Project detail route backed by dynamic project content.
- */
+/** Project resource route parent with redirects for legacy query-string viewer links. */
 export const Route = createFileRoute("/projects/$slug")({
-  loader: ({ params }) => loadProject(params.slug),
-  validateSearch: (search) => ({
-    coverage: typeof search.coverage === "string" ? search.coverage : undefined,
+  validateSearch: (search: Record<string, unknown>) => ({
     diagram: typeof search.diagram === "string" ? search.diagram : undefined,
-    viewer: parseProjectViewerKind(search.viewer),
+    viewer: typeof search.viewer === "string" ? search.viewer : undefined,
   }),
+  beforeLoad: ({ params, search }) => {
+    const value = typeof search.viewer === "string" ? search.viewer : undefined;
+    if (!value || value === "project") return;
+    const resource: ProjectResourceKind | undefined =
+      value === "docs" || value === "diagrams" || value === "coverage" ? value : undefined;
+    if (!resource) return;
+    const itemId =
+      resource === "diagrams" && typeof search.diagram === "string" ? search.diagram : undefined;
+    throw redirect({ to: projectResourceHref(params.slug, resource, itemId), replace: true });
+  },
+  loader: ({ params }) => loadProjectRouteData(params.slug),
   head: ({ loaderData, params }) =>
     loaderData
       ? buildProjectHead(loaderData.project)
       : buildPageHead("Project", `Project details for ${params.slug}.`, `/projects/${params.slug}`),
-  component: ProjectRoute,
+  component: ProjectRouteLayout,
 });
 
-/**
- * @returns The project detail page for the active slug and viewer search params.
- */
-function ProjectRoute(): ReactNode {
+function ProjectRouteLayout(): ReactNode {
   const { content, project } = Route.useLoaderData();
-  const search = Route.useSearch();
 
   return (
-    <ProjectDetailPage
-      content={content}
-      coverage={search.coverage}
-      diagram={search.diagram}
-      project={project}
-      viewer={search.viewer}
-    />
+    <ProjectDetailPage content={content} project={project}>
+      <Outlet />
+    </ProjectDetailPage>
   );
 }

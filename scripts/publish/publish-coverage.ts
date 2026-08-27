@@ -221,9 +221,9 @@ export async function publishCoverage(options: PublishCoverageOptions = {}): Pro
   const paths = coveragePaths(options.workspaceRoot);
   const source = paths.directory;
 
-  if (!existsSync(paths.html) || !existsSync(paths.pdf)) {
+  if (!existsSync(paths.json) || !existsSync(paths.pdf)) {
     throw new Error(
-      `Missing coverage report: ${paths.html} or ${paths.pdf}. Run \`bun run coverage:publish\` first.`,
+      `Missing coverage artifacts: ${paths.json} or ${paths.pdf}. Run \`bun run coverage:publish\` first.`,
     );
   }
 
@@ -259,7 +259,7 @@ export async function publishCoverage(options: PublishCoverageOptions = {}): Pro
 }
 
 /**
- * Gives the HTML and PDF one project-owned publication date before uploading them.
+ * Gives the JSON and PDF one project-owned publication date before uploading them.
  *
  * @param options - Publication and destination options.
  */

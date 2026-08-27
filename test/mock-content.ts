@@ -4,11 +4,13 @@ import { absoluteSiteUrl, artifactUrl, publicAssetUrl } from "@/config/public-en
 const baseArtifacts = [
   {
     label: "Docs" as const,
-    href: artifactUrl("docs/example/index.html"),
+    href: artifactUrl("docs/example/index.json"),
+    downloadHref: artifactUrl("docs/example/docs.pdf"),
   },
   {
     label: "Coverage" as const,
-    href: artifactUrl("projects/example/coverage/index.html"),
+    href: artifactUrl("projects/example/coverage/index.json"),
+    downloadHref: artifactUrl("projects/example/coverage/coverage.pdf"),
   },
   {
     label: "Diagrams" as const,
@@ -18,13 +20,22 @@ const baseArtifacts = [
         id: "overview",
         label: "Overview",
         href: artifactUrl("diagrams/example/example-overview.svg"),
+        lastUpdated: "2026-08-26",
+        version: "1.0.0",
       },
       {
         id: "detail",
         label: "Detail",
         href: artifactUrl("diagrams/example/example-detail.svg"),
+        lastUpdated: "2026-08-26",
+        version: "1.0.0",
       },
     ],
+  },
+  {
+    label: "Changelog" as const,
+    href: artifactUrl("projects/example/changelog/CHANGELOG.md"),
+    downloadHref: artifactUrl("projects/example/changelog/changelog.pdf"),
   },
 ];
 
@@ -70,7 +81,12 @@ export const projectWithDownloads: Project = {
     },
   ],
   artifacts: baseArtifacts,
-  markdown: "Generic project notes body.",
+  notes: [
+    {
+      type: "paragraph",
+      content: [{ type: "text", value: "Generic project notes body." }],
+    },
+  ],
 };
 
 export const projectWithoutDownloads: Project = {

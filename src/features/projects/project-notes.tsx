@@ -1,12 +1,13 @@
 import { ChevronDown } from "lucide-react";
-import { useMemo, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { TypographyEyebrow, TypographyMuted } from "@/components/ui/typography";
+import type { DocumentBlock } from "@/content/schema";
 import { cn } from "@/lib/cn";
-import { renderMarkdown } from "@/lib/markdown";
+import { DocumentBlocks } from "./document-blocks";
 
 interface ProjectNotesProps {
   readonly architecture: string;
-  readonly markdown: string;
+  readonly notes: ReadonlyArray<DocumentBlock>;
   readonly onOpenChange: (open: boolean) => void;
   readonly open: boolean;
   readonly problem: string;
@@ -15,12 +16,12 @@ interface ProjectNotesProps {
 }
 
 /**
- * @param props - Project problem, architecture, markdown notes, slug, and title.
+ * @param props - Project problem, architecture, notes, slug, and title.
  * @returns A collapsible project notes section.
  */
 export function ProjectNotes({
   architecture,
-  markdown,
+  notes,
   onOpenChange,
   open,
   problem,
@@ -28,7 +29,6 @@ export function ProjectNotes({
   title,
 }: ProjectNotesProps): ReactNode {
   const panelId = `${slug}-project-notes`;
-  const renderedNotes = useMemo(() => renderMarkdown(markdown), [markdown]);
 
   return (
     <section className="project-notes-card narrative-card p-4">
@@ -78,10 +78,9 @@ export function ProjectNotes({
             <TypographyEyebrow as="h3" className="text-(--warm)">
               Notes
             </TypographyEyebrow>
-            <div
-              className="portfolio-markdown prose-surface mt-2 text-sm leading-7 text-(--muted)"
-              dangerouslySetInnerHTML={{ __html: renderedNotes }}
-            />
+            <div className="resource-prose prose-surface mt-2 text-sm leading-7 text-(--muted)">
+              <DocumentBlocks blocks={notes} projectSlug={slug} />
+            </div>
           </div>
         </div>
       </div>
