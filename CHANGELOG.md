@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.14] - 2026-08-27
+
+### Changed
+
+- Read project docs, diagrams, coverage, and changelogs as native resources instead of embedded HTML reports.
+- Simplified project navigation and added stable page controls for documentation.
+
 ## [1.4.13] - 2026-08-26
 
 ### Changed
