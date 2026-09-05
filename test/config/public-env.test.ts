@@ -60,6 +60,23 @@ describe("public env config", () => {
     );
   });
 
+  test.each([
+    "",
+    "../private",
+    "docs/./index.json",
+    "%2e%2e/private",
+    "docs/%00file",
+    "docs/%0afile",
+    "docs/\u0000file",
+    "docs/\\file",
+    "/absolute",
+    "https://example.com/file",
+    "docs/%invalid",
+  ])("rejects unsafe artifact and asset paths: %s", (path) => {
+    expect(() => artifactUrl(path)).toThrow("Path escapes configured public root");
+    expect(() => publicAssetUrl(path)).toThrow("Path escapes configured public root");
+  });
+
   test("detects CloudFront distribution IDs used as public origins", () => {
     expect(isCloudFrontDistributionIdOrigin("https://E1CSMY761RI4LF.cloudfront.net")).toBe(true);
     expect(isCloudFrontDistributionIdOrigin("https://d111111abcdef8.cloudfront.net")).toBe(false);

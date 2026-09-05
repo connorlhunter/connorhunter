@@ -1,4 +1,3 @@
-import { coveragePaths } from "./coverage-paths";
 import { renderCoveragePdf } from "./render-coverage-pdf";
 import { coverageUpdatedAt, renderCoverageReport } from "./render-coverage-report";
 

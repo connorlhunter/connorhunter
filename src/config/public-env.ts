@@ -91,6 +91,7 @@ function joinContainedUrl(origin: string, path: string): string {
     path.length === 0 ||
     path.startsWith("/") ||
     path.includes("\\") ||
+    /[\u0000-\u001f\u007f]/u.test(decodedPath) ||
     decodedPath.includes("\\") ||
     /^[a-z][a-z\d+.-]*:/iu.test(decodedPath) ||
     decodedPath.split("/").some((segment) => segment === "." || segment === "..")
