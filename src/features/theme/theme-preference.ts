@@ -95,6 +95,14 @@ export function persistThemeScheme(scheme: ThemeScheme): void {
     // Local previews and privacy modes may block storage.
   }
 
+  persistThemeCookie(scheme);
+}
+
+/**
+ * @param scheme - Theme scheme to share with sibling subdomains.
+ * @returns Nothing; cookie failures are ignored for previews and privacy modes.
+ */
+export function persistThemeCookie(scheme: ThemeScheme): void {
   try {
     const attributes = [
       `${themeCookieName}=${encodeURIComponent(scheme.id)}`,
