@@ -58,6 +58,7 @@ export function ProjectNotes({
         aria-hidden={!open}
         className={cn("project-notes-panel", open ? "project-notes-panel--open" : undefined)}
         id={panelId}
+        inert={!open}
       >
         <div className="project-notes-panel-inner">
           <div className="grid gap-4 md:grid-cols-2">

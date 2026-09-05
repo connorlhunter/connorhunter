@@ -38,7 +38,7 @@ export const buttonVariants = cva(
  * @property asChild - Renders the button styles on the child element.
  */
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+  extends React.ComponentPropsWithRef<"button">, VariantProps<typeof buttonVariants> {
   readonly asChild?: boolean;
 }
 
@@ -46,18 +46,17 @@ export interface ButtonProps
  * @param props - Button attributes, visual variant, size, and optional child slot behavior.
  * @returns A theme-aware button or slotted interactive element.
  */
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ asChild = false, className, size, variant, ...props }, ref) => {
-    const Component = asChild ? Slot : "button";
+export function Button({
+  asChild = false,
+  className,
+  size,
+  variant,
+  ref,
+  ...props
+}: ButtonProps): React.ReactNode {
+  const Component = asChild ? Slot : "button";
 
-    return (
-      <Component
-        className={cn(buttonVariants({ className, size, variant }))}
-        ref={ref}
-        {...props}
-      />
-    );
-  },
-);
-
-Button.displayName = "Button";
+  return (
+    <Component className={cn(buttonVariants({ className, size, variant }))} ref={ref} {...props} />
+  );
+}

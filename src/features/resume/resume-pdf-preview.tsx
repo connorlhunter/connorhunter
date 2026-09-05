@@ -115,7 +115,9 @@ export function ResumePdfPreview({
 
     async function renderSelectedPage(): Promise<void> {
       const pdfDocument = await loadDocument(href);
+      if (!active) return;
       const pdfPage = await pdfDocument.getPage(page);
+      if (!active) return;
       const viewport = pdfPage.getViewport({ scale: resumePdfScale });
       const canvas = canvasRef.current;
 
