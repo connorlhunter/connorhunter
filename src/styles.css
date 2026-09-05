@@ -5,7 +5,7 @@
   --bg: #fafaf9;
   --panel: #ffffff;
   --text: #242426;
-  --muted: #68686c;
+  --muted: #5f5f63;
   --border: #e3e3e1;
   --accent: #a84320;
   --accent-strong: #873519;
@@ -358,6 +358,20 @@ footer {
   position: relative;
 }
 
+.home-project-card {
+  padding: 1rem 0.25rem;
+  transition: background-color var(--motion-fast);
+}
+
+.home-project-card + .home-project-card {
+  border-top: 1px solid var(--border);
+}
+
+.home-project-card:hover,
+.home-project-card:focus-visible {
+  background: var(--surface-interactive);
+}
+
 .not-found-panel,
 .file-viewer-shell {
   position: relative;
@@ -538,9 +552,9 @@ footer {
 }
 
 .project-status-badge--live {
-  border-color: color-mix(in srgb, #e5484d 52%, var(--border));
-  background: color-mix(in srgb, #e5484d 14%, var(--panel));
-  color: color-mix(in srgb, #e5484d 76%, var(--text));
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .project-notes-spacing {
