@@ -10,9 +10,12 @@ import {
   TypographyP,
   TypographySmall,
 } from "@/components/ui/typography";
-import type { NavigationItem, PortfolioContent } from "@/content/schema";
+import type { NavigationItem, PortfolioContent, Project } from "@/content/schema";
+import { projectResourceHref } from "@/features/projects/project-resource-routes";
+import { ProjectStatusBadge } from "@/features/projects/project-status-badge";
 import { SiteLayout } from "@/features/shell/site-layout";
-import { FeaturedWorkCarousel } from "./featured-work-carousel";
+import { ThemedIconImage } from "@/features/theme/theme-icon";
+import { cn } from "@/lib/cn";
 
 interface HomePageProps {
   readonly content: PortfolioContent;
@@ -58,10 +61,44 @@ function FeaturedLinkCard({
 }
 
 /**
+ * @param props - Featured project content.
+ * @returns A compact link to the project page.
+ */
+function FeaturedProjectCard({ project }: { readonly project: Project }): ReactNode {
+  return (
+    <a
+      className="home-project-card surface-card surface-card-hover flex min-w-0 gap-4 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
+      href={projectResourceHref(project.slug)}
+    >
+      <ThemedIconImage
+        alt=""
+        aria-hidden="true"
+        className={cn(
+          "home-project-icon project-asset-icon",
+          project.slug === "cipher" && "project-asset-icon--canonical",
+        )}
+        src={project.icon}
+      />
+      <span className="min-w-0">
+        <span className="flex flex-wrap items-center gap-2">
+          <TypographySmall className="font-bold text-(--text)">{project.title}</TypographySmall>
+          <ProjectStatusBadge project={project} />
+        </span>
+        <TypographyMuted as="span" className="mt-1 line-clamp-2 block">
+          {project.summary}
+        </TypographyMuted>
+      </span>
+    </a>
+  );
+}
+
+/**
  * @param props - Complete portfolio content.
  * @returns The homepage landing experience.
  */
 export function HomePage({ content }: HomePageProps): ReactNode {
+  const featuredProjects = content.projects.slice(0, 3);
+
   return (
     <SiteLayout content={content} contentSource="Profile and projects">
       <section className="home-hero-band page-band">
@@ -75,15 +112,16 @@ export function HomePage({ content }: HomePageProps): ReactNode {
 
           <aside
             aria-labelledby="featured-work-heading"
-            className="home-featured-panel surface-card"
+            className="home-featured-panel surface-card p-5"
           >
             <TypographyEyebrow as="h2" className="text-(--muted)" id="featured-work-heading">
               Featured Work
             </TypographyEyebrow>
-            <FeaturedWorkCarousel
-              configuration={content.featuredWork}
-              projects={content.projects}
-            />
+            <div className="home-featured-list mt-4 grid gap-3">
+              {featuredProjects.map((project) => (
+                <FeaturedProjectCard key={project.slug} project={project} />
+              ))}
+            </div>
           </aside>
         </div>
       </section>
