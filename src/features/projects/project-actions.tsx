@@ -1,3 +1,4 @@
+import { SiteLink } from "@/components/ui/site-link";
 import type { ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import type { ArtifactLink, DownloadLink, ProjectLink } from "@/content/schema";
@@ -68,14 +69,14 @@ export function ProjectLinkActions({
             size="small"
             variant={link.kind === "live" ? liveVariant : "outline"}
           >
-            <a
+            <SiteLink
               href={link.href}
               rel={external ? "noreferrer" : undefined}
               target={external ? "_blank" : undefined}
             >
               {projectLinkIcon(link.kind)}
               {link.label}
-            </a>
+            </SiteLink>
           </Button>
         );
       })}
@@ -104,14 +105,14 @@ export function ArtifactActions({
           </ComingSoonAction>
         ) : (
           <Button asChild key={artifact.label} size="small" variant="outline">
-            <a
+            <SiteLink
               href={target.href}
               rel={target.target === "_blank" ? "noreferrer" : undefined}
               target={target.target}
             >
               {artifactIcon(artifact.label)}
               {artifact.label}
-            </a>
+            </SiteLink>
           </Button>
         );
       })}
@@ -147,10 +148,10 @@ export function DownloadActions({
             size="small"
             variant="outline"
           >
-            <a href={download.href} rel="noreferrer" target="_blank">
+            <SiteLink href={download.href} rel="noreferrer" target="_blank">
               {downloadIcon(download.platform)}
               {download.label}
-            </a>
+            </SiteLink>
           </Button>
         ),
       )}

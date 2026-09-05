@@ -1,3 +1,4 @@
+import { SiteLink } from "@/components/ui/site-link";
 import { ArrowRight, BriefcaseBusiness, Code2, Layers3, Mail } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import {
@@ -40,7 +41,7 @@ function FeaturedLinkCard({
   readonly item: NavigationItem;
 }): ReactNode {
   return (
-    <a
+    <SiteLink
       className="home-link-card surface-card surface-card-hover group block p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
       href={item.href}
     >
@@ -53,7 +54,7 @@ function FeaturedLinkCard({
         View page
         <ArrowRight aria-hidden="true" className="size-4" />
       </TypographySmall>
-    </a>
+    </SiteLink>
   );
 }
 
@@ -63,7 +64,7 @@ function FeaturedLinkCard({
  */
 function FeaturedProjectCard({ project }: { readonly project: Project }): ReactNode {
   return (
-    <a
+    <SiteLink
       className="home-project-card flex min-w-0 gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-inset"
       href={projectResourceHref(project.slug)}
     >
@@ -85,7 +86,7 @@ function FeaturedProjectCard({ project }: { readonly project: Project }): ReactN
           {project.summary}
         </TypographyMuted>
       </span>
-    </a>
+    </SiteLink>
   );
 }
 

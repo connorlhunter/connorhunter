@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within, waitFor } from "@testing-library/react";
 import {
   defaultDarkThemeScheme,
   defaultLightThemeScheme,
@@ -91,6 +91,13 @@ describe("project routes", () => {
       });
       render(<RouterProvider router={router} />);
       fireEvent.click(await screen.findByRole("button", { name: "Switch to dark theme" }));
+      fireEvent.click(
+        within(screen.getByRole("navigation", { name: "Main navigation" })).getByRole("link", {
+          name: "Skills",
+        }),
+      );
+      await waitFor(() => expect(router.state.location.pathname).toBe("/skills"));
+      expect(screen.getByRole("button", { name: "Switch to light theme" })).toBeTruthy();
       for (const to of ["/skills", "/projects/desktop-tool/diagrams"] as const) {
         await act(async () => {
           await router.navigate({ to });
@@ -142,6 +149,30 @@ describe("project routes", () => {
 
     fireEvent.click(await screen.findByRole("link", { name: "Previous project: Desktop Tool" }));
     await waitFor(() => expect(router.state.location.pathname).toBe("/projects/desktop-tool/docs"));
+  });
+
+  test("retries a failed resource without leaving the page", async () => {
+    const originalFetch = globalThis.fetch;
+    let available = false;
+    globalThis.fetch = (async (_input) =>
+      available
+        ? new Response("# Changelog\n\nRecovered release notes.")
+        : new Response("Unavailable", { status: 503 })) as typeof fetch;
+    try {
+      const router = createRouter({
+        history: createMemoryHistory({ initialEntries: ["/projects/desktop-tool/changelog"] }),
+        routeTree,
+        scrollRestoration: false,
+      });
+      render(<RouterProvider router={router} />);
+      const retry = await screen.findByRole("button", { name: "Try again" });
+      available = true;
+      fireEvent.click(retry);
+      expect(await screen.findByText("Recovered release notes.")).toBeTruthy();
+      expect(router.state.location.pathname).toBe("/projects/desktop-tool/changelog");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   test("puts the changelog PDF action in the top reader rail", async () => {

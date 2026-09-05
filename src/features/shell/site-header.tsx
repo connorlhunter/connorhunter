@@ -1,3 +1,4 @@
+import { SiteLink } from "@/components/ui/site-link";
 import { Menu, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,14 +30,14 @@ function NavLinks({
   return (
     <nav aria-label={label} className={className}>
       {navigation.map((item) => (
-        <a
+        <SiteLink
           className="rounded-md px-3 py-2 text-sm font-semibold text-(--muted) transition-colors hover:bg-(--accent-soft) hover:text-(--text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
           href={item.href}
           key={item.href}
           onClick={onNavigate}
         >
           {item.label}
-        </a>
+        </SiteLink>
       ))}
     </nav>
   );
@@ -57,10 +58,10 @@ export function SiteHeader({ navigation, profile }: SiteHeaderProps): ReactNode 
     <header className="site-header sticky top-0 z-50 border-b border-(--border)">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
         {hasNavigation ? (
-          <a className={brandClassName} href="/">
+          <SiteLink className={brandClassName} href="/">
             <span className="block truncate">{profile.name}</span>
             <TypographySmall className="block text-xs">{profile.role}</TypographySmall>
-          </a>
+          </SiteLink>
         ) : (
           <span className={brandClassName}>
             <span className="block truncate">{profile.name}</span>

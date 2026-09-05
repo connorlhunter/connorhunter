@@ -1,3 +1,4 @@
+import { SiteLink } from "@/components/ui/site-link";
 import { ArrowLeft, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -36,10 +37,10 @@ export function ResumePage({ content, loadResumeDocument }: ResumePageProps): Re
         <div className="page-container">
           <nav aria-label="Resume navigation" className="mb-8">
             <Button asChild variant="outline">
-              <a href="/contact">
+              <SiteLink href="/contact">
                 <ArrowLeft aria-hidden="true" className="size-4" />
                 Contact
-              </a>
+              </SiteLink>
             </Button>
           </nav>
 
