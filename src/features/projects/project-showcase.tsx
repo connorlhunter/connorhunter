@@ -53,7 +53,7 @@ export function ProjectShowcase({
 
   return (
     <div className="space-y-8">
-      <div className="page-motion-grid grid items-start gap-5 xl:grid-cols-2">
+      <div className="grid items-start gap-5 xl:grid-cols-2">
         {projects.map((project) => {
           const notesOpen = openNotesSlug === project.slug;
 
@@ -83,7 +83,7 @@ export function ProjectsPage({ content, selectedProjectSlug }: ProjectsPageProps
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">
-            <TypographyH1 className="text-(--warm)">{page.label}</TypographyH1>
+            <TypographyH1>{page.label}</TypographyH1>
             <TypographyP className="mt-5">{page.summary}</TypographyP>
           </header>
           <div className="mt-10">

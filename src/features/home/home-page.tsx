@@ -44,17 +44,14 @@ function FeaturedLinkCard({
       className="home-link-card surface-card surface-card-hover group block p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
       href={item.href}
     >
-      <span className="home-link-icon mb-5 inline-flex size-10 items-center justify-center rounded-md bg-(--accent-soft) text-(--accent)">
+      <span className="home-link-icon mb-4 inline-flex size-8 items-center justify-center text-(--muted)">
         <Icon aria-hidden="true" className="size-5" />
       </span>
       <TypographyH4 as="h2">{item.label}</TypographyH4>
       <TypographyMuted className="mt-2">{item.summary}</TypographyMuted>
-      <TypographySmall className="mt-5 inline-flex items-center gap-2 font-bold text-(--accent)">
+      <TypographySmall className="mt-5 inline-flex items-center gap-2 font-medium text-(--muted) group-hover:text-(--accent)">
         View page
-        <ArrowRight
-          aria-hidden="true"
-          className="size-4 transition-transform group-hover:translate-x-1"
-        />
+        <ArrowRight aria-hidden="true" className="size-4" />
       </TypographySmall>
     </a>
   );
@@ -104,7 +101,7 @@ export function HomePage({ content }: HomePageProps): ReactNode {
       <section className="home-hero-band page-band">
         <div className="home-hero-layout page-container grid gap-10 lg:items-center">
           <div className="home-hero-copy">
-            <TypographyEyebrow className="text-(--warm)">{content.profile.role}</TypographyEyebrow>
+            <TypographyEyebrow className="text-(--muted)">{content.profile.role}</TypographyEyebrow>
             <TypographyH1 className="mt-4 max-w-4xl">{content.profile.name}</TypographyH1>
             <TypographyLead className="mt-6 max-w-3xl">{content.profile.intro}</TypographyLead>
             <TypographyP className="mt-5 max-w-3xl">{content.profile.positioning}</TypographyP>

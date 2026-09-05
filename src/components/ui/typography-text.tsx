@@ -97,7 +97,7 @@ export function TypographyChip({
   return (
     <span
       className={cn(
-        "type-chip rounded-md border border-(--border) bg-(--accent-soft) px-2.5 py-1 text-(--text)",
+        "type-chip rounded-md border border-(--border) bg-(--surface-subtle) px-2.5 py-1 text-(--text)",
         className,
       )}
       {...props}
