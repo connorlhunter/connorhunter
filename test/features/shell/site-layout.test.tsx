@@ -38,8 +38,7 @@ describe("SiteLayout", () => {
 
     const hideDetails = screen.getByRole("button", { name: "Hide dynamic content details" });
 
-    expect(hideDetails.textContent).toContain("Dynamic content: Published example content");
-    expect(hideDetails.textContent).toContain("One source, every page, built to scale.");
+    expect(hideDetails.textContent).toBe("Dynamic content: Published example content");
     expect(hideDetails.getAttribute("aria-expanded")).toBe("true");
 
     cleanup();

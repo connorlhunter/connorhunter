@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ProjectDiagramsPage } from "@/features/projects/project-resource-pages";
+import { ProjectDiagramsPage } from "@/features/projects/project-diagrams-page";
 import { Route as ProjectRoute } from "./projects.$slug";
 
 export const Route = createFileRoute("/projects/$slug/diagrams/$diagramId")({

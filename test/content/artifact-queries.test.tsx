@@ -115,3 +115,17 @@ test("does not fetch absent resources and preserves readable data after a refres
   expect(hook.result.current.data).toBe("# Cached");
   expect(hook.result.current.error).toBeUndefined();
 });
+
+test("isolates cached content between document providers", async () => {
+  let requests = 0;
+  globalThis.fetch = (async (_input: Parameters<typeof fetch>[0]) => {
+    requests += 1;
+    return new Response(`Document ${requests}`);
+  }) as typeof fetch;
+  const first = renderHook(() => useArtifactText("/overview.md"), { wrapper: wrapper() });
+  await waitFor(() => expect(first.result.current.data).toBe("Document 1"));
+  const second = renderHook(() => useArtifactText("/overview.md"), { wrapper: wrapper() });
+  await waitFor(() => expect(second.result.current.data).toBe("Document 2"));
+  expect(first.result.current.data).toBe("Document 1");
+  expect(requests).toBe(2);
+});
