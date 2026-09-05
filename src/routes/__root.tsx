@@ -6,7 +6,8 @@ import { fallbackShellContent } from "@/content/fallback-shell";
 import { ErrorPage } from "@/features/error/error-page";
 import { NotFoundPage } from "@/features/not-found/not-found-page";
 import { themeBootstrapScript } from "@/features/theme/theme-bootstrap-script";
-import { defaultThemeScheme, themeColorMetaName } from "@/features/theme/theme";
+import { themeColorMetaName } from "@/features/theme/theme";
+import { ThemeProvider, useTheme } from "@/features/theme/theme-provider";
 import "../styles.css";
 
 /**
@@ -98,10 +99,26 @@ function RootErrorComponent(): ReactNode {
  */
 function RootDocument({ children }: Readonly<{ children: ReactNode }>): ReactNode {
   return (
-    <html data-scheme="atlas" lang="en" suppressHydrationWarning>
+    <ThemeProvider>
+      <ThemedDocument>{children}</ThemedDocument>
+    </ThemeProvider>
+  );
+}
+
+/** Keeps browser chrome and the page bound to the same persistent theme. */
+function ThemedDocument({ children }: Readonly<{ children: ReactNode }>): ReactNode {
+  const { scheme } = useTheme();
+
+  return (
+    <html
+      data-scheme={scheme.id}
+      lang="en"
+      style={{ colorScheme: scheme.colorScheme }}
+      suppressHydrationWarning
+    >
       <head>
-        <meta content={defaultThemeScheme.themeColor} name={themeColorMetaName} />
-        <meta content="light dark" name="color-scheme" />
+        <meta content={scheme.themeColor} name={themeColorMetaName} suppressHydrationWarning />
+        <meta content={scheme.colorScheme} name="color-scheme" suppressHydrationWarning />
         {/* Intentionally inline so the theme is applied before first paint. */}
         <script
           dangerouslySetInnerHTML={{

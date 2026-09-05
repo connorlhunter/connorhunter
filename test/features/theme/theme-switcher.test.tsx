@@ -680,7 +680,7 @@ describe("ThemeSwitcher", () => {
     clearSavedThemes();
   });
 
-  test("applies queued storage changes without writing older choices back to storage", () => {
+  test("keeps the latest theme while processing stale queued storage events", () => {
     clearSavedThemes();
     render(
       <ThemeProvider>
@@ -703,14 +703,89 @@ describe("ThemeSwitcher", () => {
           window.dispatchEvent(event);
         });
 
-        expect(document.documentElement.dataset.scheme).toBe(scheme);
-        expect(cookie.cookie()).toContain(`${themeCookieName}=${scheme}`);
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
+        expect(cookie.cookie()).toContain(`${themeCookieName}=atlas`);
         expect(window.localStorage.getItem(themeStorageKey)).toBe("atlas");
       }
       expect(writeStorage).not.toHaveBeenCalled();
     } finally {
       writeStorage.mockRestore();
       cookie.restore();
+    }
+  });
+
+  test("repairs browser chrome on page restoration even when the selected theme is unchanged", () => {
+    clearSavedThemes();
+    const themeColor = document.createElement("meta");
+    themeColor.name = themeColorMetaName;
+    const colorScheme = document.createElement("meta");
+    colorScheme.name = "color-scheme";
+    document.head.append(themeColor, colorScheme);
+
+    try {
+      window.localStorage.setItem(themeStorageKey, "midnight");
+      new Function("document", "localStorage", "matchMedia", themeBootstrapScript)(
+        document,
+        window.localStorage,
+        window.matchMedia,
+      );
+      expect(themeColor.content).toBe(defaultDarkThemeScheme.themeColor);
+      expect(colorScheme.content).toBe("dark");
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+
+      document.documentElement.dataset.scheme = "atlas";
+      document.documentElement.style.colorScheme = "light";
+      themeColor.content = defaultLightThemeScheme.themeColor;
+      colorScheme.content = "light";
+      act(() => {
+        window.dispatchEvent(new window.Event("pageshow"));
+      });
+
+      expect(document.documentElement.dataset.scheme).toBe("midnight");
+      expect(document.documentElement.style.colorScheme).toBe("dark");
+      expect(themeColor.content).toBe(defaultDarkThemeScheme.themeColor);
+      expect(colorScheme.content).toBe("dark");
+      expect(screen.getByRole("button", { name: "Switch to light theme" })).toBeTruthy();
+    } finally {
+      themeColor.remove();
+      colorScheme.remove();
+    }
+  });
+
+  test("refreshes system and saved preferences when a suspended tab becomes visible", () => {
+    clearSavedThemes();
+    setPreferredDark(false);
+    const visibility = Object.getOwnPropertyDescriptor(document, "visibilityState");
+    render(
+      <ThemeProvider>
+        <ThemeSwitcher />
+      </ThemeProvider>,
+    );
+    try {
+      Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+      setPreferredDark(true);
+      act(() => {
+        document.dispatchEvent(new window.Event("visibilitychange"));
+      });
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+      Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+      act(() => {
+        document.dispatchEvent(new window.Event("visibilitychange"));
+      });
+      expect(document.documentElement.dataset.scheme).toBe("midnight");
+      window.localStorage.setItem(themeStorageKey, "atlas");
+      act(() => {
+        document.dispatchEvent(new window.Event("visibilitychange"));
+      });
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+      expect(screen.getByRole("button", { name: "Switch to dark theme" })).toBeTruthy();
+    } finally {
+      if (visibility) Object.defineProperty(document, "visibilityState", visibility);
+      else Reflect.deleteProperty(document, "visibilityState");
     }
   });
 

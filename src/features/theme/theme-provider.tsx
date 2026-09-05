@@ -79,6 +79,9 @@ function applyScheme(scheme: ThemeScheme): void {
   document
     .querySelector<HTMLMetaElement>(`meta[name="${themeColorMetaName}"]`)
     ?.setAttribute("content", scheme.themeColor);
+  document
+    .querySelector<HTMLMetaElement>('meta[name="color-scheme"]')
+    ?.setAttribute("content", scheme.colorScheme);
 }
 
 /**
@@ -130,6 +133,13 @@ function broadcastScheme(scheme: ThemeScheme): void {
  * @returns A provider that follows the OS until a preference is explicitly selected.
  */
 export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): ReactNode {
+  const parent = useContext(ThemeContext);
+
+  return parent ? children : <ThemeStateProvider>{children}</ThemeStateProvider>;
+}
+
+/** Owns one theme state for the document, including standalone shell previews. */
+function ThemeStateProvider({ children }: Readonly<{ children: ReactNode }>): ReactNode {
   const [scheme, setScheme] = useState<ThemeScheme>(defaultThemeScheme);
   const activeScheme = useRef(defaultThemeScheme);
   const hasExplicitPreference = useRef(false);
@@ -145,11 +155,11 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): 
     broadcastScheme(initialScheme);
 
     function syncScheme(next: ThemeScheme): void {
+      applyScheme(next);
       if (activeScheme.current.id === next.id) return;
 
       activeScheme.current = next;
       setScheme(next);
-      applyScheme(next);
       broadcastScheme(next);
     }
 
@@ -166,7 +176,8 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): 
 
     function onStorage(event: StorageEvent): void {
       if (event.key !== themeStorageKey) return;
-      const next = findThemeScheme(event.newValue);
+      // A resumed tab may receive old events after storage already holds a newer choice.
+      const next = savedThemeScheme();
       if (!next) return;
       hasExplicitPreference.current = true;
       // Storage events can lag newer writes; never write their values back to storage.
@@ -178,6 +189,18 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): 
       if (!hasExplicitPreference.current) syncScheme(preferredThemeScheme());
     }
 
+    function restoreScheme(): void {
+      const saved = savedThemeScheme();
+      if (saved) hasExplicitPreference.current = true;
+      syncScheme(
+        saved ?? (hasExplicitPreference.current ? activeScheme.current : preferredThemeScheme()),
+      );
+    }
+
+    function onVisibilityChange(): void {
+      if (document.visibilityState === "visible") restoreScheme();
+    }
+
     let media: MediaQueryList | undefined;
     try {
       media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -187,11 +210,15 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): 
     }
     window.addEventListener("message", onMessage);
     window.addEventListener("storage", onStorage);
+    window.addEventListener("pageshow", restoreScheme);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       media?.removeEventListener("change", onSystemChange);
       window.removeEventListener("message", onMessage);
       window.removeEventListener("storage", onStorage);
+      window.removeEventListener("pageshow", restoreScheme);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, []);
 

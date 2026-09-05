@@ -1700,8 +1700,18 @@ footer {
 .project-hero-title {
   display: flex;
   min-width: 0;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
+}
+
+.project-hero-copy {
+  min-width: 0;
+}
+
+.project-hero-heading {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
 }
 
 .project-hero-icon {
@@ -2268,20 +2278,53 @@ a.project-resource-nav-item:focus-visible {
 
 @media (max-width: 760px) {
   .project-detail-navigation {
-    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   .project-detail-navigation-actions {
-    width: 100%;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
+
+  .project-detail-navigation-actions > * {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
   }
 
   .project-hero {
     display: grid;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .project-hero-title {
+    gap: 0.75rem;
+  }
+
+  .project-hero-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .project-hero-summary {
+    font-size: 0.9375rem;
+    line-height: 1.65;
   }
 
   .project-hero-actions {
     justify-items: start;
+  }
+
+  .project-resource-nav {
+    flex-wrap: wrap;
+    overflow: visible;
+    padding: 0.5rem;
+  }
+
+  .project-resource-nav-item {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding-inline: 0.625rem;
   }
 
   .docs-reader,
