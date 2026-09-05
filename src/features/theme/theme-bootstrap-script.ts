@@ -1,6 +1,7 @@
 import {
   defaultDarkThemeScheme,
   defaultLightThemeScheme,
+  legacyThemeSchemeIds,
   themeColorMetaName,
   themeCookieName,
   themeSchemes,
@@ -26,13 +27,15 @@ export const themeBootstrapScript = `
     ),
   )};
   const themeColorMetaName = ${JSON.stringify(themeColorMetaName)};
+  const legacyThemes = ${JSON.stringify(legacyThemeSchemeIds)};
   const storageKey = ${JSON.stringify(themeStorageKey)};
   const cookieName = ${JSON.stringify(themeCookieName)};
   const lightScheme = ${JSON.stringify(defaultLightThemeScheme.id)};
   const darkScheme = ${JSON.stringify(defaultDarkThemeScheme.id)};
 
   function validTheme(value) {
-    return Object.prototype.hasOwnProperty.call(themes, value) ? value : null;
+    const id = Object.prototype.hasOwnProperty.call(legacyThemes, value) ? legacyThemes[value] : value;
+    return Object.prototype.hasOwnProperty.call(themes, id) ? id : null;
   }
 
   function storedTheme(key) {

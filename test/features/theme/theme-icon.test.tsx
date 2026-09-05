@@ -30,7 +30,7 @@ function setThemeTokens({
   document.documentElement.style.setProperty("--accent-strong", primaryStrong);
   document.documentElement.style.setProperty("--accent-contrast", contrast);
   document.documentElement.style.setProperty("--panel", panel);
-  document.documentElement.style.setProperty("--warm", secondary);
+  document.documentElement.style.setProperty("--icon-secondary", secondary);
 }
 
 function decodedIconHref(): string {
@@ -102,7 +102,7 @@ describe("theme icons", () => {
         primaryStrong: "#555555",
         secondary: "#666666",
       });
-      fireEvent.click(screen.getByRole("button", { name: "Use Paper color scheme" }));
+      fireEvent.click(screen.getByRole("button", { name: "Switch to dark theme" }));
 
       await waitFor(() => {
         expect(decodedIconHref()).toContain("#444444");

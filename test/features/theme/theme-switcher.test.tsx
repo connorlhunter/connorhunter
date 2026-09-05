@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { publicConfig } from "@/config/public-env";
 import { ThemeProvider, useTheme } from "@/features/theme/theme-provider";
@@ -9,6 +9,7 @@ import { themeBootstrapScript } from "@/features/theme/theme-bootstrap-script";
 import {
   defaultDarkThemeScheme,
   defaultLightThemeScheme,
+  findThemeScheme,
   sharedThemeRootDomain,
   themeCookieName,
   themeColorMetaName,
@@ -22,17 +23,18 @@ import {
   sharedThemeCookieDomain,
 } from "@/features/theme/theme-preference";
 
-const artifactGeneratorThemeIds = [
-  "atlas",
-  "paper",
-  "citrine",
-  "harbor",
-  "midnight",
-  "onyx",
-  "rose",
-  "tide",
-  "ember",
-  "quartz",
+const themeIds = ["atlas", "midnight"] as const;
+const migratedThemes = [
+  ["atlas", "atlas"],
+  ["paper", "atlas"],
+  ["citrine", "atlas"],
+  ["harbor", "midnight"],
+  ["midnight", "midnight"],
+  ["onyx", "midnight"],
+  ["rose", "atlas"],
+  ["tide", "atlas"],
+  ["ember", "atlas"],
+  ["quartz", "atlas"],
 ] as const;
 const artifactViewerOrigin = new URL(publicConfig.artifactsOrigin).origin;
 
@@ -111,12 +113,200 @@ function mockDocumentCookie(initialCookie = ""): {
 }
 
 describe("ThemeSwitcher", () => {
-  test("exposes every Artifact Generator theme in the same cycle order", () => {
-    expect(themeSchemes.map((scheme) => scheme.id)).toEqual([...artifactGeneratorThemeIds]);
+  afterEach(() => {
+    cleanup();
+    clearSavedThemes();
+    setPreferredDark(false);
+  });
+
+  test.each(migratedThemes)(
+    "normalizes %s to %s before and after hydration",
+    async (legacy, expected) => {
+      for (const source of ["storage", "cookie"] as const) {
+        clearSavedThemes();
+        setPreferredDark(expected === "atlas");
+        const cookie = mockDocumentCookie(
+          source === "cookie" ? `${themeCookieName}=${legacy}` : "",
+        );
+        if (source === "storage") window.localStorage.setItem(themeStorageKey, legacy);
+        try {
+          new Function("document", "localStorage", "matchMedia", themeBootstrapScript)(
+            document,
+            window.localStorage,
+            window.matchMedia,
+          );
+          expect(document.documentElement.dataset.scheme).toBe(expected);
+          render(
+            <ThemeProvider>
+              <ThemeSwitcher />
+            </ThemeProvider>,
+          );
+          await waitFor(() => expect(window.localStorage.getItem(themeStorageKey)).toBe(expected));
+          expect(document.documentElement.dataset.scheme).toBe(expected);
+          expect(cookie.cookie()).toContain(`${themeCookieName}=${expected}`);
+        } finally {
+          cleanup();
+          cookie.restore();
+        }
+      }
+    },
+  );
+
+  test.each(["unknown", "__proto__", "constructor", "", "toString"])(
+    "ignores invalid preference %s in bootstrap and provider",
+    async (invalid) => {
+      clearSavedThemes();
+      window.localStorage.setItem(themeStorageKey, invalid);
+      setPreferredDark(true);
+      expect(findThemeScheme(invalid)).toBeNull();
+      new Function("document", "localStorage", "matchMedia", themeBootstrapScript)(
+        document,
+        window.localStorage,
+        window.matchMedia,
+      );
+      expect(document.documentElement.dataset.scheme).toBe("midnight");
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+      await waitFor(() => expect(document.documentElement.dataset.scheme).toBe("midnight"));
+    },
+  );
+
+  test("prefers saved storage over a conflicting cookie and OS preference", () => {
+    clearSavedThemes();
+    window.localStorage.setItem(themeStorageKey, "citrine");
+    setPreferredDark(true);
+    const cookie = mockDocumentCookie(`${themeCookieName}=midnight`);
+    try {
+      new Function("document", "localStorage", "matchMedia", themeBootstrapScript)(
+        document,
+        window.localStorage,
+        window.matchMedia,
+      );
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+      expect(screen.getByRole("button", { name: "Switch to dark theme" })).toBeTruthy();
+      expect(window.localStorage.getItem(themeStorageKey)).toBe("atlas");
+    } finally {
+      cookie.restore();
+    }
+  });
+
+  test("follows OS changes until an explicit choice and cleans up its listener", () => {
+    clearSavedThemes();
+    let dark = false;
+    const media = new window.EventTarget() as unknown as MediaQueryList;
+    Object.defineProperty(media, "matches", { get: () => dark });
+    window.matchMedia = () => media;
+    const removeListener = spyOn(media, "removeEventListener");
+    function changeOS(matches: boolean): void {
+      dark = matches;
+      act(() => {
+        media.dispatchEvent(new window.Event("change"));
+      });
+    }
+    const { unmount } = render(
+      <ThemeProvider>
+        <ThemeSwitcher />
+      </ThemeProvider>,
+    );
+    expect(screen.getByRole("button", { name: "Switch to dark theme" })).toBeTruthy();
+    changeOS(true);
+    expect(document.documentElement.dataset.scheme).toBe("midnight");
+    expect(window.localStorage.getItem(themeStorageKey)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Switch to light theme" }));
+    changeOS(false);
+    changeOS(true);
+    expect(document.documentElement.dataset.scheme).toBe("atlas");
+    expect(window.localStorage.getItem(themeStorageKey)).toBe("atlas");
+    unmount();
+    expect(removeListener).toHaveBeenCalledWith("change", expect.any(Function));
+    removeListener.mockRestore();
+  });
+
+  test("handles blocked storage and unavailable media queries before and after hydration", () => {
+    clearSavedThemes();
+    const cookie = mockDocumentCookie();
+    const storage = Object.getOwnPropertyDescriptor(window, "localStorage");
+    const unavailable = (): never => {
+      throw new Error("Unavailable");
+    };
+    window.matchMedia = unavailable;
+    Object.defineProperty(window, "localStorage", { configurable: true, get: unavailable });
+    try {
+      new Function("document", "localStorage", "matchMedia", themeBootstrapScript)(
+        document,
+        { getItem: unavailable },
+        unavailable,
+      );
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Switch to dark theme" }));
+      expect(document.documentElement.dataset.scheme).toBe("midnight");
+    } finally {
+      cleanup();
+      if (storage) Object.defineProperty(window, "localStorage", storage);
+      cookie.restore();
+    }
+  });
+
+  test("does not rebroadcast echoes or equivalent legacy viewer messages", () => {
+    clearSavedThemes();
+    const posted: unknown[] = [];
+    const frame = artifactViewerFrame();
+    Object.defineProperty(frame, "contentWindow", {
+      configurable: true,
+      value: { postMessage: (message: unknown) => posted.push(message) },
+    });
+    document.body.append(frame);
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+      expect(posted).toHaveLength(1);
+      dispatchThemeMessage(
+        { scheme: "atlas", type: themeMessageType },
+        artifactViewerOrigin,
+        frame.contentWindow,
+      );
+      expect(window.localStorage.getItem(themeStorageKey)).toBeNull();
+      dispatchThemeMessage(
+        { scheme: "onyx", type: themeMessageType },
+        artifactViewerOrigin,
+        frame.contentWindow,
+      );
+      expect(document.documentElement.dataset.scheme).toBe("midnight");
+      expect(posted).toHaveLength(2);
+      for (const scheme of ["midnight", "harbor", "onyx"]) {
+        dispatchThemeMessage(
+          { scheme, type: themeMessageType },
+          artifactViewerOrigin,
+          frame.contentWindow,
+        );
+      }
+      expect(posted).toHaveLength(2);
+    } finally {
+      frame.remove();
+    }
+  });
+  test("exposes only light and dark themes with matching browser chrome colors", () => {
+    expect(themeSchemes.map((scheme) => scheme.id)).toEqual([...themeIds]);
 
     const styles = readFileSync(join(process.cwd(), "src", "styles.css"), "utf8");
 
-    for (const scheme of artifactGeneratorThemeIds) {
+    for (const scheme of themeIds) {
       expect(styles).toContain(`:root[data-scheme="${scheme}"]`);
 
       const theme = themeSchemes.find((candidate) => candidate.id === scheme);
@@ -146,13 +336,13 @@ describe("ThemeSwitcher", () => {
       expect(document.documentElement.style.colorScheme).toBe("dark");
       expect(themeColorMeta.content).toBe(defaultDarkThemeScheme.themeColor);
 
-      fireEvent.click(screen.getByRole("button", { name: "Use Onyx color scheme" }));
+      fireEvent.click(screen.getByRole("button", { name: "Switch to light theme" }));
 
       await waitFor(() => {
-        expect(document.documentElement.dataset.scheme).toBe("onyx");
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
       });
-      expect(document.documentElement.style.colorScheme).toBe("dark");
-      expect(themeColorMeta.content).toBe("#0b0d10");
+      expect(document.documentElement.style.colorScheme).toBe("light");
+      expect(themeColorMeta.content).toBe(defaultLightThemeScheme.themeColor);
     } finally {
       themeColorMeta.remove();
       cleanup();
@@ -186,7 +376,7 @@ describe("ThemeSwitcher", () => {
     }
   });
 
-  test("cycles document schemes and persists the selected theme", async () => {
+  test("toggles light and dark and persists the selected theme", async () => {
     const mockedCookie = mockDocumentCookie();
     clearSavedThemes();
     document.documentElement.dataset.scheme = "atlas";
@@ -202,9 +392,9 @@ describe("ThemeSwitcher", () => {
         expect(document.documentElement.dataset.scheme).toBe("atlas");
       });
 
-      const switcher = screen.getByRole("button", { name: "Use Paper color scheme" });
+      const switcher = screen.getByRole("button", { name: "Switch to dark theme" });
 
-      for (const nextScheme of artifactGeneratorThemeIds.slice(1)) {
+      for (const nextScheme of themeIds.slice(1)) {
         fireEvent.click(switcher);
 
         await waitFor(() => {
@@ -254,13 +444,13 @@ describe("ThemeSwitcher", () => {
         expect(document.documentElement.dataset.scheme).toBe("atlas");
       });
 
-      fireEvent.click(screen.getByRole("button", { name: "Use Paper color scheme" }));
+      fireEvent.click(screen.getByRole("button", { name: "Switch to dark theme" }));
 
       await waitFor(() => {
-        expect(document.documentElement.dataset.scheme).toBe("paper");
+        expect(document.documentElement.dataset.scheme).toBe("midnight");
       });
       expect(postedMessages).toContainEqual([
-        { scheme: "paper", type: themeMessageType },
+        { scheme: "midnight", type: themeMessageType },
         artifactViewerOrigin,
       ]);
     } finally {
@@ -295,10 +485,10 @@ describe("ThemeSwitcher", () => {
       );
 
       await waitFor(() => {
-        expect(document.documentElement.dataset.scheme).toBe("rose");
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
       });
       expect(postedMessages).toContainEqual([
-        { scheme: "rose", type: themeMessageType },
+        { scheme: "atlas", type: themeMessageType },
         artifactViewerOrigin,
       ]);
     } finally {
@@ -360,15 +550,15 @@ describe("ThemeSwitcher", () => {
       });
 
       dispatchThemeMessage(
-        { scheme: "rose", type: themeMessageType },
+        { scheme: "harbor", type: themeMessageType },
         artifactViewerOrigin,
         iframe.contentWindow,
       );
 
       await waitFor(() => {
-        expect(document.documentElement.dataset.scheme).toBe("rose");
+        expect(document.documentElement.dataset.scheme).toBe("midnight");
       });
-      expect(window.localStorage.getItem(themeStorageKey)).toBe("rose");
+      expect(window.localStorage.getItem(themeStorageKey)).toBe("midnight");
     } finally {
       iframe.remove();
       cleanup();
@@ -468,14 +658,14 @@ describe("ThemeSwitcher", () => {
       value: themeStorageKey,
     });
     Object.defineProperty(storageEvent, "newValue", {
-      value: "ember",
+      value: "onyx",
     });
     act(() => {
       window.dispatchEvent(storageEvent);
     });
 
     await waitFor(() => {
-      expect(document.documentElement.dataset.scheme).toBe("ember");
+      expect(document.documentElement.dataset.scheme).toBe("midnight");
     });
 
     cleanup();
@@ -543,7 +733,7 @@ describe("ThemeSwitcher", () => {
     );
 
     await waitFor(() => {
-      expect(document.documentElement.dataset.scheme).toBe("rose");
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
     });
 
     cleanup();
@@ -565,7 +755,7 @@ describe("ThemeSwitcher", () => {
       );
 
       await waitFor(() => {
-        expect(document.documentElement.dataset.scheme).toBe("tide");
+        expect(document.documentElement.dataset.scheme).toBe("atlas");
       });
     } finally {
       mockedCookie.restore();

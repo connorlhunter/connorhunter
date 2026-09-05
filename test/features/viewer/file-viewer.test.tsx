@@ -497,7 +497,7 @@ describe("FileViewer", () => {
       );
 
       await waitFor(() => {
-        expect(document.documentElement.dataset.scheme).toBe("harbor");
+        expect(document.documentElement.dataset.scheme).toBe("midnight");
       });
 
       const frame = screen.getByTitle("Example file");
@@ -513,7 +513,7 @@ describe("FileViewer", () => {
       fireEvent.load(frame);
 
       expect(postedMessages).toContainEqual([
-        { scheme: "harbor", type: themeMessageType },
+        { scheme: "midnight", type: themeMessageType },
         new URL(publicConfig.siteOrigin).origin,
       ]);
       expect(screen.queryByRole("status")).toBeNull();

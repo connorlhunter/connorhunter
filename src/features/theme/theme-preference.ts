@@ -73,9 +73,13 @@ export function savedThemeScheme(): ThemeScheme | null {
  * @returns The OS-aware initial theme when no saved scheme exists.
  */
 export function preferredThemeScheme(): ThemeScheme {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? defaultDarkThemeScheme
-    : defaultLightThemeScheme;
+  try {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? defaultDarkThemeScheme
+      : defaultLightThemeScheme;
+  } catch {
+    return defaultLightThemeScheme;
+  }
 }
 
 /**
@@ -84,7 +88,9 @@ export function preferredThemeScheme(): ThemeScheme {
  */
 export function persistThemeScheme(scheme: ThemeScheme): void {
   try {
-    window.localStorage.setItem(themeStorageKey, scheme.id);
+    if (window.localStorage.getItem(themeStorageKey) !== scheme.id) {
+      window.localStorage.setItem(themeStorageKey, scheme.id);
+    }
   } catch {
     // Local previews and privacy modes may block storage.
   }

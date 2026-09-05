@@ -1,19 +1,21 @@
 import { publicConfig } from "@/config/public-env";
 
 /**
- * @description Theme scheme identifiers shared with the Artifact Generator themes.
+ * @description Two color modes, retaining the IDs understood by existing artifact viewers.
  */
-export type ThemeSchemeId =
-  | "atlas"
-  | "paper"
-  | "citrine"
-  | "harbor"
-  | "midnight"
-  | "onyx"
-  | "rose"
-  | "tide"
-  | "ember"
-  | "quartz";
+export type ThemeSchemeId = "atlas" | "midnight";
+
+/** Old saved preferences and viewer messages resolve to their original light or dark mode. */
+export const legacyThemeSchemeIds: Readonly<Record<string, ThemeSchemeId>> = {
+  paper: "atlas",
+  citrine: "atlas",
+  harbor: "midnight",
+  onyx: "midnight",
+  rose: "atlas",
+  tide: "atlas",
+  ember: "atlas",
+  quartz: "atlas",
+};
 
 /**
  * @property colorScheme - Browser chrome and native control color mode.
@@ -34,8 +36,8 @@ export interface ThemeScheme {
 export const defaultLightThemeScheme: ThemeScheme = {
   colorScheme: "light",
   id: "atlas",
-  label: "Atlas",
-  themeColor: "#f4f6f8",
+  label: "Light",
+  themeColor: "#fafaf9",
 };
 
 /**
@@ -44,8 +46,8 @@ export const defaultLightThemeScheme: ThemeScheme = {
 export const defaultDarkThemeScheme: ThemeScheme = {
   colorScheme: "dark",
   id: "midnight",
-  label: "Midnight",
-  themeColor: "#06111a",
+  label: "Dark",
+  themeColor: "#171719",
 };
 
 /**
@@ -54,19 +56,11 @@ export const defaultDarkThemeScheme: ThemeScheme = {
 export const defaultThemeScheme = defaultLightThemeScheme;
 
 /**
- * @description Ordered theme cycle imported from the Artifact Generator theme system.
+ * @description The only selectable themes.
  */
 export const themeSchemes: ReadonlyArray<ThemeScheme> = [
   defaultLightThemeScheme,
-  { colorScheme: "light", id: "paper", label: "Paper", themeColor: "#f6f6f3" },
-  { colorScheme: "light", id: "citrine", label: "Citrine", themeColor: "#f7f6ea" },
-  { colorScheme: "dark", id: "harbor", label: "Harbor", themeColor: "#111a24" },
   defaultDarkThemeScheme,
-  { colorScheme: "dark", id: "onyx", label: "Onyx", themeColor: "#0b0d10" },
-  { colorScheme: "light", id: "rose", label: "Rose", themeColor: "#fbf6f7" },
-  { colorScheme: "light", id: "tide", label: "Tide", themeColor: "#f2f8fb" },
-  { colorScheme: "light", id: "ember", label: "Ember", themeColor: "#fff7e8" },
-  { colorScheme: "light", id: "quartz", label: "Quartz", themeColor: "#f7f5fb" },
 ];
 
 /**
@@ -101,18 +95,18 @@ export const themeCookieMaxAgeSeconds = 31_536_000;
 
 /**
  * @param value - Possible theme scheme id.
- * @returns The matching scheme, or null when the value is unknown.
+ * @returns The matching light/dark scheme, including legacy preferences, or null.
  */
 export function findThemeScheme(value: string | null): ThemeScheme | null {
-  return themeSchemes.find((scheme) => scheme.id === value) ?? null;
+  const id =
+    value && Object.hasOwn(legacyThemeSchemeIds, value) ? legacyThemeSchemeIds[value] : value;
+  return themeSchemes.find((scheme) => scheme.id === id) ?? null;
 }
 
 /**
  * @param currentScheme - Current theme scheme.
- * @returns The next scheme in the configured theme cycle.
+ * @returns The opposite color mode.
  */
-export function nextThemeScheme(currentScheme: ThemeScheme): ThemeScheme {
-  const index = themeSchemes.findIndex((scheme) => scheme.id === currentScheme.id);
-
-  return themeSchemes[(index + 1) % themeSchemes.length] ?? defaultThemeScheme;
+export function oppositeThemeScheme(currentScheme: ThemeScheme): ThemeScheme {
+  return currentScheme.colorScheme === "dark" ? defaultLightThemeScheme : defaultDarkThemeScheme;
 }
