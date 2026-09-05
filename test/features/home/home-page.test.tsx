@@ -13,7 +13,7 @@ describe("HomePage", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Example Person" })).toBeTruthy();
     expect(screen.getByText("Example positioning.")).toBeTruthy();
-    expect(screen.getByRole("heading", { level: 2, name: "Main Pages" })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: "Explore" })).toBeTruthy();
     expect(
       screen
         .getAllByRole("link", { name: /Skills/ })

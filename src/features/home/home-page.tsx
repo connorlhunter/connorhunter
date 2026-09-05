@@ -64,7 +64,7 @@ function FeaturedLinkCard({
 function FeaturedProjectCard({ project }: { readonly project: Project }): ReactNode {
   return (
     <a
-      className="home-project-card surface-card surface-card-hover flex min-w-0 gap-4 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
+      className="home-project-card flex min-w-0 gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-inset"
       href={projectResourceHref(project.slug)}
     >
       <ThemedIconImage
@@ -114,7 +114,7 @@ export function HomePage({ content }: HomePageProps): ReactNode {
             <TypographyEyebrow as="h2" className="text-(--muted)" id="featured-work-heading">
               Featured Work
             </TypographyEyebrow>
-            <div className="home-featured-list mt-4 grid gap-3">
+            <div className="home-featured-list mt-2 grid">
               {featuredProjects.map((project) => (
                 <FeaturedProjectCard key={project.slug} project={project} />
               ))}
@@ -125,12 +125,7 @@ export function HomePage({ content }: HomePageProps): ReactNode {
 
       <section className="home-explore-band page-band-compact border-y border-(--border)">
         <div className="page-container">
-          <div className="home-explore-heading mb-6">
-            <div>
-              <TypographyEyebrow className="text-(--muted)">Explore</TypographyEyebrow>
-              <TypographyH2 className="mt-2">Main Pages</TypographyH2>
-            </div>
-          </div>
+          <TypographyH2 className="mb-6">Explore</TypographyH2>
           <div className="home-link-grid grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {content.navigation.map((item, index) => {
               const Icon = navigationIcons[index % navigationIcons.length] ?? Code2;
