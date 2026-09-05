@@ -4,7 +4,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import type { PortfolioContent, Project } from "@/content/schema";
 import { SiteLayout } from "@/features/shell/site-layout";
-import { ProjectResourceShell } from "./project-resource-pages";
+import { ProjectResourceShell } from "./project-resource-shell";
 import { projectResourceFromPathname, projectResourceHref } from "./project-resource-routes";
 
 interface ProjectDetailPageProps {

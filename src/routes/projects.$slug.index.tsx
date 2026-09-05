@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ProjectOverview } from "@/features/projects/project-resource-pages";
+import { ProjectOverview } from "@/features/projects/project-overview";
 import { Route as ProjectRoute } from "./projects.$slug";
 
 /** Default overview for a project resource group. */

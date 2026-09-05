@@ -472,17 +472,6 @@ footer {
   color: var(--accent);
 }
 
-.file-viewer-project-icon {
-  display: block;
-  width: 1.25rem;
-  height: 1.25rem;
-  object-fit: contain;
-}
-
-.file-viewer-project-icon--canonical {
-  filter: none;
-}
-
 .project-asset-icon {
   display: block;
   width: 2.5rem;
@@ -568,159 +557,6 @@ footer {
 
 .project-notes-card {
   overflow: visible;
-}
-
-.project-detail-panel {
-  display: grid;
-  gap: 1rem;
-}
-
-.project-detail-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  max-height: 42rem;
-  overflow: hidden;
-  align-items: start;
-  gap: 1rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-interactive);
-  padding: clamp(1rem, 3vw, 1.25rem);
-  transition:
-    max-height var(--motion-slow),
-    opacity var(--motion-fast),
-    padding var(--motion-fast),
-    border-color var(--motion-fast);
-}
-
-.project-detail-header-main {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr);
-  gap: 1rem;
-}
-
-.project-detail-header-actions {
-  display: none;
-  width: min(14.5rem, 44vw);
-  min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-self: end;
-  justify-content: flex-start;
-  gap: 0.65rem;
-}
-
-.project-detail-header-actions .project-detail-action-group {
-  justify-items: end;
-}
-
-.project-detail-header-actions .project-detail-action-label {
-  text-align: right;
-}
-
-.project-detail-header-actions .project-detail-action-control,
-.project-detail-header-actions .project-detail-action-control > * {
-  justify-content: flex-end;
-}
-
-.project-detail-action-group {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  gap: 0.35rem;
-}
-
-.project-detail-action-group + .project-detail-action-group {
-  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
-  padding-top: 0.65rem;
-}
-
-.project-detail-action-label {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.65rem;
-  font-weight: 750;
-  letter-spacing: 0.12em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.project-detail-action-control {
-  display: flex;
-  min-width: 0;
-  justify-content: flex-start;
-}
-
-.project-detail-action-control > * {
-  justify-content: flex-start;
-}
-
-.project-detail-header-project-actions {
-  display: flex;
-  min-width: 0;
-  justify-content: flex-start;
-}
-
-.project-detail-drawer-actions {
-  display: grid;
-  gap: 1rem;
-}
-
-.project-detail-stack-section {
-  min-width: 0;
-}
-
-.project-detail-stack-chips {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.project-detail-drawer-action-row {
-  display: flex;
-  min-width: 0;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 0.65rem 1rem;
-}
-
-.project-detail-drawer-action-row .project-detail-action-group {
-  width: auto;
-  min-width: min(100%, 13.5rem);
-}
-
-.project-detail-drawer-action-row .project-detail-action-group + .project-detail-action-group {
-  border-top: 0;
-  border-left: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
-  margin-left: 0.35rem;
-  padding-top: 0;
-  padding-left: 1.1rem;
-}
-
-.project-detail-mobile-action-section {
-  min-width: 0;
-}
-
-.project-detail-mobile-action-section--separated {
-  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
-  padding-top: 0.65rem;
-}
-
-.project-detail-drawer-viewer-actions {
-  display: grid;
-  min-width: 0;
-  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
-  padding-top: 0.65rem;
-}
-
-.project-detail-view-actions {
-  display: grid;
-  gap: 0.5rem;
-  justify-content: stretch;
-}
-
-.project-detail-view-actions > * {
-  justify-content: flex-start;
 }
 
 .card-heading {
@@ -1051,15 +887,6 @@ footer {
   pointer-events: none;
 }
 
-.project-detail-header.file-viewer-drawer-anchor--collapsed {
-  visibility: hidden;
-  overflow: clip;
-  flex: 0 0 0;
-  gap: 0;
-  border-bottom-width: 0;
-  padding: 0;
-}
-
 .file-viewer-drawer--anchor-collapsed {
   border-bottom-color: transparent;
 }
@@ -1172,11 +999,6 @@ footer {
   text-wrap: pretty;
 }
 
-.narrative-grid {
-  display: grid;
-  gap: 1rem;
-}
-
 .narrative-card {
   position: relative;
   overflow: hidden;
@@ -1280,30 +1102,6 @@ footer {
   padding-top: 1rem;
 }
 
-.project-overview-notes {
-  position: relative;
-  overflow: hidden;
-}
-
-.project-overview-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.project-overview-icon {
-  display: inline-flex;
-  width: 2.5rem;
-  height: 2.5rem;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-subtle);
-  color: var(--muted);
-}
-
 .coming-soon-action {
   position: relative;
   overflow: hidden;
@@ -1392,107 +1190,8 @@ footer {
 }
 
 @media (max-width: 639px) {
-  .project-detail-panel {
-    --project-detail-mobile-scroll-gutter: clamp(0.55rem, 3.5vw, 0.875rem);
-  }
-
   .project-notes-panel--open {
     grid-template-rows: auto;
-  }
-
-  .project-detail-header {
-    gap: 0.75rem;
-    padding: 0.85rem;
-  }
-
-  .project-detail-header-main {
-    grid-template-columns: 2.35rem minmax(0, 1fr);
-    gap: 0.75rem;
-  }
-
-  .project-detail-header .project-asset-icon {
-    width: 2.25rem;
-    height: 2.25rem;
-  }
-
-  .project-detail-header .type-eyebrow {
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-  }
-
-  .project-detail-header .type-page-title {
-    margin-top: 0.55rem;
-    font-size: clamp(1.85rem, 9vw, 2.25rem);
-  }
-
-  .project-detail-header .type-body {
-    margin-top: 0.65rem;
-    font-size: 0.9rem;
-    line-height: 1.6;
-  }
-
-  .project-detail-panel .project-detail-action-control a,
-  .project-detail-panel .project-detail-action-control button,
-  .project-detail-panel .project-detail-action-control [role="link"] {
-    height: 1.875rem;
-    gap: 0.35rem;
-    padding-inline: 0.7rem;
-    font-size: 0.7rem;
-  }
-
-  .project-detail-panel .project-detail-action-control svg {
-    width: 0.9rem;
-    height: 0.9rem;
-  }
-
-  /* The mobile drawer is height-capped by its drag controller. Keep its
-   * controls reachable when a project has a long diagram list. */
-  .project-detail-navigation .file-viewer-drawer-content {
-    max-height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    touch-action: pan-y;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Viewer actions and resource views are adjacent controls on mobile. */
-  .project-detail-drawer-viewer-actions {
-    border-top: 0;
-    padding-top: 0;
-  }
-
-  .project-detail-view-actions .diagram-selector {
-    width: 100%;
-    flex-direction: column;
-    overflow: visible;
-  }
-
-  .project-detail-view-actions .diagram-selector > * {
-    width: 100%;
-    flex: 1 1 auto;
-  }
-
-  .project-detail-view-actions .diagram-selector > * > a {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .project-detail-drawer-action-row {
-    display: grid;
-    gap: 0.65rem;
-  }
-
-  .project-detail-drawer-action-row .project-detail-action-group {
-    width: 100%;
-  }
-
-  .project-detail-drawer-action-row .project-detail-action-group + .project-detail-action-group {
-    border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
-    border-left: 0;
-    margin-left: 0;
-    padding-top: 0.65rem;
-    padding-left: 0;
   }
 
   .file-viewer-toolbar {
@@ -1531,11 +1230,6 @@ footer {
     display: inline-flex;
   }
 
-  .project-detail-panel .project-detail-header,
-  .project-detail-panel .file-viewer-drawer {
-    margin-inline: var(--project-detail-mobile-scroll-gutter);
-  }
-
   .file-viewer-frame-wrap {
     height: 34rem;
     min-height: 0;
@@ -1544,25 +1238,6 @@ footer {
   .resume-pdf-preview {
     min-height: 34rem;
     padding: 0.75rem;
-  }
-
-  .project-detail-panel .file-viewer-frame-wrap:not(.file-viewer-content-wrap) {
-    width: calc(100% - (var(--project-detail-mobile-scroll-gutter) * 2));
-    height: 62rem;
-    min-height: 24rem;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    margin: 0.55rem auto 0.8rem;
-  }
-
-  .project-detail-panel .file-viewer-shell:fullscreen .file-viewer-frame-wrap,
-  .project-detail-panel .file-viewer-shell--fullscreen .file-viewer-frame-wrap {
-    width: 100%;
-    height: auto;
-    min-height: 0;
-    border: 0;
-    margin: 0;
   }
 
   .file-viewer-content-wrap {
@@ -1601,10 +1276,6 @@ footer {
     padding-inline: 2.5rem;
   }
 
-  .narrative-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .home-hero-layout {
     grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.9fr);
   }
@@ -1619,39 +1290,6 @@ footer {
 
   .project-card-layout {
     grid-template-columns: 3rem 1fr;
-  }
-
-  .project-detail-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
-  }
-
-  .project-detail-header-main {
-    grid-template-columns: 3rem 1fr;
-  }
-
-  .project-detail-header-actions {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    width: min(28rem, 42vw);
-  }
-
-  .project-detail-header-actions .project-detail-action-group {
-    justify-items: end;
-  }
-
-  .project-detail-header-actions .project-detail-action-control,
-  .project-detail-header-actions .project-detail-action-control > * {
-    justify-content: flex-end;
-  }
-
-  .project-detail-header-actions .project-detail-header-project-actions {
-    justify-content: flex-end;
-  }
-
-  .project-detail-layout {
-    grid-template-columns: minmax(0, 1fr) 22rem;
   }
 }
 
@@ -1986,7 +1624,7 @@ a.project-resource-nav-item:focus-visible {
 .docs-reader-group a,
 .docs-reader-outline a,
 .diagram-reader-sidebar a,
-.changelog-reader-sidebar a {
+.changelog-reader-navigation a {
   border-radius: 0.35rem;
   color: var(--muted);
   padding: 0.32rem 0.45rem;
@@ -2006,15 +1644,15 @@ a.project-resource-nav-item:focus-visible {
 .docs-reader-outline a:focus-visible,
 .diagram-reader-sidebar a:hover,
 .diagram-reader-sidebar a:focus-visible,
-.changelog-reader-sidebar a:hover,
-.changelog-reader-sidebar a:focus-visible {
+.changelog-reader-navigation a:hover,
+.changelog-reader-navigation a:focus-visible {
   background: var(--accent-soft);
   color: var(--text);
 }
 
 .docs-reader-group a[aria-current="page"],
 .diagram-reader-sidebar a[aria-current="page"],
-.changelog-reader-sidebar a[aria-current="page"] {
+.changelog-reader-navigation a[aria-current="page"] {
   background: var(--panel);
   color: var(--accent);
   font-weight: 750;
@@ -2128,34 +1766,9 @@ a.project-resource-nav-item:focus-visible {
 }
 
 .diagram-reader-sidebar a,
-.changelog-reader-sidebar a {
+.changelog-reader-navigation a {
   display: grid;
   gap: 0.18rem;
-}
-
-.changelog-reader-sidebar .docs-reader-download {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--accent);
-  padding: 0;
-}
-
-.changelog-reader-sidebar .docs-reader-download--top {
-  width: 100%;
-  justify-content: center;
-  margin-top: 0.85rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--panel);
-  padding: 0.58rem 0.7rem;
-}
-
-.changelog-reader-sidebar .docs-reader-download--top:hover,
-.changelog-reader-sidebar .docs-reader-download--top:focus-visible {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--text);
 }
 
 .diagram-reader-sidebar small,
@@ -2201,7 +1814,7 @@ a.project-resource-nav-item:focus-visible {
   font-weight: 700;
 }
 
-.resource-segmented-control button[aria-selected="true"] {
+.resource-segmented-control button[aria-pressed="true"] {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
   background: var(--accent-soft);
   color: var(--accent);
@@ -2236,20 +1849,6 @@ a.project-resource-nav-item:focus-visible {
 .changelog-reader-content {
   margin: clamp(1rem, 4vw, 2rem);
   padding: clamp(1.25rem, 4vw, 2.5rem);
-}
-
-.changelog-section {
-  margin-top: 2rem;
-}
-
-.changelog-section ul {
-  margin-top: 0.75rem;
-  color: var(--muted);
-  padding-left: 1.25rem;
-}
-
-.changelog-section li + li {
-  margin-top: 0.5rem;
 }
 
 .resource-loading {

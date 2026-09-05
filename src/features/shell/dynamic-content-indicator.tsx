@@ -43,11 +43,9 @@ export function DynamicContentIndicator({ description }: DynamicContentIndicator
   }, []);
 
   function toggleExpanded(): void {
-    setExpanded((current) => {
-      const next = !current;
-      writeExpandedState(next);
-      return next;
-    });
+    const next = !expanded;
+    setExpanded(next);
+    writeExpandedState(next);
   }
 
   return (
@@ -64,9 +62,6 @@ export function DynamicContentIndicator({ description }: DynamicContentIndicator
         <span className="dynamic-content-copy-inner">
           <TypographySmall className="block text-xs leading-5">
             <span className="text-(--text)">Dynamic content:</span> {description}
-            <span className="block text-[0.6875rem] font-medium text-(--muted)">
-              One source, every page, built to scale.
-            </span>
           </TypographySmall>
         </span>
       </span>
