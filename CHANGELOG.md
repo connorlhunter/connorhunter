@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.17] - 2026-09-05
+
+### Changed
+
+- Replaced the palette cycle with Light and Dark themes, a sun/moon toggle, and automatic migration of saved preferences.
+- Added restrained sunset accents, simplified card styling, and reduced decorative motion across the portfolio.
+- Refined Featured Work with row dividers and a peach Live badge, simplified the Explore heading, and improved light-mode text contrast.
+
+### Fixed
+
+- Prevent delayed cross-tab theme updates from overwriting newer saved preferences.
+
 ## [1.4.16] - 2026-09-05
 
 ### Removed
