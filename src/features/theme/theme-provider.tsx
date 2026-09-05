@@ -17,7 +17,12 @@ import {
   themeStorageKey,
   type ThemeScheme,
 } from "./theme";
-import { persistThemeScheme, preferredThemeScheme, savedThemeScheme } from "./theme-preference";
+import {
+  persistThemeCookie,
+  persistThemeScheme,
+  preferredThemeScheme,
+  savedThemeScheme,
+} from "./theme-preference";
 
 interface ThemeContextValue {
   readonly scheme: ThemeScheme;
@@ -164,7 +169,8 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>): 
       const next = findThemeScheme(event.newValue);
       if (!next) return;
       hasExplicitPreference.current = true;
-      persistThemeScheme(next);
+      // Storage events can lag newer writes; never write their values back to storage.
+      persistThemeCookie(next);
       syncScheme(next);
     }
 

@@ -652,24 +652,66 @@ describe("ThemeSwitcher", () => {
       expect(document.documentElement.dataset.scheme).toBe("atlas");
     });
 
-    const storageEvent = new window.Event("storage") as StorageEvent;
+    const cookie = mockDocumentCookie();
+    try {
+      window.localStorage.setItem(themeStorageKey, "onyx");
+      const storageEvent = new window.Event("storage") as StorageEvent;
 
-    Object.defineProperty(storageEvent, "key", {
-      value: themeStorageKey,
-    });
-    Object.defineProperty(storageEvent, "newValue", {
-      value: "onyx",
-    });
-    act(() => {
-      window.dispatchEvent(storageEvent);
-    });
+      Object.defineProperty(storageEvent, "key", {
+        value: themeStorageKey,
+      });
+      Object.defineProperty(storageEvent, "newValue", {
+        value: "onyx",
+      });
+      act(() => {
+        window.dispatchEvent(storageEvent);
+      });
 
-    await waitFor(() => {
-      expect(document.documentElement.dataset.scheme).toBe("midnight");
-    });
+      await waitFor(() => {
+        expect(document.documentElement.dataset.scheme).toBe("midnight");
+      });
+      expect(window.localStorage.getItem(themeStorageKey)).toBe("onyx");
+      expect(cookie.cookie()).toContain(`${themeCookieName}=midnight`);
+    } finally {
+      cookie.restore();
+    }
 
     cleanup();
     clearSavedThemes();
+  });
+
+  test("applies queued storage changes without writing older choices back to storage", () => {
+    clearSavedThemes();
+    render(
+      <ThemeProvider>
+        <ThemeSwitcher />
+      </ThemeProvider>,
+    );
+
+    // Another tab has already toggled dark and then light before this tab receives either event.
+    window.localStorage.setItem(themeStorageKey, "atlas");
+    const cookie = mockDocumentCookie();
+    const writeStorage = spyOn(window.localStorage, "setItem");
+    try {
+      for (const scheme of ["midnight", "atlas"]) {
+        const event = new window.Event("storage") as StorageEvent;
+        Object.defineProperties(event, {
+          key: { value: themeStorageKey },
+          newValue: { value: scheme },
+        });
+        act(() => {
+          window.dispatchEvent(event);
+        });
+
+        expect(document.documentElement.dataset.scheme).toBe(scheme);
+        expect(cookie.cookie()).toContain(`${themeCookieName}=${scheme}`);
+        expect(window.localStorage.getItem(themeStorageKey)).toBe("atlas");
+      }
+      expect(writeStorage).not.toHaveBeenCalled();
+    } finally {
+      writeStorage.mockRestore();
+      cookie.restore();
+    }
   });
 
   test("falls back to the light default when saved theme storage is unavailable", async () => {
