@@ -114,6 +114,7 @@ export function SiteHeader({ navigation, profile }: SiteHeaderProps): ReactNode 
             menuOpen ? "mobile-nav-popover--open" : undefined,
           )}
           id={mobileMenuId}
+          inert={!menuOpen}
         >
           <NavLinks
             className="mobile-nav-popover-links mx-auto flex max-w-7xl flex-col gap-1 px-5 py-3 sm:px-8"

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
   clearResumePdfDocumentCache,
   loadResumePdfDocument,
@@ -164,6 +164,54 @@ describe("ResumePdfPreview", () => {
     await deferred.promise;
 
     expect(pdf.cancelCount()).toBe(1);
+  });
+
+  test("ignores a slow page after a newer page has rendered", async () => {
+    const slow = createDeferred();
+    const pdf = createTestPdfDocument();
+    const stale = createTestPdfDocument();
+    const loadDocument: ResumePdfDocumentLoader = async () => ({
+      getPage: async (page) => {
+        if (page === 1) {
+          await slow.promise;
+          return stale.document.getPage(page);
+        }
+        return pdf.document.getPage(page);
+      },
+    });
+    const view = render(
+      <ResumePdfPreview href="/resume.pdf" loadDocument={loadDocument} page={1} title="Resume" />,
+    );
+    await act(async () => {});
+    view.rerender(
+      <ResumePdfPreview href="/resume.pdf" loadDocument={loadDocument} page={2} title="Resume" />,
+    );
+    await waitFor(() => expect(pdf.renderCount()).toBe(1));
+    await act(async () => {
+      slow.resolve();
+      await slow.promise;
+    });
+    expect(stale.renderCount()).toBe(0);
+    expect(screen.getByRole("img", { name: "Resume" }).getAttribute("data-loaded")).toBe("true");
+  });
+
+  test("does not request a page when its document finishes loading after unmount", async () => {
+    const slow = createDeferred();
+    const pdf = createTestPdfDocument();
+    const loadDocument = async () => {
+      await slow.promise;
+      return pdf.document;
+    };
+    const view = render(
+      <ResumePdfPreview href="/resume.pdf" loadDocument={loadDocument} page={1} title="Resume" />,
+    );
+    view.unmount();
+    await act(async () => {
+      slow.resolve();
+      await slow.promise;
+    });
+    expect(pdf.pageRequests).toEqual([]);
+    expect(pdf.renderCount()).toBe(0);
   });
 
   test("loads PDF.js with the static worker and caches documents by href", async () => {

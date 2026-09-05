@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   TypographyChip,
   TypographyEyebrow,
@@ -22,7 +22,7 @@ interface ProjectCardProps {
  * @param props - Project metadata, notes state, and notes toggle callback.
  * @returns A responsive project summary card.
  */
-function ProjectCardComponent({
+export function ProjectCard({
   notesOpen,
   onNotesOpenChange,
   project,
@@ -113,15 +113,3 @@ function ProjectCardComponent({
     </article>
   );
 }
-
-/**
- * @param previous - Previous project card props.
- * @param next - Next project card props.
- * @returns Whether a project card can skip rerendering when sibling notes change.
- */
-function projectCardPropsEqual(previous: ProjectCardProps, next: ProjectCardProps): boolean {
-  return previous.project === next.project && previous.notesOpen === next.notesOpen;
-}
-
-export const ProjectCard = memo(ProjectCardComponent, projectCardPropsEqual);
-ProjectCard.displayName = "ProjectCard";
