@@ -1,3 +1,4 @@
+import { SiteLink } from "@/components/ui/site-link";
 import { ArrowLeft, Compass } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,13 +23,13 @@ export function NotFoundPage({ content }: NotFoundPageProps): ReactNode {
             actions={
               <>
                 <Button asChild variant="secondary">
-                  <a href="/">
+                  <SiteLink href="/">
                     <ArrowLeft aria-hidden="true" className="size-4" />
                     Home
-                  </a>
+                  </SiteLink>
                 </Button>
                 <Button asChild variant="outline">
-                  <a href="/projects">Projects</a>
+                  <SiteLink href="/projects">Projects</SiteLink>
                 </Button>
               </>
             }

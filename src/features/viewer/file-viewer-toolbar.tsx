@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { TypographyH4, TypographySmall } from "@/components/ui/typography";
 import { downloadFile } from "@/lib/download-file";
-import { navigateInPlace } from "./file-viewer-navigation";
+import { SiteLink } from "@/components/ui/site-link";
 import type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
 
 interface FileViewerHeadingProps {
@@ -82,35 +82,17 @@ export function FileViewerActions({
   return (
     <div className="file-viewer-actions">
       {actions.map((action) => {
-        if (action.to) {
-          const internalHref = action.to;
-
-          return (
-            <Button
-              key={`${action.label}-${internalHref}`}
-              onClick={() => {
-                navigateInPlace(internalHref);
-              }}
-              size="small"
-              type="button"
-              variant="outline"
-            >
-              {action.icon}
-              {action.label}
-            </Button>
-          );
-        }
-
-        return action.href ? (
-          <Button asChild key={`${action.label}-${action.href}`} size="small" variant="outline">
-            <a
-              href={action.href}
+        const href = action.to ?? action.href;
+        return href ? (
+          <Button asChild key={`${action.label}-${href}`} size="small" variant="outline">
+            <SiteLink
+              href={href}
               rel={action.target === "_blank" ? "noreferrer" : undefined}
               target={action.target}
             >
               {action.icon}
               {action.label}
-            </a>
+            </SiteLink>
           </Button>
         ) : null;
       })}

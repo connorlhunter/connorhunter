@@ -1,3 +1,4 @@
+import { SiteLink } from "@/components/ui/site-link";
 import type { ReactNode } from "react";
 import type { DocumentBlock, DocumentInline } from "@/content/schema";
 import { projectResourceHref } from "./project-resource-routes";
@@ -96,14 +97,14 @@ function renderInline(items: ReadonlyArray<DocumentInline>, projectSlug: string)
       : item.href;
     const external = Boolean(href && /^https?:/iu.test(href));
     return href ? (
-      <a
+      <SiteLink
         href={href}
         key={key}
         rel={external ? "noreferrer" : undefined}
         target={external ? "_blank" : undefined}
       >
         {renderInline(item.children, projectSlug)}
-      </a>
+      </SiteLink>
     ) : (
       <span key={key}>{renderInline(item.children, projectSlug)}</span>
     );

@@ -14,7 +14,6 @@ import {
 } from "./hooks/use-file-viewer-fullscreen-gesture";
 import { useFullscreenViewer } from "./hooks/use-fullscreen-viewer";
 
-export { navigateInPlace } from "./file-viewer-navigation";
 export type { FileViewerAction, FileViewerDownload } from "./file-viewer-types";
 export { fileViewerFullscreenMessageType } from "./hooks/use-file-viewer-fullscreen-gesture";
 

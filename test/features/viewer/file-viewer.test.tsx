@@ -4,11 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { publicConfig } from "@/config/public-env";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { themeMessageType, themeStorageKey } from "@/features/theme/theme";
-import {
-  FileViewer,
-  fileViewerFullscreenMessageType,
-  navigateInPlace,
-} from "@/features/viewer/file-viewer";
+import { FileViewer, fileViewerFullscreenMessageType } from "@/features/viewer/file-viewer";
 
 function firePointerUp(
   target: Element,
@@ -59,51 +55,40 @@ describe("FileViewer", () => {
   });
 
   test("renders optional action variants in the default toolbar", () => {
-    const originalPushState = window.history.pushState;
-    const pushStates: Array<string | URL | null | undefined> = [];
-    window.history.pushState = ((_state, _title, url) => {
-      pushStates.push(url);
-    }) as typeof window.history.pushState;
+    render(
+      <FileViewer
+        actions={[
+          {
+            icon: <span aria-hidden="true">I</span>,
+            label: "Internal",
+            to: "/internal-viewer",
+          },
+          {
+            href: "https://example.com/external",
+            icon: <span aria-hidden="true">E</span>,
+            label: "External",
+            target: "_blank",
+          },
+          {
+            icon: <span aria-hidden="true">N</span>,
+            label: "No href",
+          },
+        ]}
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="/viewer.html"
+        title="Example file"
+      />,
+    );
 
-    try {
-      render(
-        <FileViewer
-          actions={[
-            {
-              icon: <span aria-hidden="true">I</span>,
-              label: "Internal",
-              to: "/internal-viewer",
-            },
-            {
-              href: "https://example.com/external",
-              icon: <span aria-hidden="true">E</span>,
-              label: "External",
-              target: "_blank",
-            },
-            {
-              icon: <span aria-hidden="true">N</span>,
-              label: "No href",
-            },
-          ]}
-          ariaLabel="Example viewer"
-          icon={<span aria-hidden="true">F</span>}
-          sourceHref="/viewer.html"
-          title="Example file"
-        />,
-      );
-
-      fireEvent.click(screen.getByRole("button", { name: "Internal" }));
-
-      expect(pushStates).toEqual(["/internal-viewer"]);
-      expect(screen.getByRole("link", { name: "External" }).getAttribute("target")).toBe("_blank");
-      expect(screen.queryByText("No href")).toBeNull();
-      expect(screen.getByTitle("Example file").getAttribute("src")).toBe("/viewer.html");
-      expect(screen.getByRole("status").textContent).toContain("Loading Example file");
-      expect(screen.getByTitle("Example file").getAttribute("data-loaded")).toBe("false");
-    } finally {
-      cleanup();
-      window.history.pushState = originalPushState;
-    }
+    expect(screen.getByRole("link", { name: "Internal" }).getAttribute("href")).toBe(
+      "/internal-viewer",
+    );
+    expect(screen.getByRole("link", { name: "External" }).getAttribute("target")).toBe("_blank");
+    expect(screen.queryByText("No href")).toBeNull();
+    expect(screen.getByTitle("Example file").getAttribute("src")).toBe("/viewer.html");
+    expect(screen.getByRole("status").textContent).toContain("Loading Example file");
+    expect(screen.getByTitle("Example file").getAttribute("data-loaded")).toBe("false");
   });
 
   test("does not keep the previous iframe source while changing viewers", async () => {
@@ -316,33 +301,6 @@ describe("FileViewer", () => {
     expect(fullscreenRequests).toBe(1);
 
     cleanup();
-  });
-
-  test("keeps same-route navigation mounted and falls back when history push fails", () => {
-    const originalPushState = window.history.pushState;
-    const originalHref = window.location.href;
-    const pushStates: Array<string | URL | null | undefined> = [];
-
-    try {
-      window.history.pushState = ((_state, _title, url) => {
-        pushStates.push(url);
-      }) as typeof window.history.pushState;
-
-      navigateInPlace(window.location.href);
-
-      expect(pushStates).toEqual([]);
-
-      window.history.pushState = (() => {
-        throw new Error("History unavailable.");
-      }) as typeof window.history.pushState;
-
-      expect(() => {
-        navigateInPlace("/fallback-viewer");
-      }).not.toThrow();
-    } finally {
-      window.history.pushState = originalPushState;
-      window.history.replaceState(window.history.state, "", originalHref);
-    }
   });
 
   test("downloads a viewer file through the toolbar button", async () => {

@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { createResourceQueryClient } from "@/content/artifacts/queries";
 import { createRootRoute, HeadContent, Outlet, Scripts, useRouter } from "@tanstack/react-router";
 import { publicConfig } from "@/config/public-env";
 import { clearPortfolioContentCache, getPortfolioContent } from "@/content";
@@ -98,10 +100,13 @@ function RootErrorComponent(): ReactNode {
  * @returns The full document markup used for SSR and hydration.
  */
 function RootDocument({ children }: Readonly<{ children: ReactNode }>): ReactNode {
+  const [queryClient] = useState(createResourceQueryClient);
   return (
-    <ThemeProvider>
-      <ThemedDocument>{children}</ThemedDocument>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <ThemedDocument>{children}</ThemedDocument>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

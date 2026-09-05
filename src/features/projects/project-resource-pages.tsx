@@ -7,9 +7,11 @@ import {
   LoaderCircle,
   Waypoints,
 } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { z } from "zod";
+import type { z } from "zod";
+import { docsIndexSchema, coverageArtifactSchema } from "./project-resource-schema";
+import { useArtifactJson, useArtifactText, type ArtifactState } from "@/content/artifacts/queries";
 import { Button } from "@/components/ui/button";
 import { StatusPanel } from "@/components/ui/status-panel";
 import {
@@ -26,116 +28,6 @@ import { DocumentBlocks } from "./document-blocks";
 import { parseMarkdownDocument, plainInlineText } from "./markdown-document";
 import { DownloadActions, ProjectLinkActions } from "./project-actions";
 import { projectResourceHref, type ProjectResourceKind } from "./project-resource-routes";
-
-const docsIndexSchema = z.object({
-  pages: z.array(
-    z.object({
-      id: z.string().min(1),
-      lastUpdated: z.iso.date(),
-      path: z.string().endsWith(".md"),
-      section: z.string().min(1),
-      sourcePath: z.string().endsWith(".md"),
-      title: z.string().min(1),
-      version: z.string().min(1),
-    }),
-  ),
-  schemaVersion: z.literal(2),
-  title: z.string().min(1),
-});
-
-const coverageMetricSchema = z.object({
-  covered: z.number().nonnegative(),
-  found: z.number().nonnegative(),
-});
-const coverageFileSchema = z.object({
-  branches: coverageMetricSchema.optional(),
-  functions: coverageMetricSchema,
-  lines: coverageMetricSchema,
-  path: z.string().min(1),
-});
-const coverageArtifactSchema = z.object({
-  minimumCoverage: z.union([z.number(), z.object({ functions: z.number(), lines: z.number() })]),
-  schemaVersion: z.literal(2),
-  surfaces: z.array(
-    z.object({
-      files: z.array(coverageFileSchema),
-      id: z.string().min(1),
-      label: z.string().min(1),
-      totals: coverageFileSchema,
-    }),
-  ),
-  updatedAt: z.string().min(1),
-});
-
-interface ArtifactState<T> {
-  readonly data?: T;
-  readonly error?: string;
-  readonly loading: boolean;
-}
-
-function useArtifactJson<T>(href: string | undefined, schema: z.ZodType<T>): ArtifactState<T> {
-  const [state, setState] = useState<ArtifactState<T>>({ loading: Boolean(href) });
-
-  useEffect(() => {
-    let active = true;
-    if (!href) {
-      setState({ loading: false });
-      return () => {
-        active = false;
-      };
-    }
-    setState({ loading: true });
-    void fetch(href, { headers: { Accept: "application/json" } })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Artifact request failed with ${response.status}.`);
-        return schema.parse(await response.json());
-      })
-      .then((data) => {
-        if (active) setState({ data, loading: false });
-      })
-      .catch(() => {
-        if (active)
-          setState({ error: "This resource has not been published yet.", loading: false });
-      });
-    return () => {
-      active = false;
-    };
-  }, [href, schema]);
-
-  return state;
-}
-
-function useArtifactText(href: string | undefined): ArtifactState<string> {
-  const [state, setState] = useState<ArtifactState<string>>({ loading: Boolean(href) });
-
-  useEffect(() => {
-    let active = true;
-    if (!href) {
-      setState({ loading: false });
-      return () => {
-        active = false;
-      };
-    }
-    setState({ loading: true });
-    void fetch(href, { headers: { Accept: "text/markdown" } })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Artifact request failed with ${response.status}.`);
-        return response.text();
-      })
-      .then((data) => {
-        if (active) setState({ data, loading: false });
-      })
-      .catch(() => {
-        if (active)
-          setState({ error: "This resource has not been published yet.", loading: false });
-      });
-    return () => {
-      active = false;
-    };
-  }, [href]);
-
-  return state;
-}
 
 function artifact(project: Project, label: ArtifactLink["label"]): ArtifactLink | undefined {
   return project.artifacts.find((item) => item.label === label);
@@ -169,7 +61,14 @@ function ResourceState({
     return (
       <StatusPanel
         className="resource-empty"
-        eyebrow="Not published"
+        eyebrow="Resource unavailable"
+        actions={
+          state.retry ? (
+            <Button onClick={state.retry} variant="outline">
+              Try again
+            </Button>
+          ) : undefined
+        }
         headingId={`${title.toLowerCase()}-unavailable`}
         icon={<FileText aria-hidden="true" className="size-6" />}
         message={state.error}
@@ -596,9 +495,12 @@ export function ProjectDiagramsPage({
 /** Data-led coverage page rendered by the portfolio rather than an embedded report. */
 export function ProjectCoveragePage({ project }: { readonly project: Project }): ReactNode {
   const coverage = artifact(project, "Coverage");
+  return <CoverageReader key={coverage?.href ?? project.slug} coverage={coverage} />;
+}
+
+function CoverageReader({ coverage }: { readonly coverage: ArtifactLink | undefined }): ReactNode {
   const state = useArtifactJson(coverage?.href, coverageArtifactSchema);
   const [surfaceId, setSurfaceId] = useState<string | undefined>();
-  useEffect(() => setSurfaceId(undefined), [coverage?.href]);
   const surface =
     state.data?.surfaces.find((item) => item.id === surfaceId) ?? state.data?.surfaces[0];
   return (

@@ -1,3 +1,4 @@
+import { SiteLink } from "@/components/ui/site-link";
 import { FileText, Mail } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ export function ContactPage({ content }: ContactPageProps): ReactNode {
                 </div>
               </div>
               <Button asChild className="w-full sm:w-auto" size="large" variant="secondary">
-                <a href="/resume">{content.resume.label}</a>
+                <SiteLink href="/resume">{content.resume.label}</SiteLink>
               </Button>
             </article>
 
