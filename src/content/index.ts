@@ -57,21 +57,6 @@ async function loadPortfolioContent(): Promise<PortfolioContent> {
     experience: siteContent.experience,
     education: siteContent.education,
     certifications: siteContent.certifications,
-    ...(siteContent.featuredWork
-      ? {
-          featuredWork: {
-            ...siteContent.featuredWork,
-            additionalPages: siteContent.featuredWork.additionalPages.map((page) => ({
-              ...page,
-              items: page.items.map((item) => ({
-                ...item,
-                href: resolveContentHref(item.href),
-                ...(item.imageHref ? { imageHref: resolveContentHref(item.imageHref) } : {}),
-              })),
-            })),
-          },
-        }
-      : {}),
     projects,
   });
 }

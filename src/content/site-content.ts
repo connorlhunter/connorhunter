@@ -3,7 +3,6 @@ import { readArtifactJson } from "./artifacts/source";
 import {
   certificationItemSchema,
   contactLinkSchema,
-  featuredWorkSchema,
   navigationItemSchema,
   profileSchema,
   projectSchema,
@@ -21,7 +20,6 @@ export const siteContentSchema = z.object({
   contacts: z.array(contactLinkSchema).min(1),
   education: z.array(timelineItemSchema).min(1),
   experience: z.array(timelineItemSchema).min(1),
-  featuredWork: featuredWorkSchema.optional(),
   lastUpdated: z.iso.date().optional(),
   navigation: z.array(navigationItemSchema).min(1),
   profile: profileSchema,
