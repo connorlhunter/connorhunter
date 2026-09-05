@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.18] - 2026-09-05
+
+### Fixed
+
+- Keep the page theme and browser colors aligned after navigation, tab restoration, and delayed preference updates.
+- Give mobile project summaries the full header width and wrap resource navigation without clipping.
+- Ignore obsolete PDF renders and reset coverage selection when changing projects.
+
+### Changed
+
+- Share resource requests through TanStack Query with cancellation, caching, and retry controls.
+- Use client navigation for app links while preserving normal downloads, external links, and modified clicks.
+- Separate the resource readers, share their sidebar controls, and remove retired viewer styling.
+- Simplify React browser subscriptions and refs, and enable unused-code checks.
+- Share coverage and changelog publishing helpers and reject empty or malformed LCOV reports.
+- Update the architecture, content, and release documentation.
+
 ## [1.4.17] - 2026-09-05
 
 ### Changed
