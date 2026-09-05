@@ -45,7 +45,7 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("link", { name: /example person/i })).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Main navigation" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Toggle navigation menu" })).toBeNull();
-    expect(screen.getByRole("button", { name: /color scheme/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /switch to (light|dark) theme/i })).toBeTruthy();
 
     cleanup();
   });

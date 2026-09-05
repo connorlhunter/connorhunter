@@ -21,14 +21,14 @@ function themeToken(styles: CSSStyleDeclaration, token: string, fallback: string
  */
 export function activeThemeIconPalette(): ThemeIconPalette {
   const styles = window.getComputedStyle(document.documentElement);
-  const primary = themeToken(styles, "--accent", "#0f6b7a");
+  const primary = themeToken(styles, "--accent", "#a84320");
 
   return {
     contrast: themeToken(styles, "--accent-contrast", "#ffffff"),
     panel: themeToken(styles, "--panel", "#ffffff"),
     primary,
     primaryStrong: themeToken(styles, "--accent-strong", primary),
-    secondary: themeToken(styles, "--warm", "#8a5a00"),
+    secondary: themeToken(styles, "--icon-secondary", "#cf8563"),
   };
 }
 

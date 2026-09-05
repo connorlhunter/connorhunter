@@ -1,30 +1,28 @@
-import { Palette } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./theme-provider";
 
 /**
- * @returns The header button that cycles through available theme schemes.
+ * @returns A sun/moon button for switching between light and dark.
  */
 export function ThemeSwitcher(): ReactNode {
-  const { nextScheme, cycleScheme, scheme } = useTheme();
+  const { nextScheme, toggleScheme, scheme } = useTheme();
+  const label = `Switch to ${nextScheme.colorScheme} theme`;
 
   return (
     <Button
-      aria-label={`Use ${nextScheme.label} color scheme`}
-      className="group"
-      onClick={cycleScheme}
+      aria-label={label}
+      className="theme-switcher"
+      onClick={toggleScheme}
       size="icon"
-      title={`Use ${nextScheme.label} color scheme`}
+      title={label}
       type="button"
       variant="outline"
     >
-      <Palette aria-hidden="true" className="size-4" />
-      <span
-        aria-hidden="true"
-        className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-(--accent) ring-2 ring-(--panel)"
-      />
-      <span className="sr-only">Current scheme: {scheme.label}</span>
+      <Moon aria-hidden="true" className="theme-switcher-moon" />
+      <Sun aria-hidden="true" className="theme-switcher-sun" />
+      <span className="sr-only">Current theme: {scheme.label}</span>
     </Button>
   );
 }
