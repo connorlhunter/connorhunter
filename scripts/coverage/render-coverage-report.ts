@@ -19,12 +19,16 @@ export interface CoverageArtifact {
 /** Normalizes an accepted publication time to UTC. */
 export function coverageUpdatedAt(value: string): string {
   const timestamp = new Date(value);
-  if (Number.isNaN(timestamp.getTime())) throw new Error(`Invalid coverage publication date: ${value}`);
+  if (Number.isNaN(timestamp.getTime()))
+    throw new Error(`Invalid coverage publication date: ${value}`);
   return timestamp.toISOString();
 }
 
 /** Builds the reader payload from one LCOV file. */
-export function coverageArtifact(files: ReadonlyArray<CoverageFile>, updatedAt: string): CoverageArtifact {
+export function coverageArtifact(
+  files: ReadonlyArray<CoverageFile>,
+  updatedAt: string,
+): CoverageArtifact {
   return {
     minimumCoverage: minimumCoveragePercent,
     schemaVersion: 2,

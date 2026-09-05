@@ -12,9 +12,16 @@ export interface CoverageFile {
 
 export const minimumCoveragePercent = 95;
 
-function emptyMetric(): CoverageMetric { return { covered: 0, found: 0 }; }
+function emptyMetric(): CoverageMetric {
+  return { covered: 0, found: 0 };
+}
 
-function metric(values: ReadonlyMap<string, number>, foundKey: string, hitKey: string, optional = false): CoverageMetric {
+function metric(
+  values: ReadonlyMap<string, number>,
+  foundKey: string,
+  hitKey: string,
+  optional = false,
+): CoverageMetric {
   if (optional && !values.has(foundKey) && !values.has(hitKey)) return emptyMetric();
   const found = values.get(foundKey);
   const covered = values.get(hitKey);
@@ -24,7 +31,7 @@ function metric(values: ReadonlyMap<string, number>, foundKey: string, hitKey: s
   return { covered, found };
 }
 
-/** Reads complete file records; absent branch summaries mean the file has no branches. */
+/** Reads complete file records; absent branch summaries contribute no measured branches. */
 export function parseLcov(lcov: string): CoverageFile[] {
   const files: CoverageFile[] = [];
   let path: string | undefined;
@@ -47,7 +54,13 @@ export function parseLcov(lcov: string): CoverageFile[] {
     } else if (/^(LF|LH|FNF|FNH|BRF|BRH):/u.test(line)) {
       const [key, raw] = line.split(":");
       const count = Number(raw);
-      if (!path || !raw || !/^\d+$/u.test(raw) || !Number.isSafeInteger(count) || values.has(key!)) {
+      if (
+        !path ||
+        !raw ||
+        !/^\d+$/u.test(raw) ||
+        !Number.isSafeInteger(count) ||
+        values.has(key!)
+      ) {
         throw new Error(`Invalid LCOV count: ${line}.`);
       }
       values.set(key!, count);
@@ -76,4 +89,3 @@ export function coverageTotals(files: ReadonlyArray<CoverageFile>): CoverageFile
     { branches: emptyMetric(), functions: emptyMetric(), lines: emptyMetric(), path: "All files" },
   );
 }
-

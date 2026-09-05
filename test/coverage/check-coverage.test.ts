@@ -16,8 +16,14 @@ test("requires at least 95% lines, functions, and branches", () => {
   directory = mkdtempSync(join(tmpdir(), "portfolio-coverage-"));
   const passingPath = join(directory, "passing.lcov");
   const failingPath = join(directory, "failing.lcov");
-  writeFileSync(passingPath, "SF:src/example.ts\nLF:20\nLH:19\nFNF:20\nFNH:19\nBRF:20\nBRH:19\nend_of_record\n");
-  writeFileSync(failingPath, "SF:src/example.ts\nLF:20\nLH:18\nFNF:20\nFNH:19\nBRF:20\nBRH:19\nend_of_record\n");
+  writeFileSync(
+    passingPath,
+    "SF:src/example.ts\nLF:20\nLH:19\nFNF:20\nFNH:19\nBRF:20\nBRH:19\nend_of_record\n",
+  );
+  writeFileSync(
+    failingPath,
+    "SF:src/example.ts\nLF:20\nLH:18\nFNF:20\nFNH:19\nBRF:20\nBRH:19\nend_of_record\n",
+  );
   const log = spyOn(console, "log").mockImplementation(() => undefined);
 
   expect(() => checkCoverage(passingPath)).not.toThrow();
