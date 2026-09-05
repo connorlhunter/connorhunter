@@ -38,7 +38,7 @@ export function StatusPanel({
   return (
     <section aria-labelledby={headingId} className={cn("not-found-panel", className)}>
       <span className="not-found-icon">{icon}</span>
-      <TypographyEyebrow className="text-(--warm)">{eyebrow}</TypographyEyebrow>
+      <TypographyEyebrow className="text-(--muted)">{eyebrow}</TypographyEyebrow>
       <Heading
         as={titleAs}
         className={cn("mt-3", titleSize === "section" && "text-2xl")}

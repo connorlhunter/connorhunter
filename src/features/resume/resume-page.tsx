@@ -34,7 +34,7 @@ export function ResumePage({ content, loadResumeDocument }: ResumePageProps): Re
     <SiteLayout content={content} contentSource="Generated resume">
       <section className="page-band">
         <div className="page-container">
-          <nav aria-label="Resume navigation" className="page-motion-nav mb-8">
+          <nav aria-label="Resume navigation" className="mb-8">
             <Button asChild variant="outline">
               <a href="/contact">
                 <ArrowLeft aria-hidden="true" className="size-4" />
@@ -43,7 +43,7 @@ export function ResumePage({ content, loadResumeDocument }: ResumePageProps): Re
             </Button>
           </nav>
 
-          <div className="page-motion-viewer">
+          <div>
             <FileViewer
               ariaLabel="Resume viewer"
               contentLayout="viewport"

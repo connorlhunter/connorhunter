@@ -30,14 +30,14 @@ function TimelineList({
   readonly title: string;
 }): ReactNode {
   return (
-    <section className="page-motion-card surface-card p-5">
+    <section className="surface-card p-5">
       <div className="card-heading">
         <span className="content-card-icon">
           <Icon aria-hidden="true" className="size-5" />
         </span>
         <TypographyH3 as="h2">{title}</TypographyH3>
       </div>
-      <div className="page-motion-list timeline-motion-list mt-6 space-y-5">
+      <div className="mt-6 space-y-5">
         {items.map((item) => (
           <article
             className="border-l-2 border-(--border) pl-5"
@@ -74,14 +74,14 @@ function CertificationList({
   readonly items: ReadonlyArray<CertificationItem>;
 }): ReactNode {
   return (
-    <section className="page-motion-card surface-card p-5">
+    <section className="surface-card p-5">
       <div className="card-heading">
         <span className="content-card-icon">
           <Award aria-hidden="true" className="size-5" />
         </span>
         <TypographyH3 as="h2">Certifications</TypographyH3>
       </div>
-      <div className="page-motion-list timeline-motion-list mt-6 space-y-4">
+      <div className="mt-6 space-y-4">
         {items.map((item) => (
           <article className="border-l-2 border-(--border) pl-5" key={item.title}>
             <TypographyH4 as="h3" className="text-base">
@@ -134,11 +134,11 @@ export function ExperiencePage({ content }: ExperiencePageProps): ReactNode {
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">
-            <TypographyH1 className="text-(--warm)">{page.label}</TypographyH1>
+            <TypographyH1>{page.label}</TypographyH1>
             <TypographyP className="mt-5">{page.summary}</TypographyP>
           </header>
 
-          <div className="experience-layout page-motion-sections mt-10 grid gap-6">
+          <div className="experience-layout mt-10 grid gap-6">
             <TimelineList Icon={BriefcaseBusiness} items={content.experience} title="Work" />
             <div className="grid gap-6">
               <TimelineList Icon={GraduationCap} items={content.education} title="Education" />

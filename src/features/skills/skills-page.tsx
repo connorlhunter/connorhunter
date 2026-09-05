@@ -55,16 +55,16 @@ export function SkillsPage({ content }: SkillsPageProps): ReactNode {
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">
-            <TypographyH1 className="text-(--warm)">{page.label}</TypographyH1>
+            <TypographyH1>{page.label}</TypographyH1>
             <TypographyP className="mt-5">{page.summary}</TypographyP>
           </header>
 
-          <div className="page-motion-grid mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {content.skills.map((group) => {
               const Icon = skillGroupIcon(group);
 
               return (
-                <section className="page-motion-card surface-card p-5" key={group.title}>
+                <section className="surface-card p-5" key={group.title}>
                   <div className="card-heading">
                     <span className="content-card-icon">
                       <Icon aria-hidden="true" className="size-5" />

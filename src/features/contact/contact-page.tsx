@@ -29,12 +29,12 @@ export function ContactPage({ content }: ContactPageProps): ReactNode {
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">
-            <TypographyH1 className="text-(--warm)">{page.label}</TypographyH1>
+            <TypographyH1>{page.label}</TypographyH1>
             <TypographyP className="mt-5 max-w-3xl">{page.summary}</TypographyP>
           </header>
 
-          <div className="contact-layout page-motion-sections mt-10 grid gap-5">
-            <article className="page-motion-card surface-card flex flex-col items-start justify-between gap-5 p-5">
+          <div className="contact-layout mt-10 grid gap-5">
+            <article className="surface-card flex flex-col items-start justify-between gap-5 p-5">
               <div className="flex items-start gap-3">
                 <span className="content-card-icon">
                   <FileText aria-hidden="true" className="size-5" />
@@ -53,7 +53,7 @@ export function ContactPage({ content }: ContactPageProps): ReactNode {
               </Button>
             </article>
 
-            <address className="page-motion-card page-motion-list surface-card grid gap-3 p-5 not-italic sm:grid-cols-2">
+            <address className="surface-card grid gap-3 p-5 not-italic sm:grid-cols-2">
               <div className="card-heading sm:col-span-2">
                 <span className="content-card-icon">
                   <Mail aria-hidden="true" className="size-5" />

@@ -62,20 +62,20 @@ export function ProjectNotes({
         <div className="project-notes-panel-inner">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <TypographyEyebrow as="h3" className="text-(--warm)">
+              <TypographyEyebrow as="h3" className="text-(--muted)">
                 Problem
               </TypographyEyebrow>
               <TypographyMuted className="text-measure mt-2">{problem}</TypographyMuted>
             </div>
             <div>
-              <TypographyEyebrow as="h3" className="text-(--warm)">
+              <TypographyEyebrow as="h3" className="text-(--muted)">
                 Architecture
               </TypographyEyebrow>
               <TypographyMuted className="text-measure mt-2">{architecture}</TypographyMuted>
             </div>
           </div>
           <div className="mt-4">
-            <TypographyEyebrow as="h3" className="text-(--warm)">
+            <TypographyEyebrow as="h3" className="text-(--muted)">
               Notes
             </TypographyEyebrow>
             <div className="resource-prose prose-surface mt-2 text-sm leading-7 text-(--muted)">
