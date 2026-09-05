@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.16] - 2026-09-05
+
+### Removed
+
+- Removed extra Featured Work pages so the homepage featured panel shows only the original project cards.
+
 ## [1.4.15] - 2026-08-27
 
 ### Fixed
