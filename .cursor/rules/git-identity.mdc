@@ -1,0 +1,14 @@
+---
+description: Commit author, committer, and branch names for this repository.
+alwaysApply: true
+---
+
+# Git identity
+
+Use this repository's identity on every commit and branch.
+
+- Set author and committer to `Connor Hunter <connorlhunter@pm.me>`.
+- Do not commit as `Cursor Agent`, `cursoragent@cursor.com`, or with a Cursor signing key.
+- Do not add `Co-authored-by` or `Made-with` trailers.
+- Name branches `<type>/<kebab-summary>` with `feat`, `fix`, `chore`, `docs`, `test`, or `refactor`, or `release/<version>`.
+- If the environment created a `cursor/` branch or committed under another identity, rewrite the commit and move the work onto a semantic branch before opening the PR.
