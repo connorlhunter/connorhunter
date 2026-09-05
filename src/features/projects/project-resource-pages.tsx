@@ -195,20 +195,17 @@ export function ProjectResourceShell({
   return (
     <article className="project-page">
       <header className="project-hero">
-        <div className="project-hero-title">
-          <ThemedIconImage
-            alt=""
-            aria-hidden="true"
-            className="project-hero-icon"
-            src={project.icon}
-          />
-          <div>
-            <TypographyEyebrow className="text-(--muted)">Project</TypographyEyebrow>
-            <TypographyH1 className="mt-1">{project.title}</TypographyH1>
-            <TypographyMuted className="project-hero-summary mt-3">
-              {project.summary}
-            </TypographyMuted>
+        <div className="project-hero-copy">
+          <div className="project-hero-title">
+            <ThemedIconImage
+              alt=""
+              aria-hidden="true"
+              className="project-hero-icon"
+              src={project.icon}
+            />
+            <TypographyH1 className="project-hero-heading">{project.title}</TypographyH1>
           </div>
+          <TypographyMuted className="project-hero-summary mt-3">{project.summary}</TypographyMuted>
         </div>
         <div className="project-hero-actions">
           <ProjectLinkActions links={project.links} liveVariant="secondary" />

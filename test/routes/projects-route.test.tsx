@@ -1,6 +1,12 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  defaultDarkThemeScheme,
+  defaultLightThemeScheme,
+  themeStorageKey,
+  themeCookieName,
+} from "@/features/theme/theme";
 import { mockContent } from "../mock-content";
 
 mock.module("@/content", () => ({
@@ -65,6 +71,62 @@ describe("project routes", () => {
     expect(screen.getByRole("link", { name: "Changelog" }).getAttribute("aria-current")).toBe(
       "page",
     );
+  });
+
+  test("keeps page and browser chrome in sync across navigation with persistence blocked", async () => {
+    window.localStorage.removeItem(themeStorageKey);
+    document.cookie = `${themeCookieName}=; Path=/; Max-Age=0`;
+    const cookie = Object.getOwnPropertyDescriptor(document, "cookie");
+    Object.defineProperty(document, "cookie", {
+      configurable: true,
+      get: () => "",
+      set: () => {},
+    });
+    const writeStorage = spyOn(window.localStorage, "setItem").mockImplementation(() => {});
+    try {
+      const router = createRouter({
+        history: createMemoryHistory({ initialEntries: ["/projects/desktop-tool"] }),
+        routeTree,
+        scrollRestoration: false,
+      });
+      render(<RouterProvider router={router} />);
+      fireEvent.click(await screen.findByRole("button", { name: "Switch to dark theme" }));
+      for (const to of ["/skills", "/projects/desktop-tool/diagrams"] as const) {
+        await act(async () => {
+          await router.navigate({ to });
+        });
+        expect(screen.getByRole("button", { name: "Switch to light theme" })).toBeTruthy();
+        expect(document.documentElement.dataset.scheme).toBe("midnight");
+        expect(document.querySelectorAll('meta[name="theme-color"]')).toHaveLength(1);
+        expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe(
+          defaultDarkThemeScheme.themeColor,
+        );
+        expect(document.querySelector('meta[name="color-scheme"]')?.getAttribute("content")).toBe(
+          "dark",
+        );
+      }
+      act(() => {
+        window.dispatchEvent(new window.Event("pageshow"));
+      });
+      expect(screen.getByRole("button", { name: "Switch to light theme" })).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Switch to light theme" }));
+      await act(async () => {
+        await router.invalidate();
+      });
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+      expect(document.documentElement.style.colorScheme).toBe("light");
+      expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe(
+        defaultLightThemeScheme.themeColor,
+      );
+      expect(document.querySelector('meta[name="color-scheme"]')?.getAttribute("content")).toBe(
+        "light",
+      );
+    } finally {
+      cleanup();
+      writeStorage.mockRestore();
+      if (cookie) Object.defineProperty(document, "cookie", cookie);
+      else Reflect.deleteProperty(document, "cookie");
+    }
   });
 
   test("moves to adjacent projects without leaving the active resource", async () => {

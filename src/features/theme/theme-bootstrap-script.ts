@@ -78,5 +78,7 @@ export const themeBootstrapScript = `
   document.documentElement.dataset.scheme = scheme;
   document.documentElement.style.colorScheme = theme.colorScheme;
   if (themeColorMeta) themeColorMeta.setAttribute("content", theme.themeColor);
+  const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+  if (colorSchemeMeta) colorSchemeMeta.setAttribute("content", theme.colorScheme);
 })();
 `;

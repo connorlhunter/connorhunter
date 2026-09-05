@@ -29,7 +29,7 @@ export function ProjectDetailPage({
     <SiteLayout content={content} contentSource="Published project content">
       <article className="page-band">
         <div className="page-container">
-          <nav aria-label="Project navigation" className="project-detail-navigation mb-8">
+          <nav aria-label="Project navigation" className="project-detail-navigation mb-5">
             <Button asChild variant="outline">
               <Link to="/projects">
                 <ArrowLeft aria-hidden="true" className="size-4" /> Projects
@@ -42,12 +42,14 @@ export function ProjectDetailPage({
                     aria-label={`Previous project: ${previousProject.title}`}
                     to={projectResourceHref(previousProject.slug, resource)}
                   >
-                    <ArrowLeft aria-hidden="true" className="size-4" /> Previous
+                    <ArrowLeft aria-hidden="true" className="size-4" />
+                    <span className="hidden sm:inline">Previous</span>
                   </Link>
                 </Button>
               ) : (
-                <Button disabled variant="outline">
-                  <ArrowLeft aria-hidden="true" className="size-4" /> Previous
+                <Button aria-label="Previous project" disabled variant="outline">
+                  <ArrowLeft aria-hidden="true" className="size-4" />
+                  <span className="hidden sm:inline">Previous</span>
                 </Button>
               )}
               {nextProject ? (
@@ -56,12 +58,14 @@ export function ProjectDetailPage({
                     aria-label={`Next project: ${nextProject.title}`}
                     to={projectResourceHref(nextProject.slug, resource)}
                   >
-                    Next <ArrowRight aria-hidden="true" className="size-4" />
+                    <span className="hidden sm:inline">Next</span>
+                    <ArrowRight aria-hidden="true" className="size-4" />
                   </Link>
                 </Button>
               ) : (
-                <Button disabled variant="outline">
-                  Next <ArrowRight aria-hidden="true" className="size-4" />
+                <Button aria-label="Next project" disabled variant="outline">
+                  <span className="hidden sm:inline">Next</span>
+                  <ArrowRight aria-hidden="true" className="size-4" />
                 </Button>
               )}
             </div>
