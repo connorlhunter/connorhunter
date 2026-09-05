@@ -50,9 +50,7 @@ describe("render coverage report", () => {
   });
 
   test("normalizes the coverage publication date to ISO UTC", () => {
-    expect(coverageUpdatedAt("2026-08-20T14:42:31.123-04:00")).toBe(
-      "2026-08-20T18:42:31.123Z",
-    );
+    expect(coverageUpdatedAt("2026-08-20T14:42:31.123-04:00")).toBe("2026-08-20T18:42:31.123Z");
     expect(() => coverageUpdatedAt("not-a-date")).toThrow("Invalid coverage publication date");
   });
 

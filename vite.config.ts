@@ -17,7 +17,7 @@ export default defineConfig({
       ".vinxi/**",
       ".nitro/**",
       ".tanstack/tmp/**",
-      "coverage/**",
+      "/coverage/**",
       "**/routeTree.gen.ts",
     ],
     rules: {
@@ -49,7 +49,7 @@ export default defineConfig({
       "node_modules",
       "dist",
       ".output",
-      "coverage",
+      "/coverage",
       "routeTree.gen.ts",
       "bun.lock",
       "public/pdf.worker.mjs",
