@@ -1,39 +1,9 @@
 import { readFileSync } from "node:fs";
 
-interface LcovSummary {
-  found: number;
-  hit: number;
-}
+import { coverageTotals, parseLcov, minimumCoveragePercent, type CoverageMetric } from "./lcov";
 
-const minimumCoveragePercent = 95;
-
-/**
- * @param lcov - Raw lcov report text.
- * @param foundKey - Lcov key for total items.
- * @param hitKey - Lcov key for covered items.
- * @returns Aggregated coverage counts for the metric.
- */
-function parseMetric(lcov: string, foundKey: string, hitKey: string): LcovSummary {
-  const summary = { found: 0, hit: 0 };
-
-  for (const line of lcov.split("\n")) {
-    if (line.startsWith(foundKey)) {
-      summary.found += Number(line.slice(foundKey.length));
-    }
-    if (line.startsWith(hitKey)) {
-      summary.hit += Number(line.slice(hitKey.length));
-    }
-  }
-
-  return summary;
-}
-
-/**
- * @param summary - Coverage counts for one metric.
- * @returns Coverage percentage for the metric.
- */
-function percent({ found, hit }: LcovSummary): number {
-  return found === 0 ? 100 : (hit / found) * 100;
+function percent({ found, covered }: CoverageMetric): number {
+  return found === 0 ? 100 : (covered / found) * 100;
 }
 
 /**
@@ -42,9 +12,7 @@ function percent({ found, hit }: LcovSummary): number {
  */
 export function checkCoverage(lcovPath = "coverage/lcov.info"): void {
   const lcov = readFileSync(lcovPath, "utf8");
-  const lines = parseMetric(lcov, "LF:", "LH:");
-  const functions = parseMetric(lcov, "FNF:", "FNH:");
-  const branches = parseMetric(lcov, "BRF:", "BRH:");
+  const { lines, functions, branches } = coverageTotals(parseLcov(lcov));
   const linePercent = percent(lines);
   const functionPercent = percent(functions);
   const branchPercent = percent(branches);

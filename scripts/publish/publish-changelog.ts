@@ -1,29 +1,13 @@
 import { existsSync } from "node:fs";
 import { buildChangelogArtifact, changelogPaths } from "../changelog/changelog-artifact";
-import { defaultCommandRunner, type CommandRunner } from "./publish-coverage";
-
-const projectSlug = "connor-hunter";
-
-function envValue(value: string | undefined): string {
-  return value?.trim() ?? "";
-}
-
-function keyPath(...parts: ReadonlyArray<string>): string {
-  return parts
-    .map((part) => part.trim().replace(/^\/+|\/+$/gu, ""))
-    .filter(Boolean)
-    .join("/");
-}
-
-function s3Uri(bucket: string, key: string): string {
-  return key ? `s3://${bucket}/${key}/` : `s3://${bucket}/`;
-}
-
-export interface PublishChangelogOptions {
-  readonly commandRunner?: CommandRunner;
-  readonly env?: NodeJS.ProcessEnv;
-  readonly workspaceRoot?: string;
-}
+import { defaultCommandRunner } from "./command-runner";
+import {
+  reportDestinations,
+  reportInvalidations,
+  publishReport,
+  type PublishOptions,
+} from "./artifact-publication";
+export type PublishChangelogOptions = PublishOptions;
 
 /** Publishes this repository's canonical changelog beside its coverage artifacts. */
 export async function publishChangelog(options: PublishChangelogOptions = {}): Promise<void> {
@@ -36,48 +20,12 @@ export async function publishChangelog(options: PublishChangelogOptions = {}): P
       "Missing changelog artifacts. Run changelog publishing from a release command.",
     );
   }
-  const buckets = [
-    [
-      envValue(env.SOURCE_ARTIFACTS_BUCKET),
-      envValue(env.SOURCE_ARTIFACTS_PREFIX),
-      "Source changelog copy",
-    ],
-    [envValue(env.ARTIFACTS_BUCKET), envValue(env.ARTIFACTS_PREFIX), "Live changelog artifact"],
-  ] as const;
-  const destinations = buckets.filter(([bucket]) => Boolean(bucket));
-  if (destinations.length === 0) {
-    throw new Error(
-      "Missing SOURCE_ARTIFACTS_BUCKET or ARTIFACTS_BUCKET for changelog publishing.",
-    );
-  }
-  for (const [bucket, prefix, label] of destinations) {
-    await commandRunner(
-      "aws",
-      [
-        "s3",
-        "sync",
-        paths.directory,
-        s3Uri(bucket, keyPath(prefix, "projects", projectSlug, "changelog")),
-        "--delete",
-      ],
-      label,
-    );
-  }
-  const distributionId = envValue(env.ARTIFACTS_CLOUDFRONT_DISTRIBUTION_ID);
-  if (distributionId) {
-    await commandRunner(
-      "aws",
-      [
-        "cloudfront",
-        "create-invalidation",
-        "--distribution-id",
-        distributionId,
-        "--paths",
-        `/${keyPath(envValue(env.ARTIFACTS_PREFIX), "projects", projectSlug, "changelog", "*")}`,
-      ],
-      "Changelog CloudFront invalidation",
-    );
-  }
+  await publishReport(
+    "changelog",
+    reportDestinations("changelog", paths.directory, "connor-hunter", env),
+    reportInvalidations("changelog", "connor-hunter", env),
+    commandRunner,
+  );
 }
 
 /** Builds and publishes a timestamped changelog artifact pair. */

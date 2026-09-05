@@ -1,4 +1,4 @@
-import { artifactUrl, publicConfig } from "@/config/public-env";
+import { artifactUrl } from "@/config/public-env";
 
 /**
  * @property readJson - Reads and parses JSON content by artifact path.
@@ -10,39 +10,11 @@ export interface ArtifactTextSource {
 }
 
 /**
- * @param path - User or manifest supplied artifact path.
- * @returns A safe relative artifact path.
- */
-function normalizeArtifactPath(path: string): string {
-  let decodedPath: string;
-
-  try {
-    decodedPath = decodeURIComponent(path);
-  } catch {
-    throw new Error(`Unsafe artifact path: ${path}`);
-  }
-
-  if (
-    path.length === 0 ||
-    path.startsWith("/") ||
-    path.includes("\\") ||
-    decodedPath.includes("\0") ||
-    decodedPath.includes("\\") ||
-    /^[a-z][a-z\d+.-]*:/iu.test(decodedPath) ||
-    decodedPath.split("/").some((segment) => segment === "." || segment === "..")
-  ) {
-    throw new Error(`Unsafe artifact path: ${path}`);
-  }
-
-  return path;
-}
-
-/**
  * @param path - Safe artifact path under the configured artifact origin.
  * @returns Fetched artifact text content.
  */
 async function fetchArtifactText(path: string): Promise<string> {
-  const href = artifactUrl(normalizeArtifactPath(path));
+  const href = artifactUrl(path);
   let response: Response;
 
   try {
