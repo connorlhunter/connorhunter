@@ -14,12 +14,12 @@ export const profileSchema = z.object({
 });
 
 /**
- * @description Contact link metadata for email, phone, and social destinations.
+ * @description Contact link metadata for email and social destinations.
  */
 export const contactLinkSchema = z.object({
   label: z.string().min(1),
   href: hrefSchema,
-  kind: z.enum(["email", "github", "linkedin", "phone"]),
+  kind: z.enum(["email", "github", "linkedin"]),
 });
 
 /**

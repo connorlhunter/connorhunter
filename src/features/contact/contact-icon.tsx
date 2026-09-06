@@ -1,4 +1,4 @@
-import { GitBranch, Mail, Network, Phone } from "lucide-react";
+import { GitBranch, Mail, Network } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ContactLink } from "@/content/schema";
 
@@ -15,9 +15,5 @@ export function contactIcon(kind: ContactLink["kind"]): ReactNode {
     return <GitBranch aria-hidden="true" className="size-4" />;
   }
 
-  if (kind === "linkedin") {
-    return <Network aria-hidden="true" className="size-4" />;
-  }
-
-  return <Phone aria-hidden="true" className="size-4" />;
+  return <Network aria-hidden="true" className="size-4" />;
 }
