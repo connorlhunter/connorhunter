@@ -20,7 +20,6 @@ const labelFor = (value: string): string => {
 describe("public env config", () => {
   test("derives contact links and labels from public env", () => {
     expect(publicConfig.contactEmailHref).toBe(`mailto:${publicConfig.contactEmail}`);
-    expect(publicConfig.contactPhoneHref).toStartWith("tel:");
     expect(publicConfig.githubProfileLabel).toBe(labelFor(publicConfig.githubProfileUrl));
     expect(publicConfig.linkedinLabel).toBe(labelFor(publicConfig.linkedinUrl));
     expect(publicConfig.lastUpdated).toBe("2026-08-02");

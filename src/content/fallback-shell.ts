@@ -22,11 +22,6 @@ export const fallbackShellContent: SiteShellContent = {
       href: publicConfig.contactEmailHref,
     },
     {
-      kind: "phone",
-      label: publicConfig.contactPhoneLabel,
-      href: publicConfig.contactPhoneHref,
-    },
-    {
       kind: "github",
       label: publicConfig.githubProfileLabel,
       href: publicConfig.githubProfileUrl,

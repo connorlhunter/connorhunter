@@ -6,6 +6,10 @@ describe("fallbackShellContent", () => {
   test("provides shell content without reading the dynamic manifest", () => {
     expect(fallbackShellContent.profile.name).toBe(publicConfig.siteName);
     expect(fallbackShellContent.navigation).toEqual([]);
-    expect(fallbackShellContent.contacts.some((contact) => contact.kind === "email")).toBe(true);
+    expect(fallbackShellContent.contacts.map((contact) => contact.kind)).toEqual([
+      "email",
+      "github",
+      "linkedin",
+    ]);
   });
 });
