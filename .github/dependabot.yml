@@ -4,12 +4,21 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
+      exclude: ["nanoid"]
     groups:
       dependencies:
         patterns: ["*"]
     ignore:
       - dependency-name: typescript
         versions: [">= 7.0.0"]
+      # The Vite alias is pinned in dependency-policy.toml and updated with Vite+.
+      - dependency-name: vite
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+          - version-update:semver-patch
   - package-ecosystem: github-actions
     directory: /
     schedule:
