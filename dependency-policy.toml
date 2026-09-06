@@ -11,7 +11,7 @@ version = "3.3.18"
 reason = "Fixes a high-severity infinite-loop advisory in the Vite PostCSS dependency chain."
 
 [pins.vite]
-version = "npm:@voidzero-dev/vite-plus-core@0.2.9"
+version = "npm:@voidzero-dev/vite-plus-core@0.3.0"
 reason = "Keeps Vite+ as the shared Vite implementation for application plugins and peer resolution."
 
 [releaseAgeExcludes.nanoid]
