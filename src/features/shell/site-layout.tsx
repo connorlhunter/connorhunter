@@ -16,14 +16,13 @@ export type SiteShellContent = Pick<
 interface SiteLayoutProps {
   readonly children: ReactNode;
   readonly content: SiteShellContent;
-  readonly contentSource?: string;
 }
 
 /**
  * @param props - Page content and shared shell data.
  * @returns The site shell with theme, header, main content, and footer.
  */
-export function SiteLayout({ children, content, contentSource }: SiteLayoutProps): ReactNode {
+export function SiteLayout({ children, content }: SiteLayoutProps): ReactNode {
   return (
     <ThemeProvider>
       <ThemeIconSync />
@@ -37,7 +36,6 @@ export function SiteLayout({ children, content, contentSource }: SiteLayoutProps
       <Footer
         brandName={content.profile.name}
         contacts={content.contacts}
-        contentSource={contentSource}
         lastUpdated={content.lastUpdated}
       />
     </ThemeProvider>

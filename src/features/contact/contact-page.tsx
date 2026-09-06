@@ -26,7 +26,7 @@ export function ContactPage({ content }: ContactPageProps): ReactNode {
   const page = navigationPage(content, "/contact");
 
   return (
-    <SiteLayout content={content} contentSource="Contact details">
+    <SiteLayout content={content}>
       <section className="page-band">
         <div className="page-container">
           <header className="page-intro">

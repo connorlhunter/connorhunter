@@ -26,7 +26,7 @@ export function ProjectDetailPage({
   const nextProject = projectIndex >= 0 ? content.projects[projectIndex + 1] : undefined;
 
   return (
-    <SiteLayout content={content} contentSource="Published project content">
+    <SiteLayout content={content}>
       <article className="page-band">
         <div className="page-container">
           <nav aria-label="Project navigation" className="project-detail-navigation mb-5">
