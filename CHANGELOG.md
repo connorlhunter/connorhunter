@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.19] - 2026-09-05
+
+### Removed
+
+- Remove the footer dynamic content control and its saved state, page props, and styles.
+- Remove phone contacts, public phone settings, and the phone entry in the fallback footer.
+
+### Changed
+
+- Update the internship troubleshooting description in the experience page and resume.
+
 ## [1.4.18] - 2026-09-05
 
 ### Fixed
