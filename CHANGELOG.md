@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.20] - 2026-09-07
+
+### Fixed
+
+- Keep the header pinned while scrolling and extend its theme background into the iPhone safe area.
+- Reuse first-paint theme metadata during hydration so a saved dark theme does not create duplicate tags.
+- Respect safe-area spacing in navigation, page content, reader sidebars, and fullscreen viewers.
+- Disable transitions when reduced motion is enabled.
+
+### Changed
+
+- Update TanStack, Vite+, PDF.js, icons, and related dependencies.
+
 ## [1.4.19] - 2026-09-05
 
 ### Removed
