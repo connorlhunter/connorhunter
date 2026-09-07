@@ -68,6 +68,8 @@ The test command loads the public defaults in `.env.example`, so a fresh checkou
 
 `bun run verify` includes Vite+ formatting, linting, and type checks plus the local CodeQL scan. In GitHub Actions, that CodeQL step defers to the repository's required hosted checks.
 
+For theme or shell changes, check Safari and Brave on an iPhone in portrait and landscape: switch themes before and after scrolling, navigate between pages, then go back and reload. Check the notch area alongside the header. Browser emulation can verify layout and theme metadata, but it does not reproduce the native status bar. The opaque header must stay at the viewport's top edge so browsers can sample its current color.
+
 Exact dependency pins and temporary release-age exceptions live in `dependency-policy.toml`. Run `bun run deps:policy` after changing the policy to sync `package.json` and `bunfig.toml`.
 
 ## Releases

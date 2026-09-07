@@ -56,7 +56,7 @@ export function SiteHeader({ navigation, profile }: SiteHeaderProps): ReactNode 
 
   return (
     <header className="site-header sticky top-0 z-50 border-b border-(--border)">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
+      <div className="page-gutter mx-auto flex h-16 max-w-7xl items-center justify-between gap-4">
         {hasNavigation ? (
           <SiteLink className={brandClassName} href="/">
             <span className="block truncate">{profile.name}</span>
@@ -118,7 +118,7 @@ export function SiteHeader({ navigation, profile }: SiteHeaderProps): ReactNode 
           inert={!menuOpen}
         >
           <NavLinks
-            className="mobile-nav-popover-links mx-auto flex max-w-7xl flex-col gap-1 px-5 py-3 sm:px-8"
+            className="mobile-nav-popover-links page-gutter mx-auto flex max-w-7xl flex-col gap-1 py-3"
             label="Mobile navigation"
             navigation={navigation}
             onNavigate={() => setMenuOpen(false)}

@@ -8,7 +8,7 @@ import { fallbackShellContent } from "@/content/fallback-shell";
 import { ErrorPage } from "@/features/error/error-page";
 import { NotFoundPage } from "@/features/not-found/not-found-page";
 import { themeBootstrapScript } from "@/features/theme/theme-bootstrap-script";
-import { themeColorMetaName } from "@/features/theme/theme";
+import { ThemeMeta } from "@/features/theme/theme-meta";
 import { ThemeProvider, useTheme } from "@/features/theme/theme-provider";
 import "../styles.css";
 
@@ -45,7 +45,7 @@ export const Route = createRootRoute({
     ],
     meta: [
       { charSet: "utf-8" },
-      { content: "width=device-width, initial-scale=1", name: "viewport" },
+      { content: "width=device-width, initial-scale=1, viewport-fit=cover", name: "viewport" },
     ],
   }),
   component: RootComponent,
@@ -122,8 +122,7 @@ function ThemedDocument({ children }: Readonly<{ children: ReactNode }>): ReactN
       suppressHydrationWarning
     >
       <head>
-        <meta content={scheme.themeColor} name={themeColorMetaName} suppressHydrationWarning />
-        <meta content={scheme.colorScheme} name="color-scheme" suppressHydrationWarning />
+        <ThemeMeta />
         {/* Intentionally inline so the theme is applied before first paint. */}
         <script
           dangerouslySetInnerHTML={{
