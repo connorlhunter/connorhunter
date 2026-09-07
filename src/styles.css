@@ -30,7 +30,6 @@
   --motion-fast: 140ms cubic-bezier(0.2, 0, 0, 1);
   --motion-slow: 280ms cubic-bezier(0.2, 0, 0, 1);
   color: var(--text);
-  background: var(--bg);
   font-family:
     Inter,
     ui-sans-serif,
@@ -98,12 +97,20 @@
   scrollbar-width: thin;
 }
 
-html {
-  min-height: 100%;
-  overflow-x: hidden;
+/* Mobile browsers sample this surface for their chrome, including with reduced motion enabled. */
+html,
+body,
+.site-header {
   background: var(--bg);
+  transition-property: none;
+}
+
+html {
+  --page-gutter: 1.25rem;
+  min-height: 100%;
+  overflow-x: clip;
   scroll-behavior: smooth;
-  scroll-padding-top: 6rem;
+  scroll-padding-top: calc(6rem + env(safe-area-inset-top));
 }
 
 html.file-viewer-fullscreen-active,
@@ -120,8 +127,8 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  background: var(--bg);
+  /* Keep the header sticky to the viewport; hidden creates a separate scroll container. */
+  overflow-x: clip;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -179,8 +186,8 @@ main {
 
 .skip-link {
   position: fixed;
-  top: 0.75rem;
-  left: 0.75rem;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  left: calc(0.75rem + env(safe-area-inset-left));
   z-index: 100;
   border: 1px solid var(--accent);
   border-radius: var(--radius-sm);
@@ -188,7 +195,7 @@ main {
   box-shadow: var(--shadow-sm);
   color: var(--text);
   padding: 0.55rem 0.75rem;
-  transform: translateY(calc(-100% - 1rem));
+  transform: translateY(calc(-100% - 1rem - env(safe-area-inset-top)));
   transition: transform var(--motion-fast);
 }
 
@@ -203,14 +210,22 @@ footer {
   position: relative;
   z-index: 1;
   flex-shrink: 0;
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
 }
 
 .page-band {
-  padding: 4rem 1.25rem;
+  padding-block: 4rem;
 }
 
 .page-band-compact {
-  padding: 2.75rem 1.25rem;
+  padding-block: 2.75rem;
+}
+
+.page-band,
+.page-band-compact,
+.page-gutter {
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
 }
 
 .page-container {
@@ -236,7 +251,7 @@ footer {
 }
 
 .site-header {
-  background: var(--bg);
+  padding-top: env(safe-area-inset-top);
 }
 
 .home-explore-band {
@@ -339,6 +354,8 @@ footer {
   border: 0;
   border-radius: 0;
   background: var(--bg);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
 }
 
 .file-viewer-shell--fullscreen {
@@ -1172,22 +1189,22 @@ footer {
 }
 
 @media (min-width: 640px) {
+  :root {
+    --page-gutter: 2rem;
+  }
+
   .page-band {
-    padding: 5rem 2rem;
+    padding-block: 5rem;
   }
 
   .page-band-compact {
-    padding: 3.5rem 2rem;
+    padding-block: 3.5rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .page-band {
-    padding-inline: 2.5rem;
-  }
-
-  .page-band-compact {
-    padding-inline: 2.5rem;
+  :root {
+    --page-gutter: 2.5rem;
   }
 
   .home-hero-layout {
@@ -1216,7 +1233,7 @@ footer {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
+    transition: none !important;
   }
 }
 
@@ -1491,9 +1508,9 @@ a.project-resource-nav-item:focus-visible {
   .coverage-reader-sidebar,
   .changelog-reader-sidebar {
     position: sticky;
-    top: 4.75rem;
+    top: calc(4.75rem + env(safe-area-inset-top));
     align-self: start;
-    max-height: calc(100vh - 5.5rem);
+    max-height: calc(100svh - 5.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     overflow-y: auto;
   }
 }
