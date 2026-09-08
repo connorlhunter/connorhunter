@@ -1,0 +1,21 @@
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "scope": "full",
+  "blocking": "error",
+  "ignore": {
+    "files": [
+      "node_modules/**",
+      "dist/**",
+      ".amplify-hosting/**",
+      ".output/**",
+      ".vinxi/**",
+      ".nitro/**",
+      ".tanstack/**",
+      ".cache/**",
+      "coverage/**",
+      "changelog/**",
+      "public/pdf.worker.mjs",
+      "src/routeTree.gen.ts"
+    ]
+  }
+}

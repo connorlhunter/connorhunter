@@ -60,13 +60,16 @@ S3 buckets should stay private behind CloudFront. Both published S3 buckets use 
 | Publish coverage          | `bun run coverage:publish` |
 | Publish release artifacts | `bun run release:publish`  |
 | Run local CodeQL          | `bun run codeql:scan`      |
+| Run React Doctor          | `bun run doctor`           |
 | Run full validation       | `bun run verify`           |
 
 `bun run start` previews the most recent Amplify production build, so run `bun run build` first. It is not needed for normal local development; use `bun run dev` for that.
 
 The test command loads the public defaults in `.env.example`, so a fresh checkout can run verification without creating `.env`. Explicit environment variables still take precedence. Copy `.env.example` to `.env` before local development when you need to change the defaults.
 
-`bun run verify` includes Vite+ formatting, linting, and type checks plus the local CodeQL scan. In GitHub Actions, that CodeQL step defers to the repository's required hosted checks.
+`bun run verify` runs the same validation gate in the commit and push hooks and GitHub Actions: release and branch naming checks, dependency auditing, Vite+ formatting, linting and type checks, React Doctor, test coverage, and CodeQL. In GitHub Actions, the CodeQL step defers to the repository's required hosted checks.
+
+React Doctor scans the full project, blocks errors, and reports warnings without blocking. Generated files are excluded in `doctor.config.json`; no source rules are suppressed. Use `bun run doctor -- --verbose` for every finding or `bun run doctor -- --json` for structured output. The pinned CLI runs without telemetry, remote scoring, or Socket.dev checks; dependency auditing remains in `bun run audit`.
 
 For theme or shell changes, check Safari and Brave on an iPhone in portrait and landscape: switch themes before and after scrolling, navigate between pages, then go back and reload. Check the notch area alongside the header. Browser emulation can verify layout and theme metadata, but it does not reproduce the native status bar. The opaque header must stay at the viewport's top edge so browsers can sample its current color.
 

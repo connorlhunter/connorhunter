@@ -8,10 +8,10 @@ import { buildPageHead } from "@/lib/seo";
  * @description Projects route backed by dynamic portfolio content.
  */
 export const Route = createFileRoute("/projects")({
-  loader: () => getPortfolioContent(),
   validateSearch: (search) => ({
     project: typeof search.project === "string" ? search.project : undefined,
   }),
+  loader: () => getPortfolioContent(),
   head: () =>
     buildPageHead(
       "Projects",
