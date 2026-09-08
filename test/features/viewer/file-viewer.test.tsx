@@ -1,7 +1,6 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { publicConfig } from "@/config/public-env";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { themeMessageType, themeStorageKey } from "@/features/theme/theme";
 import { FileViewer, fileViewerFullscreenMessageType } from "@/features/viewer/file-viewer";
@@ -470,10 +469,7 @@ describe("FileViewer", () => {
 
       fireEvent.load(frame);
 
-      expect(postedMessages).toContainEqual([
-        { scheme: "midnight", type: themeMessageType },
-        new URL(publicConfig.siteOrigin).origin,
-      ]);
+      expect(postedMessages).toContainEqual([{ scheme: "midnight", type: themeMessageType }, "*"]);
       expect(screen.queryByRole("status")).toBeNull();
       expect(frame.getAttribute("data-loaded")).toBe("true");
     } finally {
@@ -504,10 +500,27 @@ describe("FileViewer", () => {
       />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTitle("Example file").getAttribute("src")).toBe("/second-viewer.html");
-    });
+    expect(screen.getByTitle("Example file").getAttribute("src")).toBe("/second-viewer.html");
 
+    const secondFrame = screen.getByTitle("Example file");
+    expect(secondFrame).not.toBe(firstFrame);
+    expect(secondFrame.getAttribute("sandbox")).toBe("allow-scripts allow-downloads allow-popups");
+    fireEvent.load(firstFrame);
+    expect(screen.getByRole("status")).toBeTruthy();
+    expect(secondFrame.getAttribute("data-loaded")).toBe("false");
+    fireEvent.load(secondFrame);
+    expect(screen.queryByRole("status")).toBeNull();
+
+    rerender(
+      <FileViewer
+        ariaLabel="Example viewer"
+        icon={<span aria-hidden="true">F</span>}
+        sourceHref="/first-viewer.html"
+        title="Example file"
+      />,
+    );
+    expect(screen.getByRole("status")).toBeTruthy();
+    expect(screen.getByTitle("Example file")).not.toBe(firstFrame);
     fireEvent.load(screen.getByTitle("Example file"));
     expect(screen.queryByRole("status")).toBeNull();
   });

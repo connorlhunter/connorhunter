@@ -1,5 +1,5 @@
 import { Download, ExternalLink, LoaderCircle, Mail, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { TypographyH4, TypographySmall } from "@/components/ui/typography";
 import { downloadFile } from "@/lib/download-file";
@@ -49,33 +49,16 @@ export function FileViewerActions({
 }: FileViewerActionsProps): ReactNode {
   const [downloadFailed, setDownloadFailed] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const downloadRequestId = useRef(0);
-
-  useEffect(() => {
-    downloadRequestId.current += 1;
-    setDownloadFailed(false);
-    setDownloading(false);
-  }, [download?.filename, download?.href]);
-
   async function handleDownload(file: FileViewerDownload): Promise<void> {
-    const requestId = downloadRequestId.current + 1;
-    downloadRequestId.current = requestId;
     setDownloadFailed(false);
     setDownloading(true);
 
     try {
       await downloadFile(file.href, file.filename);
-      if (downloadRequestId.current === requestId) {
-        setDownloadFailed(false);
-      }
     } catch {
-      if (downloadRequestId.current === requestId) {
-        setDownloadFailed(true);
-      }
+      setDownloadFailed(true);
     } finally {
-      if (downloadRequestId.current === requestId) {
-        setDownloading(false);
-      }
+      setDownloading(false);
     }
   }
 

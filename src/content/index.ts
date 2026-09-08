@@ -8,7 +8,7 @@ import { publicConfig } from "@/config/public-env";
 import { loadContentManifest } from "./manifest";
 import { resolveContentHref } from "./hrefs";
 import { loadSiteContent } from "./site-content";
-import { portfolioContentSchema, type PortfolioContent, type Project } from "./schema";
+import { portfolioContentSchema, type PortfolioContent } from "./schema";
 
 interface PortfolioContentCache {
   readonly expiresAt: number;
@@ -84,16 +84,6 @@ export function getPortfolioContent(): Promise<PortfolioContent> {
   });
 
   return promise;
-}
-
-/**
- * @param slug - Project slug from the route.
- * @returns The matching project, or undefined when the slug is unknown.
- */
-export async function getProjectBySlug(slug: string): Promise<Project | undefined> {
-  const content = await getPortfolioContent();
-
-  return content.projects.find((project) => project.slug === slug);
 }
 
 /**

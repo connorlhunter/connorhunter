@@ -16,6 +16,12 @@
       "changelog/**",
       "public/pdf.worker.mjs",
       "src/routeTree.gen.ts"
+    ],
+    "overrides": [
+      {
+        "files": ["test/setup.ts"],
+        "rules": ["deslop/unused-file"]
+      }
     ]
   }
 }

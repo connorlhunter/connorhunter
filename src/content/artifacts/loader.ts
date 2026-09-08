@@ -42,8 +42,6 @@ export type ProjectArtifactEntry = z.infer<typeof projectArtifactEntrySchema>;
 /** Published artifact manifest keyed by project slug. */
 export type ProjectArtifactManifest = z.infer<typeof projectArtifactManifestSchema>;
 
-type ArtifactAlias = "changelog" | "coverage" | "docs" | "overview-diagram";
-
 /** Loads and validates the shared project artifact manifest. */
 export async function loadProjectArtifactManifest(path: string): Promise<ProjectArtifactManifest> {
   return projectArtifactManifestSchema.parse(await readArtifactJson(path));
@@ -62,15 +60,6 @@ export function projectArtifactEntry(
 /** Resolves a project icon source from the artifact-aware content token. */
 export function projectIconHref(entry: ProjectArtifactEntry): string {
   return resolveContentHref(entry.iconPath);
-}
-
-/** Resolves an artifact path used by compact project-card fallbacks. */
-export function resolveArtifactAlias(entry: ProjectArtifactEntry, alias: string): string {
-  if (alias === "docs") return artifactUrl(entry.docs.indexPath);
-  if (alias === "coverage") return artifactUrl(entry.coverage.indexPath);
-  if (alias === "changelog") return artifactUrl(entry.changelog.markdownPath);
-  if (alias === "overview-diagram") return artifactUrl(overviewDiagram(entry).svgPath);
-  throw new Error(`Unsupported artifact alias "${alias as ArtifactAlias}".`);
 }
 
 /** Creates UI-ready resource links without treating generated artifacts as pages. */

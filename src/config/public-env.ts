@@ -3,16 +3,13 @@ import { z } from "zod";
 const cloudFrontDistributionIdOriginMessage =
   "Use the CloudFront distribution domain name, usually d...cloudfront.net, not the distribution ID, usually E....";
 
-const publicOriginSchema = z
-  .string()
-  .url()
-  .refine((value) => !isCloudFrontDistributionIdOrigin(value), {
-    message: cloudFrontDistributionIdOriginMessage,
-  });
+const publicOriginSchema = z.url().refine((value) => !isCloudFrontDistributionIdOrigin(value), {
+  message: cloudFrontDistributionIdOriginMessage,
+});
 const publicAssetReferenceSchema = z
   .string()
   .min(1)
-  .refine((value) => value.startsWith("asset://") || z.string().url().safeParse(value).success, {
+  .refine((value) => value.startsWith("asset://") || z.url().safeParse(value).success, {
     message: "Expected an asset:// reference or absolute URL.",
   });
 
@@ -20,11 +17,11 @@ const publicEnvSchema = z.object({
   VITE_PUBLIC_ARTIFACTS_ORIGIN: publicOriginSchema,
   VITE_PUBLIC_ASSETS_ORIGIN: publicOriginSchema,
   VITE_PUBLIC_CONTENT_MANIFEST_PATH: z.string().min(1),
-  VITE_PUBLIC_CONTACT_EMAIL: z.string().email(),
-  VITE_PUBLIC_GITHUB_ORIGIN: z.string().url(),
+  VITE_PUBLIC_CONTACT_EMAIL: z.email(),
+  VITE_PUBLIC_GITHUB_ORIGIN: z.url(),
   VITE_PUBLIC_GITHUB_OWNER: z.string().min(1),
-  VITE_PUBLIC_GITHUB_PROFILE_URL: z.string().url(),
-  VITE_PUBLIC_LINKEDIN_URL: z.string().url(),
+  VITE_PUBLIC_GITHUB_PROFILE_URL: z.url(),
+  VITE_PUBLIC_LINKEDIN_URL: z.url(),
   VITE_PUBLIC_LAST_UPDATED: z.iso.date().optional(),
   VITE_PUBLIC_APP_STORAGE_NAMESPACE: z.string().min(1).optional(),
   VITE_PUBLIC_RELEASE_DOWNLOAD_CHANNEL: z.string().min(1),
@@ -32,7 +29,7 @@ const publicEnvSchema = z.object({
   VITE_PUBLIC_SITE_ICON: publicAssetReferenceSchema,
   VITE_PUBLIC_SITE_MASK_ICON: publicAssetReferenceSchema,
   VITE_PUBLIC_SITE_NAME: z.string().min(1),
-  VITE_PUBLIC_SITE_ORIGIN: z.string().url(),
+  VITE_PUBLIC_SITE_ORIGIN: z.url(),
   VITE_PUBLIC_THEME_ROOT_DOMAIN: z.string().min(1).optional(),
 });
 

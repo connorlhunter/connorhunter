@@ -9,17 +9,50 @@ import {
 } from "@/features/theme/theme";
 import { mockContent } from "../mock-content";
 
+const loadContent = mock(() => Promise.resolve(mockContent));
+const clearContentCache = mock(() => undefined);
 mock.module("@/content", () => ({
-  clearPortfolioContentCache: () => undefined,
-  getPortfolioContent: () => Promise.resolve(mockContent),
-  getProjectBySlug: async (slug: string) =>
-    mockContent.projects.find((project) => project.slug === slug),
+  clearPortfolioContentCache: clearContentCache,
+  getPortfolioContent: loadContent,
 }));
 
 const { routeTree } = await import("@/routeTree.gen");
 
 describe("project routes", () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    loadContent.mockReset().mockImplementation(() => Promise.resolve(mockContent));
+    clearContentCache.mockClear();
+  });
+
+  test("renders unknown routes inside the themed document shell", async () => {
+    const router = createRouter({
+      history: createMemoryHistory({ initialEntries: ["/missing-page"] }),
+      routeTree,
+      scrollRestoration: false,
+    });
+    render(<RouterProvider router={router} />);
+    expect(await screen.findByRole("heading", { name: "Page not found" })).toBeTruthy();
+    expect(screen.getByRole("banner")).toBeTruthy();
+  });
+
+  test("retries a failed root loader with a cleared content cache", async () => {
+    loadContent.mockRejectedValue(new Error("Content unavailable"));
+    const router = createRouter({
+      history: createMemoryHistory({ initialEntries: ["/projects"] }),
+      routeTree,
+      scrollRestoration: false,
+    });
+    render(<RouterProvider router={router} />);
+    expect(await screen.findByRole("heading", { name: "Something went wrong" })).toBeTruthy();
+    loadContent.mockResolvedValue(mockContent);
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: "Something went wrong" })).toBeNull(),
+    );
+    expect(clearContentCache).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole("heading", { name: "Projects", level: 1 })).toBeTruthy();
+  });
 
   test("redirects legacy viewer links to the native docs route", async () => {
     const router = createRouter({

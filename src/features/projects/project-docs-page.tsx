@@ -11,6 +11,8 @@ import { parseMarkdownDocument, plainInlineText } from "./markdown-document";
 import { projectResourceHref } from "./project-resource-routes";
 import { artifact, ResourceState, ResourceSidebarHeader } from "./project-resource-shared";
 
+const emptyPages: ReadonlyArray<DocsIndexPage> = [];
+
 interface DocumentationReaderState {
   readonly blocks: ReadonlyArray<DocumentBlock>;
   readonly docs: ArtifactLink | undefined;
@@ -77,7 +79,7 @@ function useDocumentationReader(
 ): DocumentationReaderState {
   const docs = artifact(project, "Docs");
   const indexState = useArtifactJson(docs?.href, docsIndexSchema);
-  const pages = indexState.data?.pages ?? [];
+  const pages = indexState.data?.pages ?? emptyPages;
   const selected = selectedDocumentPage(pages, requestedPageId);
   const pageState = useArtifactText(documentPageHref(docs, selected));
   const groups = useMemo(() => groupPages(pages), [pages]);

@@ -65,7 +65,13 @@ function isTrustedThemeMessage(event: MessageEvent): boolean {
   return Array.from(document.querySelectorAll("iframe")).some((frame) => {
     const origin = trustedThemeFrameOrigin(frame);
 
-    return origin === event.origin && frame.contentWindow === event.source;
+    const expectedOrigin =
+      frame.hasAttribute("sandbox") && !frame.sandbox.contains("allow-same-origin")
+        ? "null"
+        : origin;
+    return (
+      origin !== null && expectedOrigin === event.origin && frame.contentWindow === event.source
+    );
   });
 }
 
@@ -112,7 +118,11 @@ export function postThemeSchemeToFrame(frame: HTMLIFrameElement, scheme: ThemeSc
   if (!targetOrigin) return;
 
   try {
-    frame.contentWindow?.postMessage(message, targetOrigin);
+    // Sandboxed documents have an opaque origin. The URL is still checked above;
+    // only the theme identifier is sent to this specific frame window.
+    const opaqueOrigin =
+      frame.hasAttribute("sandbox") && !frame.sandbox.contains("allow-same-origin");
+    frame.contentWindow?.postMessage(message, opaqueOrigin ? "*" : targetOrigin);
   } catch {
     // Cross-origin or unloading frames can reject messages; the saved theme still applies on reload.
   }

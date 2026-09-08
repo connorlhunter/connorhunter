@@ -71,13 +71,13 @@ export function SkillsPage({ content }: SkillsPageProps): ReactNode {
                     </span>
                     <TypographyH4 as="h2">{group.title}</TypographyH4>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2" role="list">
+                  <ul className="mt-4 flex flex-wrap gap-2">
                     {group.skills.map((skill) => (
-                      <TypographyChip key={skill} role="listitem">
-                        {skill}
-                      </TypographyChip>
+                      <li key={skill}>
+                        <TypographyChip>{skill}</TypographyChip>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </section>
               );
             })}

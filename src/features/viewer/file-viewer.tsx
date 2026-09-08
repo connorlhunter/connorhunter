@@ -1,3 +1,4 @@
+import { useHydrated } from "@tanstack/react-router";
 import { LoaderCircle, Minimize2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -35,29 +36,7 @@ interface FileViewerProps {
   readonly title: string;
 }
 
-interface FileViewerFrameState {
-  readonly frameLoading: boolean;
-  readonly frameSourceHref: string | undefined;
-  readonly setFrameLoading: (loading: boolean) => void;
-}
-
-function useFileViewerFrameSource(sourceHref: string | undefined): FileViewerFrameState {
-  const [frameSourceHref, setFrameSourceHref] = useState<string | undefined>(undefined);
-  const [frameLoading, setFrameLoading] = useState(Boolean(sourceHref));
-
-  useEffect(() => {
-    if (!sourceHref) {
-      setFrameLoading(false);
-      setFrameSourceHref(undefined);
-      return;
-    }
-
-    setFrameLoading(true);
-    setFrameSourceHref(sourceHref);
-  }, [sourceHref]);
-
-  return { frameLoading, frameSourceHref, setFrameLoading };
-}
+const emptyActions: ReadonlyArray<FileViewerAction> = [];
 
 function useFrameFullscreenMessages(
   frameRef: { readonly current: HTMLIFrameElement | null },
@@ -117,7 +96,6 @@ function FileViewerHeader({
 function FileViewerIframe({
   frameLoading,
   frameRef,
-  frameSourceHref,
   fullscreenGesturesEnabled,
   iframeTitle,
   onFrameLoad,
@@ -126,26 +104,25 @@ function FileViewerIframe({
 }: {
   readonly frameLoading: boolean;
   readonly frameRef: { readonly current: HTMLIFrameElement | null };
-  readonly frameSourceHref: string | undefined;
   readonly fullscreenGesturesEnabled: boolean;
   readonly iframeTitle: string | undefined;
   readonly onFrameLoad: (frame: HTMLIFrameElement, loadedHref: string) => void;
   readonly sourceHref: string;
   readonly title: string;
 }): ReactNode {
-  const frame =
-    frameSourceHref === sourceHref ? (
-      <iframe
-        allowFullScreen={fullscreenGesturesEnabled}
-        className="file-viewer-frame"
-        data-loaded={!frameLoading}
-        key={frameSourceHref}
-        onLoad={(event) => onFrameLoad(event.currentTarget, frameSourceHref)}
-        ref={frameRef}
-        src={frameSourceHref}
-        title={iframeTitle ?? title}
-      />
-    ) : null;
+  const hydrated = useHydrated();
+  const frame = hydrated ? (
+    <iframe
+      allowFullScreen={fullscreenGesturesEnabled}
+      className="file-viewer-frame"
+      data-loaded={!frameLoading}
+      onLoad={(event) => onFrameLoad(event.currentTarget, sourceHref)}
+      ref={frameRef}
+      src={sourceHref}
+      sandbox="allow-scripts allow-downloads allow-popups"
+      title={iframeTitle ?? title}
+    />
+  ) : null;
   const loading = frameLoading ? (
     <TypographySmall as="p" className="file-viewer-frame-loading" role="status">
       <LoaderCircle aria-hidden="true" className="file-viewer-frame-loading-icon" />
@@ -164,9 +141,7 @@ function FileViewerIframe({
 function FileViewerContent({
   children,
   contentLayout,
-  frameLoading,
   frameRef,
-  frameSourceHref,
   frameWrapClassName,
   fullscreenGesture,
   fullscreenGesturesEnabled,
@@ -175,9 +150,7 @@ function FileViewerContent({
   sourceHref,
   title,
 }: Pick<FileViewerProps, "children" | "contentLayout" | "iframeTitle" | "sourceHref" | "title"> & {
-  readonly frameLoading: boolean;
   readonly frameRef: { readonly current: HTMLIFrameElement | null };
-  readonly frameSourceHref: string | undefined;
   readonly frameWrapClassName: string;
   readonly fullscreenGesture: {
     readonly onDoubleClick: (event: React.MouseEvent<HTMLElement>) => void;
@@ -186,14 +159,17 @@ function FileViewerContent({
   readonly fullscreenGesturesEnabled: boolean;
   readonly onFrameLoad: (frame: HTMLIFrameElement, loadedHref: string) => void;
 }): ReactNode {
+  const [frameLoading, setFrameLoading] = useState(Boolean(sourceHref));
   const content = sourceHref ? (
     <FileViewerIframe
       frameLoading={frameLoading}
       frameRef={frameRef}
-      frameSourceHref={frameSourceHref}
       fullscreenGesturesEnabled={fullscreenGesturesEnabled}
       iframeTitle={iframeTitle}
-      onFrameLoad={onFrameLoad}
+      onFrameLoad={(frame, loadedHref) => {
+        onFrameLoad(frame, loadedHref);
+        setFrameLoading(false);
+      }}
       sourceHref={sourceHref}
       title={title}
     />
@@ -251,7 +227,7 @@ function FileViewerFullscreenExit({
  * @returns A reusable viewer shell with resume-style actions and fullscreen support.
  */
 export function FileViewer({
-  actions = [],
+  actions = emptyActions,
   ariaLabel,
   children,
   contentLayout = "flow",
@@ -267,7 +243,6 @@ export function FileViewer({
 }: FileViewerProps): ReactNode {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const viewerRef = useRef<HTMLElement>(null);
-  const { frameLoading, frameSourceHref, setFrameLoading } = useFileViewerFrameSource(sourceHref);
   const theme = useOptionalTheme();
   const { enterFullscreen, fallbackFullscreen, fullscreen, toggleFullscreen } =
     useFullscreenViewer(viewerRef);
@@ -283,6 +258,7 @@ export function FileViewer({
   const heading = <FileViewerHeading icon={icon} title={title} />;
   const actionControls = (
     <FileViewerActions
+      key={JSON.stringify([download?.href, download?.filename])}
       actions={actions}
       download={download}
       emailHref={emailHref}
@@ -295,24 +271,22 @@ export function FileViewer({
   );
 
   function handleFrameLoad(frame: HTMLIFrameElement, loadedHref: string): void {
-    if (loadedHref !== sourceHref) return;
+    if (loadedHref !== sourceHref || frame !== frameRef.current) return;
 
     if (theme) {
       postThemeSchemeToFrame(frame, theme.scheme);
     }
 
     onFrameLoad?.(frame);
-    setFrameLoading(false);
   }
 
   return (
     <section aria-label={ariaLabel} className={classNames.shell} ref={viewerRef}>
       <FileViewerHeader actions={actionControls} heading={heading} renderHeader={renderHeader} />
       <FileViewerContent
+        key={sourceHref}
         contentLayout={contentLayout}
-        frameLoading={frameLoading}
         frameRef={frameRef}
-        frameSourceHref={frameSourceHref}
         frameWrapClassName={classNames.frameWrap}
         fullscreenGesture={fullscreenGesture}
         fullscreenGesturesEnabled={fullscreenGesturesEnabled}

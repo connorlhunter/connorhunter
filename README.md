@@ -69,7 +69,7 @@ The test command loads the public defaults in `.env.example`, so a fresh checkou
 
 `bun run verify` runs the same validation gate in the commit and push hooks and GitHub Actions: release and branch naming checks, dependency auditing, Vite+ formatting, linting and type checks, React Doctor, test coverage, and CodeQL. In GitHub Actions, the CodeQL step defers to the repository's required hosted checks.
 
-React Doctor scans the full project, blocks errors, and reports warnings without blocking. Generated files are excluded in `doctor.config.json`; no source rules are suppressed. Use `bun run doctor -- --verbose` for every finding or `bun run doctor -- --json` for structured output. The pinned CLI runs without telemetry, remote scoring, or Socket.dev checks; dependency auditing remains in `bun run audit`.
+React Doctor scans the full project, blocks errors, and reports warnings without blocking. Generated files are excluded in `doctor.config.json`. The only rule exception is `deslop/unused-file` for `test/setup.ts`, which Bun loads through the `preload` setting in `bunfig.toml`. Use `bun run doctor -- --verbose` for every finding or `bun run doctor -- --json` for structured output. The pinned CLI runs without telemetry, remote scoring, or Socket.dev checks; dependency auditing remains in `bun run audit`.
 
 For theme or shell changes, check Safari and Brave on an iPhone in portrait and landscape: switch themes before and after scrolling, navigate between pages, then go back and reload. Check the notch area alongside the header. Browser emulation can verify layout and theme metadata, but it does not reproduce the native status bar. The opaque header must stay at the viewport's top edge so browsers can sample its current color.
 

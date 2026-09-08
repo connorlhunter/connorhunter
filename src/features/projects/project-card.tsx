@@ -57,13 +57,13 @@ export function ProjectCard({
 
         <TypographyMuted className="text-measure mt-3">{project.summary}</TypographyMuted>
 
-        <div className="mt-5 flex flex-wrap gap-2" role="list">
+        <ul className="mt-5 flex flex-wrap gap-2">
           {project.stack.map((item) => (
-            <TypographyChip key={item} role="listitem">
-              {item}
-            </TypographyChip>
+            <li key={item}>
+              <TypographyChip>{item}</TypographyChip>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <div className="mt-6 grid gap-4">
           <section>

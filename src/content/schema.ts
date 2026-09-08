@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   documentBlockSchema,
-  documentInlineSchema,
   type DocumentBlock,
   type DocumentInline,
   type DocumentLinkTarget,
@@ -31,12 +30,7 @@ export {
   resumeSchema,
   skillGroupSchema,
   timelineItemSchema,
-  artifactItemSchema,
-  artifactLinkSchema,
   documentBlockSchema,
-  documentInlineSchema,
-  downloadLinkSchema,
-  projectLinkSchema,
   projectSchema,
 };
 

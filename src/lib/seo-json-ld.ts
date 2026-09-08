@@ -24,9 +24,9 @@ export function personJsonLd(
       image: iconUrl,
       jobTitle: content.profile.role,
       name: content.profile.name,
-      sameAs: content.contacts
-        .filter((contact) => contact.href.startsWith("http"))
-        .map((contact) => contact.href),
+      sameAs: content.contacts.flatMap((contact) =>
+        contact.href.startsWith("http") ? [contact.href] : [],
+      ),
       url: canonicalUrl,
     },
   };
