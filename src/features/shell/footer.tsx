@@ -4,6 +4,11 @@ import type { ContactLink } from "@/content/schema";
 import { IconLink } from "@/components/ui/icon-link";
 import { contactIcon } from "@/features/contact/contact-icon";
 
+const lastUpdatedFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeZone: "UTC",
+});
+
 interface FooterProps {
   readonly brandName: string;
   readonly contacts: ReadonlyArray<ContactLink>;
@@ -15,10 +20,7 @@ interface FooterProps {
  * @returns A stable formatted date for server and client rendering.
  */
 export function formatLastUpdated(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeZone: "UTC",
-  }).format(new Date(`${value}T00:00:00Z`));
+  return lastUpdatedFormatter.format(new Date(`${value}T00:00:00Z`));
 }
 
 /**

@@ -8,10 +8,21 @@ interface DocumentBlocksProps {
   readonly projectSlug: string;
 }
 
+/** Uses content identity, with occurrence counts for repeated document fragments. */
+function keyedItems<T>(items: ReadonlyArray<T>): Array<{ key: string; value: T }> {
+  const occurrences = new Map<string, number>();
+  return items.map((value) => {
+    const content = JSON.stringify(value);
+    const occurrence = occurrences.get(content) ?? 0;
+    occurrences.set(content, occurrence + 1);
+    return { key: JSON.stringify([content, occurrence]), value };
+  });
+}
+
 /** Renders safe document blocks without injecting markup. */
 export function DocumentBlocks({ blocks, projectSlug }: DocumentBlocksProps): ReactNode {
   return (
-    <>{blocks.map((block, index) => renderBlock(block, projectSlug, `${block.type}-${index}`))}</>
+    <>{keyedItems(blocks).map(({ value: block, key }) => renderBlock(block, projectSlug, key))}</>
   );
 }
 
@@ -51,8 +62,8 @@ function renderBlock(block: DocumentBlock, projectSlug: string, key: string): Re
     const List = block.ordered ? "ol" : "ul";
     return (
       <List className="resource-list" key={key}>
-        {block.items.map((item, itemIndex) => (
-          <li key={`${key}-${itemIndex}`}>
+        {keyedItems(block.items).map(({ value: item, key: itemKey }) => (
+          <li key={itemKey}>
             <DocumentBlocks blocks={item} projectSlug={projectSlug} />
           </li>
         ))}
@@ -63,10 +74,10 @@ function renderBlock(block: DocumentBlock, projectSlug: string, key: string): Re
     <div className="resource-table-wrap" key={key}>
       <table className="resource-table">
         <tbody>
-          {block.rows.map((row, rowIndex) => (
-            <tr key={`${key}-${rowIndex}`}>
-              {row.map((cell, cellIndex) => (
-                <td key={`${key}-${rowIndex}-${cellIndex}`}>{renderInline(cell, projectSlug)}</td>
+          {keyedItems(block.rows).map(({ value: row, key: rowKey }) => (
+            <tr key={rowKey}>
+              {keyedItems(row).map(({ value: cell, key: cellKey }) => (
+                <td key={cellKey}>{renderInline(cell, projectSlug)}</td>
               ))}
             </tr>
           ))}
@@ -77,8 +88,7 @@ function renderBlock(block: DocumentBlock, projectSlug: string, key: string): Re
 }
 
 function renderInline(items: ReadonlyArray<DocumentInline>, projectSlug: string): ReactNode {
-  return items.map((item, index) => {
-    const key = `${item.type}-${index}`;
+  return keyedItems(items).map(({ value: item, key }) => {
     if (item.type === "text") return <span key={key}>{item.value}</span>;
     if (item.type === "code")
       return (

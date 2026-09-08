@@ -1,12 +1,6 @@
 import type { ArtifactLink } from "@/content/schema";
 
-export const projectResourceKinds = [
-  "overview",
-  "docs",
-  "diagrams",
-  "coverage",
-  "changelog",
-] as const;
+const projectResourceKinds = ["overview", "docs", "diagrams", "coverage", "changelog"] as const;
 
 export type ProjectResourceKind = (typeof projectResourceKinds)[number];
 

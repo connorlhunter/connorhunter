@@ -54,11 +54,3 @@ export const configuredArtifactTextSource: ArtifactTextSource = {
 export function readArtifactJson(path: string): Promise<unknown> {
   return configuredArtifactTextSource.readJson(path);
 }
-
-/**
- * @param path - Artifact text path to read.
- * @returns Text from the configured artifact source.
- */
-export function readArtifactText(path: string): Promise<string> {
-  return configuredArtifactTextSource.readText(path);
-}

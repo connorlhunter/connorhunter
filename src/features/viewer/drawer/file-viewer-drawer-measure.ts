@@ -172,14 +172,15 @@ export function measureFileViewerDrawer(drawer: HTMLElement): FileViewerDrawerMe
   const content = drawer.querySelector<HTMLElement>(".file-viewer-drawer-content");
   const bottomPadding = content ? drawerContentBottomPadding(content) : 0;
   const sections = content ? [...content.querySelectorAll<HTMLElement>(drawerSectionSelector)] : [];
-  const snapHeights = sections
-    .map((section, index) => {
-      const paddedHeight = Math.ceil(section.offsetTop + section.scrollHeight + bottomPadding);
-      const nextSection = sections[index + 1];
+  const snapHeights = sections.flatMap((section, index) => {
+    const paddedHeight = Math.ceil(section.offsetTop + section.scrollHeight + bottomPadding);
+    const nextSection = sections[index + 1];
 
-      return nextSection ? Math.min(paddedHeight, Math.ceil(nextSection.offsetTop)) : paddedHeight;
-    })
-    .filter((height) => height > collapsedHeight);
+    const height = nextSection
+      ? Math.min(paddedHeight, Math.ceil(nextSection.offsetTop))
+      : paddedHeight;
+    return height > collapsedHeight ? [height] : [];
+  });
 
   drawer.style.height = previousHeight;
   drawer.classList.toggle("file-viewer-drawer--collapsed", wasCollapsed);

@@ -18,7 +18,7 @@ interface ArtifactActionsProps {
  * @param props - Visible action content and accessible action label.
  * @returns A disabled coming-soon action styled like a link.
  */
-export function ComingSoonAction({
+function ComingSoonAction({
   children,
   label,
 }: {
@@ -26,18 +26,17 @@ export function ComingSoonAction({
   readonly label: string;
 }): ReactNode {
   return (
-    <span
+    <button
+      type="button"
       aria-disabled="true"
       aria-label={`${label} coming soon`}
       className={cn(buttonVariants({ size: "small", variant: "outline" }), "coming-soon-action")}
-      role="link"
-      tabIndex={0}
     >
       <span className="coming-soon-action-content">{children}</span>
       <span aria-hidden="true" className="coming-soon-action-status">
         Coming soon
       </span>
-    </span>
+    </button>
   );
 }
 

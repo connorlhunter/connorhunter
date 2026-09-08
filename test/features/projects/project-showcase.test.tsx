@@ -75,7 +75,7 @@ describe("ProjectShowcase", () => {
     expect(screen.getAllByText("Notes")).toHaveLength(2);
     expect(screen.getAllByText("Generic project notes body.")).toHaveLength(2);
     expect(screen.getAllByText("Source")).toHaveLength(2);
-    expect(screen.getByRole("link", { name: "Source coming soon" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Source coming soon" })).toBeTruthy();
     expect(screen.getAllByText("Roadmap")).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: "Roadmap" })[0]?.getAttribute("target")).toBe(
       "_blank",
@@ -83,8 +83,8 @@ describe("ProjectShowcase", () => {
     expect(screen.getByText("Desktop Downloads")).toBeTruthy();
     expect(screen.getByText("Mac")).toBeTruthy();
     expect(screen.getByText("Windows")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Mac coming soon" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Windows coming soon" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Mac coming soon" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Windows coming soon" })).toBeTruthy();
   });
 
   test("renders the full projects page shell", () => {
@@ -196,6 +196,6 @@ describe("ProjectShowcase", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Coverage coming soon" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Coverage coming soon" })).toBeTruthy();
   });
 });

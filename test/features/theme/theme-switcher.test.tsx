@@ -566,6 +566,38 @@ describe("ThemeSwitcher", () => {
     }
   });
 
+  test("accepts opaque theme messages only from a trusted sandboxed frame", async () => {
+    clearSavedThemes();
+    document.documentElement.dataset.scheme = "atlas";
+    const iframe = artifactViewerFrame();
+    iframe.setAttribute("sandbox", "allow-scripts");
+    const unrelated = document.createElement("iframe");
+    unrelated.src = "https://untrusted.example/viewer.html";
+    unrelated.setAttribute("sandbox", "allow-scripts");
+    document.body.append(iframe, unrelated);
+
+    try {
+      render(
+        <ThemeProvider>
+          <ThemeSwitcher />
+        </ThemeProvider>,
+      );
+      await waitFor(() => expect(document.documentElement.dataset.scheme).toBe("atlas"));
+      const message = { scheme: "midnight", type: themeMessageType };
+      dispatchThemeMessage(message, "null", unrelated.contentWindow);
+      dispatchThemeMessage(message, "null", window);
+      dispatchThemeMessage(message, artifactViewerOrigin, iframe.contentWindow);
+      expect(document.documentElement.dataset.scheme).toBe("atlas");
+      dispatchThemeMessage(message, "null", iframe.contentWindow);
+      await waitFor(() => expect(document.documentElement.dataset.scheme).toBe("midnight"));
+    } finally {
+      iframe.remove();
+      unrelated.remove();
+      cleanup();
+      clearSavedThemes();
+    }
+  });
+
   test("ignores theme messages with an untrusted origin or source", async () => {
     clearSavedThemes();
     document.documentElement.dataset.scheme = "atlas";
