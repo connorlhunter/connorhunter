@@ -3,7 +3,7 @@ version = "5.0.9"
 reason = "Fixes high-severity denial-of-service advisories in transitive minimatch dependencies."
 
 [pins."js-yaml"]
-version = "4.3.1"
+version = "4.3.2"
 reason = "Fixes high-severity YAML merge-key denial-of-service advisory in the TanStack Start transitive dependency chain."
 
 [pins.nanoid]

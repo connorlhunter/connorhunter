@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { publicConfig } from "@/config/public-env";
 import { getPortfolioContent } from "@/content";
@@ -43,18 +42,8 @@ export const Route = createRootRoute({
       { content: "width=device-width, initial-scale=1, viewport-fit=cover", name: "viewport" },
     ],
   }),
-  component: RootComponent,
+  shellComponent: RootDocument,
+  component: Outlet,
   errorComponent: RootErrorComponent,
   notFoundComponent: RootNotFoundComponent,
 });
-
-/**
- * @returns The root outlet wrapped in the shared HTML document shell.
- */
-function RootComponent(): ReactNode {
-  return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
-  );
-}

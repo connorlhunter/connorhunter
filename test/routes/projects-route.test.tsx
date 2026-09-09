@@ -45,12 +45,15 @@ describe("project routes", () => {
     });
     render(<RouterProvider router={router} />);
     expect(await screen.findByRole("heading", { name: "Something went wrong" })).toBeTruthy();
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    expect(themeMeta).toBeTruthy();
     loadContent.mockResolvedValue(mockContent);
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() =>
       expect(screen.queryByRole("heading", { name: "Something went wrong" })).toBeNull(),
     );
     expect(clearContentCache).toHaveBeenCalledTimes(1);
+    expect(document.querySelector('meta[name="theme-color"]')).toBe(themeMeta);
     expect(await screen.findByRole("heading", { name: "Projects", level: 1 })).toBeTruthy();
   });
 
