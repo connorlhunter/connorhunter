@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.21] - 2026-09-09
+
+### Changed
+
+- Run React Doctor in the shared local and CI verification command.
+- Simplify route validation, viewer state, component boundaries, and unused exports.
+- Improve document keys and accessible list and button markup.
+
+### Fixed
+
+- Patch the transitive YAML parser against a denial-of-service advisory.
+- Preserve theme messages for trusted sandboxed artifact frames.
+- Keep the document and theme providers mounted when retrying a failed root loader.
+
 ## [1.4.20] - 2026-09-07
 
 ### Fixed
